@@ -11,10 +11,16 @@ namespace EmergencyVR.Patient
     public sealed class PatientController : MonoBehaviour
     {
         [SerializeField] Renderer body;
-        [SerializeField] PatientStateEvent onStateChanged = new PatientStateEvent();
-        readonly MaterialPropertyBlock properties = new MaterialPropertyBlock();
+        [SerializeField] PatientStateEvent onStateChanged;
+        MaterialPropertyBlock properties;
         public PatientState State { get; private set; } = PatientState.Normal;
         public PatientStateEvent OnStateChanged { get { return onStateChanged; } }
+
+        void Awake()
+        {
+            if (onStateChanged == null) onStateChanged = new PatientStateEvent();
+            properties = new MaterialPropertyBlock();
+        }
 
         public void Configure(Renderer bodyRenderer) { body = bodyRenderer; }
 
