@@ -1,0 +1,11 @@
+{
+  "name": "EmergencyVR.Runtime",
+  "rootNamespace": "EmergencyVR",
+  "references": [
+    "EmergencyVR.Core",
+    "Unity.XR.Interaction.Toolkit",
+    "Unity.XR.CoreUtils",
+    "Unity.InputSystem",
+    "Unity.ugui"
+  ]
+}

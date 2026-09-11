@@ -1,0 +1,7 @@
+{
+  "name": "EmergencyVR.Tests.Shared",
+  "rootNamespace": "EmergencyVR.Tests",
+  "references": ["EmergencyVR.Core"],
+  "includePlatforms": ["Editor"],
+  "noEngineReferences": true
+}
