@@ -12,6 +12,7 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Training/TrainingRoom.unity
     guid: 858ce737ff4129c4c96bdefe80237792
   m_configObjects:
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: c1ad6edbc16dadd489a9342d53a01e88, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 807649233cdcddd45b9fb7b9a22bfb9d, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: da835cb01b9887c4fae7876c58cdff30, type: 2}
   m_UseUCBPForAssetBundles: 0
