@@ -1,10 +1,11 @@
 # Emergency VR — base para Meta Quest 3
 
 Primera iteración: fase 1 y base de fase 2 de un simulador de emergencias en VR.
-La entrega es un **proyecto fuente preparado para Unity**, con lógica comprobada
-y herramientas para generar la demo. **Todavía no se ha importado/compilado en
-Unity, generado las escenas con el Editor ni probado una APK en Quest 3**:
-Unity/Hub no fueron encontrados en este equipo.
+El proyecto contiene la demo existente y una **TrainingRoom procedural generada
+con Unity 6000.3.23f1**, con arquitectura, mobiliario y prefabs reemplazables.
+Para regenerarla y revisar su validación, ver
+[TrainingRoom procedural](docs/TRAINING_ROOM_ENVIRONMENT.md).
+La validación de rendimiento en Quest 3 sigue pendiente; esta fase no genera APK.
 
 No es un dispositivo médico ni software clínico certificado. La demo prueba
 interacciones y estados arbitrarios; no enseña un protocolo médico aprobado.
