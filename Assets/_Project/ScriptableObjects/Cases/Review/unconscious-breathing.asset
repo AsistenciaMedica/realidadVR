@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a73be238cf094715aee2ca3fe09db818, type: 3}
+  m_Name: unconscious-breathing
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Scenarios.ClinicalCaseDefinition
+  caseId: review-unconscious-breathing-v1
+  displayName: "Inconsciente con respiraci\xF3n"
+  description: "Adulto que no responde y mantiene respiraci\xF3n normal; no hay trauma
+    en este guion. No se simula recuperaci\xF3n autom\xE1tica."
+  isTechnicalDemo: 0
+  clinicallyApproved: 0
+  initialState: 20
+  errorPenalty: 10
+  steps:
+  - actionId: scene.safe
+    label: Comprobar seguridad
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0
+  - actionId: demo.inspect
+    label: Comprobar respuesta
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0
+  - actionId: help.call
+    label: Activar emergencias y pedir ayuda
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0
+  - actionId: breathing.normal
+    label: "Confirmar respiraci\xF3n normal"
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0
+  - actionId: position.recovery
+    label: "Registrar posici\xF3n lateral (sin trauma)"
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0
+  - actionId: monitor.continuous
+    label: "Vigilar respiraci\xF3n hasta relevo"
+    fromState: 20
+    toState: 20
+    points: 10
+    deadlineSeconds: 0

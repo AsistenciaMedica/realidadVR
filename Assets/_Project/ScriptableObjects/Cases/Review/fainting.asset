@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a73be238cf094715aee2ca3fe09db818, type: 3}
+  m_Name: fainting
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Scenarios.ClinicalCaseDefinition
+  caseId: review-fainting-v1
+  displayName: Desvanecimiento
+  description: Adulto que acaba de recuperar la respuesta tras un desvanecimiento.
+    Respira normalmente, sin trauma ni signos de alarma en este guion.
+  isTechnicalDemo: 0
+  clinicallyApproved: 0
+  initialState: 10
+  errorPenalty: 10
+  steps:
+  - actionId: scene.safe
+    label: Comprobar seguridad
+    fromState: 10
+    toState: 10
+    points: 10
+    deadlineSeconds: 0
+  - actionId: demo.inspect
+    label: "Valorar respuesta y respiraci\xF3n normal"
+    fromState: 10
+    toState: 10
+    points: 10
+    deadlineSeconds: 0
+  - actionId: position.supine
+    label: "Registrar dec\xFAbito y piernas elevadas (sin lesi\xF3n)"
+    fromState: 10
+    toState: 10
+    points: 10
+    deadlineSeconds: 0
+  - actionId: reassess
+    label: Reevaluar respuesta y signos de alarma
+    fromState: 10
+    toState: 10
+    points: 10
+    deadlineSeconds: 0
+  - actionId: handover
+    label: "Solicitar valoraci\xF3n m\xE9dica y comunicar hallazgos"
+    fromState: 10
+    toState: 10
+    points: 10
+    deadlineSeconds: 0

@@ -1,5 +1,12 @@
 # Informe de validación — 2026-09-07
 
+Este informe conserva la entrega inicial. Para el estado actual del 2026-09-13,
+consultar [pruebas de integración](TESTING.md) y
+[estado visual e interacción](VISUAL_INTERACTION_STATUS.md).
+[CLIENT_DEMO_VALIDATION.md](CLIENT_DEMO_VALIDATION.md) conserva la evidencia
+histórica del primer build Windows 0.2, no el build visual 0.4 cuyo smoke final
+ya pasó; su evidencia está en los documentos actuales enlazados arriba.
+
 ## Estado real
 
 | Área | Entregado | Validado |

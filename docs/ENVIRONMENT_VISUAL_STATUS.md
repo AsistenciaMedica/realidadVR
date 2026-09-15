@@ -1,0 +1,19 @@
+# Environment visual status
+
+The four existing runtime modules are retained. TrainingRoom, its scene, original Environment Builder, XR objects and imported asset GUIDs are unchanged by this visual pass.
+
+| Area | Implemented / improved | Remaining asset work |
+| --- | --- | --- |
+| Dental | Segmented upholstered chair with hydraulic base/armrests/footrest; articulated overhead examination light; sink and tap; cabinetry; disposal bin; existing mobile monitor, cart, supplies and oxygen. | **NEEDS ASSET:** production dental chair/unit with articulated seat/back/headrest and separate lamp pivots. The procedural chair is a replacement mount, not a finished commercial model. |
+| Gym | Rubber floor divisions, dark feature wall, bench with tubular structure, round dumbbells and rack, treadmill silhouette, hydration/rest corner, towels/bottles. | **NEEDS ASSET:** detailed licensed treadmill and adjustable bench/weight rack. Mirror uses an opaque finish; real reflections are optional polish. |
+| Football | Outdoor 36 × 52 m training ground, mowing bands, field markings, two full-height goals with fixed mesh nets, cones, balls, sheltered team bench, cooler, perimeter rails and distant seating. | **OPTIONAL POLISH:** turf normal/albedo textures, backdrop/foliage and modular stadium assets. This is a compact practice field, not a regulation match pitch. |
+| Mall | Corridor paving/inlays, four fictional shopfronts, framed opaque display panels, hanging wayfinding, public seating, planters, directory and end arcade. | **NEEDS ASSET:** detailed store interiors and foliage. Facades are opaque display treatments; no claim of transparent physical glass or a complete shopping-centre model. |
+| Shared care station | Existing cart and defibrillator reused together, on a supported floor location; dental supplies are on the original side table. | Physical procedural interactions are provided by the shared medical interaction layer, independently from scenery. |
+
+Asset audit: the only imported external model found is `HospitalBed.obj`, “Simple Hospital Bed” by Yvo Pors, CC BY 4.0, with the repository attribution retained. Other reusable clinical props are the project's existing generated prefabs. No model download, package installation or new shader package was used. No unverified asset price is quoted.
+
+Replacement requirements: metres, sensible pivot at floor/rotation joint, opaque URP materials, separate moving parts only where needed, simple collider hulls. Target roughly 5–12k triangles for a close-view hero device, 1–3 shared materials and 1k textures; these are authoring budgets to verify on hardware, not measured Quest performance claims. Integrate at the named `replacement mount` geometry clusters inside `EnvironmentModuleBuilder` or replace that cluster with a serialized prefab binding; keep its layout and interaction anchors.
+
+The presenter caches each environment on first use, shares 13 opaque materials, combines meshes within local furniture/architecture clusters, and uses one existing directional light (a fallback only when the existing light is hidden with TrainingRoom). Ceiling light surfaces are emissive meshes. No realtime reflection cameras, physics nets, transparent glass, extra per-room realtime lights, or permanent decorative rigidbodies are used. Geometry counts/build timings should be recorded by the final smoke capture; Quest frame times still require a headset run. Runtime generated interiors do **not** claim baked GI or occlusion data.
+
+Patient height is calculated from the original `Body` world-space centre: floor cases target 0.16 m; dental preserves its original 1.05 m centre. The patient root is not mistaken for its torso position. The portable care station anchor is `(-1.8, 0.98, 3.75)`; the shared medical tool system can use that mount. `ScenarioEnvironmentPresenter.GetCaptureView` supplies validation viewpoints.

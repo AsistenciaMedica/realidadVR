@@ -23,3 +23,8 @@
 /Recordings/
 .DS_Store
 Thumbs.db
+/demo/releases/*.zip
+/demo/release.json
+/.playwright-cli/
+/demo/data/
+/demo/.env*

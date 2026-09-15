@@ -6,6 +6,11 @@
     "Unity.XR.Interaction.Toolkit",
     "Unity.XR.CoreUtils",
     "Unity.InputSystem",
-    "Unity.ugui"
+    "Unity.ugui",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "versionDefines": [
+    { "name": "com.unity.modules.animation", "expression": "1.0.0", "define": "VITALVR_ANIMATION" }
   ]
 }

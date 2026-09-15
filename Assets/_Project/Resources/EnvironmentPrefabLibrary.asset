@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ad18e57249a36441be5f786fedf3387, type: 3}
+  m_Name: EnvironmentPrefabLibrary
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Environment.Presentation.EnvironmentPrefabLibrary
+  entries:
+  - path: Furniture/MedicalCart
+    prefab: {fileID: 1731197533289368315, guid: dc135a96a81aeff4db0422e87a28327f, type: 3}
+  - path: MedicalEquipment/DefibrillatorPlaceholder
+    prefab: {fileID: 1306740294518730546, guid: be6f1b004c6eeaf49804b7afc10f178e, type: 3}
+  - path: Furniture/MedicalCabinet
+    prefab: {fileID: 5603988819234850786, guid: c4aef76db2c0b294da0b2d872b6fdad1, type: 3}
+  - path: Furniture/Stool
+    prefab: {fileID: 4847455775154144118, guid: 8291a4e276291924fa58e487789118f3, type: 3}
+  - path: Furniture/SideTable
+    prefab: {fileID: 2697224322788901893, guid: d8b9b9418c60e854cbb9f6376086bf68, type: 3}
+  - path: MedicalEquipment/Supplies
+    prefab: {fileID: 2408123006970426672, guid: b7bba290352416643a9238fa39e1697c, type: 3}
+  - path: MedicalEquipment/PatientMonitor
+    prefab: {fileID: 5603880582930294194, guid: 011f6265d99a7f24b9d0e87475d99331, type: 3}
+  - path: MedicalEquipment/OxygenTank
+    prefab: {fileID: 4494707438959204091, guid: d7c3cd364618b2e4698f48849f590a38, type: 3}

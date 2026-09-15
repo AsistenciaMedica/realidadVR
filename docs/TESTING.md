@@ -1,5 +1,28 @@
 # Pruebas y criterio de aceptación
 
+## Estado de integración visual — 2026-09-13
+
+| Suite | Resultado | Evidencia |
+| --- | --- | --- |
+| Core | 27/27 | `TestResults/core-tests.txt` |
+| Unity EditMode | 121/121 | `TestResults/visual-editmode.xml` |
+| Unity PlayMode | 4/4 | `TestResults/visual-playmode.xml` |
+| Web/API | 16/16 | `TestResults/visual-web-tests.txt` |
+| Build frontend/backend web | Correcto | `npm --prefix demo run build` |
+| Build Windows | Correcto | `Builds/Windows/20260913-100825/EmergencyVR.exe`; `TestResults/visual-windows-build.log` |
+| Smoke ejecutable Windows | PASS, proceso finalizado | `TestResults/visual-desktop-player.log`: `DESKTOP_SMOKE PASS` |
+| Capturas player | 7 PNG | [Galería](screenshots/README.md) |
+
+PlayMode cubre la demo original, los cuatro entornos, RCP/DEA con contacto y
+exportación, y glucómetro con lectura, reagarre, gravedad, avance de 600 segundos
+simulados y reinicio. No sustituye una sesión manual prolongada con teclado o
+mandos. El smoke Windows recorre 45 secuencias de referencia (una técnica y
+44 médicas), componentes RCP/DEA, guardas de contacto y exportación JSON.
+No hay aceptación física Windows/Quest declarada.
+Biblioteca: exactamente **44 variantes CLIENT_REVIEW**, no 44 protocolos aprobados.
+
+Estado por sistema y límites: [VISUAL_INTERACTION_STATUS.md](VISUAL_INTERACTION_STATUS.md).
+
 ## Nivel 1: dominio C# sin Unity
 
 ```powershell
@@ -30,9 +53,11 @@ Window → General → Test Runner → EditMode → Run All.
 - 1 test estructural de TrainingRoom: scripts presentes, cámara, rig, inputs,
   pads de teleport, snap, objeto agarrable, UI y referencia al escenario.
 
-**No ejecutado:** no hay Editor disponible. No interpretar estos tests escritos
-como tests aprobados. Las pruebas de assets fallan deliberadamente si no se ha
-ejecutado el generador; no omiten esa precondición silenciosamente.
+Base anterior al motor ampliado y polish: **37/37 aprobados**, incluidos los cinco tests del
+Environment Builder y dos del catálogo de revisión. Evidencia local:
+`TestResults/distribution-editmode.xml`. Las pruebas de assets requieren ejecutar
+el generador; no omiten esa precondición silenciosamente. La suite actual ampliada
+tiene 121/121, según la evidencia de integración al principio de este documento.
 
 Ejecución batch alternativa, con Editor cerrado y assets ya generados:
 

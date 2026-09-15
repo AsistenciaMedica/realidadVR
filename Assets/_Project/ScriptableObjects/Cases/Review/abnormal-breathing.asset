@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a73be238cf094715aee2ca3fe09db818, type: 3}
+  m_Name: abnormal-breathing
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Scenarios.ClinicalCaseDefinition
+  caseId: review-abnormal-breathing-v1
+  displayName: "Sin respiraci\xF3n normal \xB7 BLS"
+  description: "Adulto que no responde y no respira normalmente. Rama de reanimador
+    lego: sospechar parada card\xEDaca. No equivale a parada respiratoria aislada
+    con pulso confirmado. DEA del guion: descarga NO indicada."
+  isTechnicalDemo: 0
+  clinicallyApproved: 0
+  initialState: 30
+  errorPenalty: 10
+  steps:
+  - actionId: scene.safe
+    label: Comprobar seguridad
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: demo.inspect
+    label: Comprobar respuesta
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: help.call
+    label: Activar emergencias y solicitar DEA
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: breathing.abnormal
+    label: "Reconocer ausencia de respiraci\xF3n normal"
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: cpr.start
+    label: Registrar inicio de RCP (sin medir compresiones)
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: aed.analyse
+    label: "Registrar conexi\xF3n y an\xE1lisis del DEA"
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: aed.no-shock
+    label: "Seguir indicaci\xF3n: NO descargar; continuar RCP"
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0
+  - actionId: handover
+    label: "Continuar atenci\xF3n hasta relevo"
+    fromState: 30
+    toState: 30
+    points: 10
+    deadlineSeconds: 0

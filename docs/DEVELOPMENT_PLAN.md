@@ -1,5 +1,10 @@
 # Plan de desarrollo
 
+Actualización 2026-09-13: la nueva entrega añade una demo Windows, un portal
+preparado para Railway y cinco guiones médicos declarativos para revisión.
+Ver [distribución](CLIENT_DEMO.md) y [alcance vigente](MVP_SCOPE_AND_MEDICAL_REVIEW.md).
+Las fases siguientes conservan el contexto histórico de la base técnica.
+
 ## Alcance autorizado de esta iteración
 
 Fase 1 y base de fase 2: Bootstrap → TrainingRoom → interacción con objeto y

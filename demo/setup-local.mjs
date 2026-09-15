@@ -1,0 +1,10 @@
+import { existsSync,mkdirSync,writeFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { passwordHash } from './backend/security.mjs';
+const directory=fileURLToPath(new URL('./data/',import.meta.url));mkdirSync(directory,{recursive:true,mode:0o700});
+const target=directory+'local-config.json';if(existsSync(target))throw Error('Local admin already configured. Preserve encryptionKey when changing admin credentials.');
+const password=randomBytes(18).toString('base64url');
+writeFileSync(target,JSON.stringify({adminUser:'admin',adminHash:await passwordHash(password),encryptionKey:randomBytes(32).toString('base64')},null,2),{mode:0o600});
+writeFileSync(directory+'ADMIN-LOGIN.txt','Vital VR · acceso SOLO LOCAL\nURL: http://localhost:4310/admin\nUsuario: admin\nContraseña: '+password+'\n\nNo publicar este archivo ni copiar estas credenciales a producción.\n',{mode:0o600});
+console.log('Local admin created. Credentials saved privately in demo/data/ADMIN-LOGIN.txt (not printed).');

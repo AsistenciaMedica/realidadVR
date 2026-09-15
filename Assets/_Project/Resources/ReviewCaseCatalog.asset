@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ea14f014800e25408a31930f633ce7d, type: 3}
+  m_Name: ReviewCaseCatalog
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Scenarios.ReviewCaseCatalog
+  entries:
+  - definition: {fileID: 11400000, guid: 946188667f4f67647b0fce5f0ab5a141, type: 2}
+    briefing: "Prueba t\xE9cnica original de interacci\xF3n y puntuaci\xF3n."
+    limitations: "Transiciones arbitrarias; no es un protocolo m\xE9dico."
+    sourceUrls: []
+    reviewedOn: 2026-09-13
+  - definition: {fileID: 11400000, guid: a2c1bddc51d871b41b260ca58a2ed7fb, type: 2}
+    briefing: Adulto que acaba de recuperar la respuesta tras un desvanecimiento.
+      Respira normalmente, sin trauma ni signos de alarma en este guion.
+    limitations: "Piloto adulto pendiente de validaci\xF3n cl\xEDnica/local. Acciones
+      declarativas, secuencia y puntos provisionales; sin garant\xEDa de recuperaci\xF3n
+      ni mediciones f\xEDsicas. No administrar nada por boca si no hay degluci\xF3n
+      segura."
+    sourceUrls:
+    - https://www.nhs.uk/symptoms/fainting/
+    reviewedOn: 2026-09-13
+  - definition: {fileID: 11400000, guid: c1e904bf16842bc488322de90bbba6e3, type: 2}
+    briefing: "Adulto que no responde y mantiene respiraci\xF3n normal; no hay trauma
+      en este guion. No se simula recuperaci\xF3n autom\xE1tica."
+    limitations: "Piloto adulto pendiente de validaci\xF3n cl\xEDnica/local. Acciones
+      declarativas, secuencia y puntos provisionales; sin garant\xEDa de recuperaci\xF3n
+      ni mediciones f\xEDsicas. No administrar nada por boca si no hay degluci\xF3n
+      segura."
+    sourceUrls:
+    - https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines
+    - https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines
+    reviewedOn: 2026-09-13
+  - definition: {fileID: 11400000, guid: ffec5bc5963a91b47bf5c7b2680da5f8, type: 2}
+    briefing: "Adulto con diabetes, consciente y capaz de tragar. Glucemia ficticia:
+      3,2 mmol/L. Tras la espera simulada: 4,5 mmol/L y mejor\xEDa referida."
+    limitations: "Piloto adulto pendiente de validaci\xF3n cl\xEDnica/local. Acciones
+      declarativas, secuencia y puntos provisionales; sin garant\xEDa de recuperaci\xF3n
+      ni mediciones f\xEDsicas. No administrar nada por boca si no hay degluci\xF3n
+      segura."
+    sourceUrls:
+    - https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/
+    reviewedOn: 2026-09-13
+  - definition: {fileID: 11400000, guid: da04ccc8c4988314081a85d67fb61dfb, type: 2}
+    briefing: "Adulto consciente con mareo persistente. TA ficticia: 85/55 mmHg.
+      No se deduce la causa ni se indican f\xE1rmacos o fluidos."
+    limitations: "Piloto adulto pendiente de validaci\xF3n cl\xEDnica/local. Acciones
+      declarativas, secuencia y puntos provisionales; sin garant\xEDa de recuperaci\xF3n
+      ni mediciones f\xEDsicas. No administrar nada por boca si no hay degluci\xF3n
+      segura."
+    sourceUrls:
+    - https://www.nhs.uk/conditions/low-blood-pressure-hypotension/
+    - https://www.resus.org.uk/library/abcde-approach
+    reviewedOn: 2026-09-13
+  - definition: {fileID: 11400000, guid: 90951a8a1172a6e46a1ab068130da96a, type: 2}
+    briefing: "Adulto que no responde y no respira normalmente. Rama de reanimador
+      lego: sospechar parada card\xEDaca. No equivale a parada respiratoria aislada
+      con pulso confirmado. DEA del guion: descarga NO indicada."
+    limitations: "Piloto adulto pendiente de validaci\xF3n cl\xEDnica/local. Acciones
+      declarativas, secuencia y puntos provisionales; sin garant\xEDa de recuperaci\xF3n
+      ni mediciones f\xEDsicas. No administrar nada por boca si no hay degluci\xF3n
+      segura."
+    sourceUrls:
+    - https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines
+    reviewedOn: 2026-09-13

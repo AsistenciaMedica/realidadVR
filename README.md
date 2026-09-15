@@ -1,8 +1,20 @@
-# Emergency VR — base para Meta Quest 3
+# Vital VR — simulación de emergencias
 
-Primera iteración: fase 1 y base de fase 2 de un simulador de emergencias en VR.
-El proyecto contiene la demo existente y una **TrainingRoom procedural generada
-con Unity 6000.3.23f1**, con arquitectura, mobiliario y prefabs reemplazables.
+**Entrena hoy. Salva vidas mañana.** Proyecto Unity 6000.3.23f1 con demo Windows,
+44 variantes médicas declarativas, cuatro ambientes procedurales, RCP virtual,
+DEA manipulable y portal comercial con administración. Los casos siguen
+`CLIENT_REVIEW`; el humano y las manos siguen siendo provisionales.
+
+Para continuar desde este repositorio: **Emergency VR → Demo → Play with keyboard
+and mouse**. Ver [demo Windows](docs/CLIENT_DEMO.md),
+[estado visual y pruebas](docs/VISUAL_INTERACTION_STATUS.md) y
+[capturas reales](docs/screenshots/README.md).
+
+Identidad visual actual: [branding de Vital VR](docs/BRANDING.md), con logos,
+paleta y capturas web. Los cambios del simulador quedan para la próxima compilación;
+en esta fase no se ha regenerado el ZIP.
+
+Se conserva **TrainingRoom** con arquitectura, mobiliario y prefabs reemplazables.
 Para regenerarla y revisar su validación, ver
 [TrainingRoom procedural](docs/TRAINING_ROOM_ENVIRONMENT.md).
 La validación de rendimiento en Quest 3 sigue pendiente; esta fase no genera APK.
@@ -10,7 +22,7 @@ La validación de rendimiento en Quest 3 sigue pendiente; esta fase no genera AP
 No es un dispositivo médico ni software clínico certificado. La demo prueba
 interacciones y estados arbitrarios; no enseña un protocolo médico aprobado.
 
-## Arranque
+## Configuración inicial de un checkout nuevo
 
 1. Instalar Unity **6000.3.23f1 (6.3 LTS)** con Android Build Support,
    Android SDK & NDK Tools y OpenJDK; activar la licencia desde Hub.
@@ -57,6 +69,8 @@ Unity. Pruebas y límites: [TESTING](docs/TESTING.md) y [VALIDATION_REPORT](docs
 
 ## Documentación
 
+- [Demo Windows y portal Railway](docs/CLIENT_DEMO.md).
+- [Alcance actual y fuentes de los cinco pilotos médicos](docs/MVP_SCOPE_AND_MEDICAL_REVIEW.md).
 - [Arquitectura y extensión de casos](docs/ARCHITECTURE.md).
 - [Plan por fases](docs/DEVELOPMENT_PLAN.md).
 - [Instalación, OpenXR y Quest](docs/QUEST_SETUP.md).
@@ -64,8 +78,9 @@ Unity. Pruebas y límites: [TESTING](docs/TESTING.md) y [VALIDATION_REPORT](docs
 - [Pruebas y aceptación en visor](docs/TESTING.md).
 - [Estado real de la entrega](docs/VALIDATION_REPORT.md).
 
-Git inicializado, sin commits. Versionar `Assets` y sus `.meta`, `Packages`
+Versionar `Assets` y sus `.meta`, `Packages`
 (incluido `packages-lock.json` cuando Unity lo genere), `ProjectSettings` y docs.
 `Library`, `Temp`, `Logs`, `Builds`, cachés y resultados locales están ignorados.
 
-No se incluyen RCP, DEA, mediciones, hand tracking ni entornos finales en esta fase.
+La entrega Windows incluye cinco guiones declarativos provisionales. Las destrezas
+físicas de RCP, DEA y mediciones, hand tracking y los cuatro entornos finales siguen pendientes.
