@@ -1,0 +1,159 @@
+{
+  "updated": "2026-09-13",
+  "items": [
+    {
+      "name": "TrainingRoom",
+      "category": "environment",
+      "status": "ready",
+      "statusLabel": "Implementado",
+      "detail": "Entorno procedural de entrenamiento con camilla, equipamiento, iluminación y navegación. No sustituye los cuatro escenarios contratados."
+    },
+    {
+      "name": "Gimnasio",
+      "category": "environment",
+      "status": "partial",
+      "statusLabel": "Procedural mejorado",
+      "detail": "Zona de pesas y cardio, banco, mancuernas, señalización e hidratación. Acabado visual y validación en visor pendientes."
+    },
+    {
+      "name": "Centro comercial",
+      "category": "environment",
+      "status": "partial",
+      "statusLabel": "Procedural mejorado",
+      "detail": "Pasillo comercial con escaparates opacos, bancos, vegetación y orientación. Acabado visual y validación en visor pendientes."
+    },
+    {
+      "name": "Clínica dental",
+      "category": "environment",
+      "status": "partial",
+      "statusLabel": "Procedural mejorado",
+      "detail": "Sillón, lámpara articulada, lavabo y almacenamiento procedurales. Equipo dental y paciente profesional pendientes de arte final."
+    },
+    {
+      "name": "Campo de fútbol",
+      "category": "environment",
+      "status": "partial",
+      "statusLabel": "Procedural mejorado",
+      "detail": "Campo exterior con porterías, líneas, banquillo, material deportivo y perímetro. Arte final y validación en visor pendientes."
+    },
+    {
+      "name": "Valoración inicial",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Piloto guiado",
+      "detail": "Registro de decisiones de seguridad, respuesta, respiración y solicitud de ayuda. Secuencias clínicas pendientes de aprobación."
+    },
+    {
+      "name": "RCP",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Interacción virtual",
+      "detail": "Compresiones por arrastre de ratón en Windows o recorrido de mandos XR. Registro de ciclos, recorrido virtual, ritmo y colocación. No mide profundidad clínica calibrada ni fuerza sobre un maniquí."
+    },
+    {
+      "name": "DEA",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Secuencia física",
+      "detail": "Abrir y encender, preparar y colocar ambos parches, analizar y seguir descarga/no descarga según el caso. Parches, tolerancias y manejo pendientes de validación médica y en visor."
+    },
+    {
+      "name": "Tensión arterial",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Instrumento interactivo",
+      "detail": "Preparación y colocación virtual en el brazo, espera de adquisición y lectura procedente del caso. No reproduce una medición clínica real."
+    },
+    {
+      "name": "Saturación de oxígeno",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Instrumento interactivo",
+      "detail": "Clip virtual colocado en el dedo y lectura SpO2 del estado simulado. Sin conexión a sensores externos."
+    },
+    {
+      "name": "Glucemia",
+      "category": "procedure",
+      "status": "review",
+      "statusLabel": "Instrumento interactivo",
+      "detail": "Preparación de tira, contacto virtual con el dedo y lectura del guion. Sin punción, muestra ni dosificación real."
+    },
+    {
+      "name": "Evaluación y resultados",
+      "category": "system",
+      "status": "ready",
+      "statusLabel": "Base ampliada",
+      "detail": "Acciones, tiempos, errores, omisiones, desenlaces y exportación JSON; métricas adicionales de interacción virtual RCP/DEA. Ponderaciones y calibración clínica pendientes."
+    },
+    {
+      "name": "Casos y desenlaces",
+      "category": "system",
+      "status": "review",
+      "statusLabel": "44 casos CLIENT_REVIEW",
+      "detail": "44 variantes configurables con deterioro, recuperación y desenlaces educativos en cuatro ambientes. Todos pendientes de validación médica."
+    },
+    {
+      "name": "Meta Quest 3 / publicación",
+      "category": "system",
+      "status": "pending",
+      "statusLabel": "Validación pendiente",
+      "detail": "Base XR existente. Quedan pruebas físicas, perfil de rendimiento, APK candidata y proceso de envío a Meta Horizon Store."
+    }
+  ],
+  "cases": [
+    {
+      "name": "Desvanecimiento",
+      "detail": "Guion de adulto que ya responde y respira normalmente, sin trauma. El estado y las decisiones son revisables.",
+      "sources": [
+        {
+          "label": "NHS · Fainting",
+          "url": "https://www.nhs.uk/symptoms/fainting/"
+        }
+      ]
+    },
+    {
+      "name": "Inconsciente con respiración",
+      "detail": "Rama de respiración normal sin trauma; observación y relevo. No se fuerza una recuperación por completar acciones.",
+      "sources": [
+        {
+          "label": "RCUK · First Aid 2025",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Hipoglucemia consciente",
+      "detail": "Guion consciente con deglución segura y lecturas ficticias. La espera de reevaluación se simula; el piloto no incluye administración de fármacos.",
+      "sources": [
+        {
+          "label": "NHS · Low blood sugar",
+          "url": "https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/"
+        }
+      ]
+    },
+    {
+      "name": "Hipotensión sintomática",
+      "detail": "Revisión de hallazgos y solicitud de evaluación. La demo no establece la causa de la hipotensión.",
+      "sources": [
+        {
+          "label": "NHS · Low blood pressure",
+          "url": "https://www.nhs.uk/conditions/low-blood-pressure-hypotension/"
+        },
+        {
+          "label": "RCUK · ABCDE",
+          "url": "https://www.resus.org.uk/library/abcde-approach"
+        }
+      ]
+    },
+    {
+      "name": "Ausencia de respiración normal",
+      "detail": "Piloto BLS para reanimador lego ante sospecha de parada cardíaca. La parada respiratoria aislada con pulso confirmado requiere un guion separado.",
+      "sources": [
+        {
+          "label": "RCUK · Adult Basic Life Support 2025",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines"
+        }
+      ]
+    }
+  ]
+}

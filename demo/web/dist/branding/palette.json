@@ -1,0 +1,14 @@
+{
+  "name": "Vital VR",
+  "tagline": "Entrena hoy. Salva vidas mañana.",
+  "colors": {
+    "navy": "#031123",
+    "surface": "#0b2037",
+    "red": "#ed1939",
+    "action": "#c8102e",
+    "cyan": "#08add6",
+    "white": "#f7f9fc",
+    "muted": "#adbed0",
+    "line": "#29425c"
+  }
+}
