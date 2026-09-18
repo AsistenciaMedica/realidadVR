@@ -10,6 +10,7 @@ const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=
 export function createDemoServer({ root = directory, windowsUrl = process.env.EMERGENCYVR_WINDOWS_URL || '', backend = {} } = {}) {
   if (windowsUrl && new URL(windowsUrl).protocol !== 'https:') throw new Error('EMERGENCYVR_WINDOWS_URL must use HTTPS');
   const publicRoot = resolve(root, 'public');
+  const reactRoot = resolve(root, 'web', 'dist');
   const zip = resolve(root, 'releases', 'EmergencyVR-Windows.zip');
   const api=createApi(root,backend);
   const server=http.createServer(async (req, res) => {
@@ -23,17 +24,20 @@ export function createDemoServer({ root = directory, windowsUrl = process.env.EM
       if(await api(req,res,pathname)) return;
       if (!['GET', 'HEAD'].includes(req.method)) { res.setHeader('Allow', 'GET, HEAD'); return json(405, { error: 'Method not allowed' }); }
       if (pathname === '/health') return json(200, { status: 'ok' });
-      if(pathname==='/scenarios') pathname='/scenarios.html';
-      else if(pathname.startsWith('/scenarios/')) { if(!api.hasScenario(pathname.slice(11)))return json(404,{error:'Escenario no encontrado.'});pathname='/scenarios.html'; }
+      if(pathname.startsWith('/scenarios/') && !api.hasScenario(pathname.slice(11)))return json(404,{error:'Escenario no encontrado.'});
       else if(['/admin','/admin/clients','/admin/licenses','/admin/activations','/admin/scenarios'].includes(pathname))pathname='/admin.html';
-      else if(['/about','/contact'].includes(pathname))pathname+='.html';
       const local = await stat(zip).then(s => s.isFile() ? s : null).catch(() => null);
       if (pathname === '/api/releases') {
         const metadata = await readFile(resolve(root, 'release.json'), 'utf8').then(s => JSON.parse(s.replace(/^\uFEFF/, ''))).catch(() => null);
         return json(200, { windows: { available: Boolean(local || windowsUrl), url: local ? '/downloads/windows' : windowsUrl || null, bytes: local?.size || null, metadata }, quest: { available: false }, web: { available: false } });
       }
       let file;
-      if (pathname === '/downloads/windows') {
+      const reactRoute = pathname === '/' || pathname === '/scenarios' || pathname.startsWith('/scenarios/') || pathname.startsWith('/assets/') || ['/technology', '/procedures', '/demo', '/about', '/contact'].includes(pathname);
+      if (reactRoute) {
+        const requested = pathname.startsWith('/assets/') ? resolve(reactRoot, '.' + pathname) : resolve(reactRoot, 'index.html');
+        file = await realpath(requested);
+        if (!file.startsWith(await realpath(reactRoot) + sep) || !types[extname(file)]) return json(404, { error: 'Not found' });
+      } else if (pathname === '/downloads/windows') {
         if (!local) {
           if (windowsUrl) { res.writeHead(302, { Location: windowsUrl }); return res.end(); }
           return json(404, { error: 'Esta entrega todavía no incluye el ZIP de Windows.' });

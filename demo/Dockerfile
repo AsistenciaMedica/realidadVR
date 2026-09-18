@@ -3,6 +3,11 @@ WORKDIR /app
 COPY --chown=node:node package.json server.mjs ./
 COPY --chown=node:node backend ./backend
 COPY --chown=node:node public ./public
+COPY --chown=node:node web/package*.json ./web/
+RUN cd web && npm ci
+COPY --chown=node:node web/index.html web/vite.config.js ./web/
+COPY --chown=node:node web/src ./web/src
+RUN cd web && npm run build
 COPY --chown=node:node releases ./releases
 COPY --chown=node:node release*.json ./
 RUN mkdir -p /app/data && chown node:node /app/data
