@@ -26,6 +26,8 @@ namespace EmergencyVR.Patient.Presentation
         float attentionUntil;
         double lastSupportTime;
         GameObject assembly, shirt;
+        Mesh defaultMesh;
+        Material[] defaultMaterials;
         Transform patient, model;
         readonly Dictionary<Transform, Pose> original = new Dictionary<Transform, Pose>();
         readonly Dictionary<Transform, Pose> neutral = new Dictionary<Transform, Pose>();
@@ -107,7 +109,15 @@ namespace EmergencyVR.Patient.Presentation
             ResetNeutral();
             body.skeleton.rotation = Quaternion.LookRotation(Forward, Vector3.up);
             for (int i = 0; i < 2; i++) restingFeet[i] = body.ankles[i].rotation;
-            shirt = Case01SportsShirt.Create(rig.face, model, owned);
+            // Daniel wears real gym clothes (Rocketbox Sports_Male_04 skin on the shared skeleton); the procedural
+            // shirt remains only as a fallback when that appearance has not been built.
+            var appearance = Resources.Load<PatientAppearance>("Visual/Appearances/Daniel");
+            if (appearance != null && appearance.mesh != null && rig.face != null)
+            {
+                defaultMesh = rig.face.sharedMesh; defaultMaterials = rig.face.sharedMaterials;
+                rig.face.sharedMesh = appearance.mesh; rig.face.sharedMaterials = appearance.materials;
+            }
+            else shirt = Case01SportsShirt.Create(rig.face, model, owned);
             IsActive = true;
             ResetAttempt();
             Physics.SyncTransforms();
@@ -240,7 +250,8 @@ namespace EmergencyVR.Patient.Presentation
             float slide = Smooth(value / .25f), lower = Smooth((value - .20f) / .28f), recline = Smooth((value - .40f) / .60f);
             float displacement = .50f * slide + .65f * recline;
             float height = Mathf.Lerp(.67f, .30f, lower) - .115f * recline;
-            float tilt = Mathf.Lerp(9, -90, recline);
+            // Presyncope: seated trunk leans forward over the knees (spec F), then reclines as he is lowered.
+            float tilt = Mathf.Lerp(16, -90, recline);
             var rotation = Quaternion.LookRotation(Forward, Vector3.up) * Quaternion.Euler(tilt, 0, 0);
             body.skeleton.rotation = rotation;
             body.skeleton.position += Origin + Forward * displacement + Vector3.up * height - body.pelvis.position;
@@ -308,7 +319,11 @@ namespace EmergencyVR.Patient.Presentation
                 if (rig.leftEye != null) rig.leftEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.leftEye.rotation;
                 if (rig.rightEye != null) rig.rightEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.rightEye.rotation;
             }
-            rig.head.rotation = attentionRotation * rig.head.rotation;
+            // While symptomatic and not attending to someone, the head droops; attention lifts it toward the speaker.
+            string state = Clinical?.ClinicalStateId;
+            bool symptomatic = state == "HYP_00_INITIAL_PRESYNCOPE" || state == "HYP_03_PERSISTENT_SYMPTOMS" || state == "HYP_04_RECURRENT_PRESYNCOPE";
+            float droop = symptomatic && progress <= 0 ? (1 - attention) * 16 : 0;
+            rig.head.rotation = attentionRotation * Quaternion.AngleAxis(droop, Right) * rig.head.rotation;
             // Existing real facial channel, never substitute a false mouth/face overlay.
             string clinical = Clinical?.ClinicalStateId;
             float expression = clinical == "HYP_02_IMPROVING" ? 4 : clinical == "HYP_03_PERSISTENT_SYMPTOMS" ? 15 :
@@ -380,6 +395,8 @@ namespace EmergencyVR.Patient.Presentation
                 // Floor is an authored support, but penetration below its surface is never accepted.
                 if (c == floor && Mathf.Min(from.y, to.y) - radius >= -.008f) continue;
                 if (c == seat && p < .12f && region == "manos" && Mathf.Min(from.y, to.y) >= .48f) continue;
+                // Seated thighs rest on the seat until the pelvis has left it; that contact is support, not a collision.
+                if (c == seat && p < .35f && region == "piernas") continue;
                 // Some scene floors overlap at y=0; support only flat surfaces below the tested shape.
                 if (c.bounds.max.y <= .031f && Mathf.Min(from.y, to.y) - radius >= -.008f) continue;
                 LastValidationFailure = region + " cerca de " + c.gameObject.name;
@@ -471,6 +488,8 @@ namespace EmergencyVR.Patient.Presentation
             if (body != null) body.enabled = bodyWasEnabled;
             foreach (var pair in hidden) if (pair.Key != null) pair.Key.SetActive(pair.Value);
             if (assembly != null) Destroy(assembly); if (shirt != null) Destroy(shirt);
+            if (defaultMesh != null && rig != null && rig.face != null) { rig.face.sharedMesh = defaultMesh; rig.face.sharedMaterials = defaultMaterials; }
+            defaultMesh = null; defaultMaterials = null;
             foreach (var asset in owned) if (asset != null) Destroy(asset); owned.Clear();
             original.Clear(); neutral.Clear(); hidden.Clear(); attempt = null; attemptId = null;
         }

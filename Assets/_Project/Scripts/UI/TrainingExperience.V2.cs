@@ -51,7 +51,7 @@ namespace EmergencyVR.UI
             {
                 ReleaseAssistance(); dialogueDrawer = !dialogueDrawer; actionDrawer = callDrawer = false; redraw = true;
             });
-            Button(content, "Open help conversation", callDrawer ? "Cerrar llamada" : "Llamada y relevo", 548, 121, 265, 55, () =>
+            Button(content, "Open help conversation", callDrawer ? "Cerrar teléfono" : "Teléfono · 112", 548, 121, 265, 55, () =>
             {
                 ReleaseAssistance(); callDrawer = !callDrawer; actionDrawer = dialogueDrawer = false; redraw = true;
             });
@@ -61,9 +61,12 @@ namespace EmergencyVR.UI
             });
             if (Review.Procedures.TrainingMode)
                 Button(content, "Clinical guidance", "Pedir orientación", 1143, 121, 275, 55, AskForGuidance);
+            DrawGuideCard();
+            DrawAssistProgress();
+            DrawWorldPrompt();
             if (actionDrawer) DrawV2Actions();
             if (dialogueDrawer) DrawIntentDialogue();
-            if (callDrawer) DrawHelpConversation();
+            if (callDrawer) DrawPhone();
             if (observedDrawer) DrawObservedHistory();
             if (guidanceDrawer) DrawGuidance();
             var preventRise = Button(content, "Prevent rise attempt", "Pedir que espere y mantenga el apoyo", 608, 686, 810, 61,
@@ -75,6 +78,7 @@ namespace EmergencyVR.UI
             Bind(feedback, () =>
             {
                 if (CaseBody != null && CaseBody.IsAssisting) return CaseBody.Instruction;
+                if (callDrawer && Phone != null && Phone.Stage != EmergencyVR.Dialogue.PhoneCallStage.Idle) return Phone.Subtitle;
                 if (callDrawer && CaseHelp != null) return CaseHelp.CurrentLine;
                 var response = Review.Manager.Dialogue.LastResponse;
                 return response == null ? Review.Manager.Feedback : "Paciente: «" + (response.subtitle ?? response.text) + "»";
@@ -97,7 +101,7 @@ namespace EmergencyVR.UI
             live.Add(() =>
             {
                 assist.interactable = CaseBody != null && (CaseBody.CanAssist || CaseBody.IsAssisting && !CaseBody.IsAttemptingRise);
-                assistanceLabel.text = CaseBody != null && CaseBody.IsStanding ? "Mantén pulsado para recuperar el apoyo" : "Mantén pulsado para ayudar a tumbarse";
+                assistanceLabel.text = (CaseBody != null && CaseBody.IsStanding ? "Recuperar el apoyo" : "Ayudar a tumbarse") + (IsDesktop ? " · mantén F" : " · mantén pulsado");
             });
             var cancel = Button(content, "Cancel assistance", "Cancelar asistencia", 44, 624, 520, 43, () => CaseBody?.CancelAssistance());
             live.Add(() => cancel.interactable = CaseBody != null && CaseBody.IsAssisting);

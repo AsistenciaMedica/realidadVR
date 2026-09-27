@@ -24,6 +24,7 @@ namespace EmergencyVR.Environment
         float originalIntensity;
         Color originalLightColor;
         Quaternion originalLightRotation;
+        LightShadows originalShadows;
         AmbientMode originalAmbientMode;
         Color originalAmbientSky, originalAmbientEquator, originalAmbientGround;
         SphericalHarmonicsL2 originalAmbientProbe;
@@ -95,6 +96,7 @@ namespace EmergencyVR.Environment
             originalIntensity = roomLight.intensity;
             originalLightColor = roomLight.color;
             originalLightRotation = roomLight.transform.rotation;
+            originalShadows = roomLight.shadows;
             originalAmbientMode = RenderSettings.ambientMode;
             originalAmbientSky = RenderSettings.ambientSkyColor;
             originalAmbientEquator = RenderSettings.ambientEquatorColor;
@@ -130,6 +132,8 @@ namespace EmergencyVR.Environment
             if (id != "dental")
                 patient.transform.position = originalPatientPosition + Vector3.up * (.16f - originalTorsoHeight);
             ApplyLighting(id);
+            // Capture reflections once the module and its equipment are visible.
+            foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>()) probe.RenderProbe();
         }
 
         GameObject Build(string id)
@@ -190,9 +194,14 @@ namespace EmergencyVR.Environment
             RenderSettings.ambientProbe = probe;
             foreach (var pair in cameraBackgrounds)
                 if (pair.Key != null) pair.Key.backgroundColor = outdoor ? new Color(.50f, .67f, .77f) : pair.Value;
-            roomLight.intensity = outdoor ? .92f : .7f;
-            roomLight.color = outdoor ? new Color(1, .96f, .87f) : new Color(.94f, .98f, 1);
-            roomLight.transform.rotation = Quaternion.Euler(outdoor ? 48 : 62, outdoor ? -38 : -25, 0);
+            bool gym = id == "gym";
+            roomLight.intensity = outdoor ? .92f : gym ? 1.5f : .7f;
+            roomLight.color = outdoor ? new Color(1, .96f, .87f) : gym ? new Color(1, .95f, .86f) : new Color(.94f, .98f, 1);
+            // Gym: afternoon sun through the street windows (+X); walls and ceiling shade the rest of the room.
+            roomLight.transform.rotation = Quaternion.Euler(outdoor ? 48 : gym ? 36 : 62, outdoor ? -38 : gym ? -100 : -25, 0);
+            // Other interiors have no openings, so a shadowing sun would leave them dark.
+            roomLight.shadows = outdoor || gym ? LightShadows.Soft : LightShadows.None;
+            roomLight.shadowStrength = .85f;
         }
 
         void RestoreLighting()
@@ -202,6 +211,7 @@ namespace EmergencyVR.Environment
                 roomLight.intensity = originalIntensity;
                 roomLight.color = originalLightColor;
                 roomLight.transform.rotation = originalLightRotation;
+                roomLight.shadows = originalShadows;
                 if (ownsLight) roomLight.gameObject.SetActive(false);
             }
             RenderSettings.ambientMode = originalAmbientMode;

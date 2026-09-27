@@ -7,8 +7,9 @@ namespace EmergencyVR.Environment.Presentation
     internal sealed class EnvironmentModuleBuilder
     {
         readonly EnvironmentGeometry g;
+        readonly Transform root;
         public EnvironmentModuleBuilder(Transform root, EnvironmentPalette palette, List<Mesh> meshes)
-        { g = new EnvironmentGeometry(root, palette, meshes); }
+        { this.root = root; g = new EnvironmentGeometry(root, palette, meshes); }
 
         public void Build(string id)
         {
@@ -36,9 +37,17 @@ namespace EmergencyVR.Environment.Presentation
             B(new Vector3(0, -.10f, 1), new Vector3(7, .2f, 8), floor, true);
             B(new Vector3(0, 1.55f, 5.06f), new Vector3(7.2f, 3.1f, .12f), "plaster", true);
             B(new Vector3(-3.56f, 1.55f, 1), new Vector3(.12f, 3.1f, 8), "plaster", true);
-            B(new Vector3(3.56f, 1.55f, 1), new Vector3(.12f, 3.1f, 8), "plaster", true);
+            if (id == "gym") WindowWall();
+            else B(new Vector3(3.56f, 1.55f, 1), new Vector3(.12f, 3.1f, 8), "plaster", true);
             B(new Vector3(0, 1.55f, -3.06f), new Vector3(7.2f, 3.1f, .12f), "plaster", true);
-            B(new Vector3(0, 3.16f, 1), new Vector3(7.2f, .12f, 8.2f), id == "gym" ? "navy" : "white");
+            if (id == "gym")
+            {
+                // Tiled rubber flooring and plaster finish just proud of the untextured shell.
+                g.Surface("Rubber flooring", new Vector3(0, .002f, 1), Quaternion.Euler(90, 0, 0), new Vector2(7, 8), "gymFloor");
+                g.Surface("Wall finish front", new Vector3(0, 1.55f, -2.995f), Quaternion.Euler(0, 180, 0), new Vector2(7, 3.1f), "gymWall");
+                g.Surface("Wall finish left", new Vector3(-3.495f, 1.55f, 1), Quaternion.Euler(0, -90, 0), new Vector2(8, 3.1f), "gymWall");
+            }
+            B(new Vector3(0, 3.16f, 1), new Vector3(7.2f, .12f, 8.2f), "white");
             foreach (float x in new[] { -3.47f, 3.47f })
             {
                 B(new Vector3(x, .07f, 1), new Vector3(.04f, .14f, 8), "navy");
@@ -62,6 +71,7 @@ namespace EmergencyVR.Environment.Presentation
             B(new Vector3(0, 2.51f, -2.94f), new Vector3(.66f, .2f, .04f), "green");
             g.Text("SALIDA", new Vector3(0, 2.51f, -2.905f), .016f, 180, true);
             g.Cluster("Ceiling fittings");
+            if (id == "gym") { CeilingPanels(); return; }
             for (int i = 0; i < 3; i++)
             {
                 float z = -1.65f + i * 2.5f;
@@ -74,6 +84,43 @@ namespace EmergencyVR.Environment.Presentation
             B(new Vector3(3.483f, 1.72f, -.95f), new Vector3(.035f, 1.17f, 1.9f), "metal");
             B(new Vector3(3.452f, 1.72f, -.95f), new Vector3(.023f, 1.04f, 1.77f), "glass");
             for (int i = 0; i < 3; i++) B(new Vector3(3.433f, 1.50f + i * .13f, -.95f), new Vector3(.014f, .035f, 1.77f), "white");
+        }
+
+        // Street-facing glazing: sill, header and piers around a 6.8 m opening with slim mullions, a street
+        // photograph beyond it and an invisible barrier. Sunlight enters only through the opening.
+        void WindowWall()
+        {
+            const float x = 3.56f, sill = .95f, head = 2.6f, from = -2.4f, to = 4.4f;
+            B(new Vector3(x, sill * .5f, 1), new Vector3(.12f, sill, 8), "plaster", true);
+            B(new Vector3(x, (head + 3.1f) * .5f, 1), new Vector3(.12f, 3.1f - head, 8), "plaster", true);
+            B(new Vector3(x, (sill + head) * .5f, (from - 3) * .5f), new Vector3(.12f, head - sill, from + 3), "plaster", true);
+            B(new Vector3(x, (sill + head) * .5f, (to + 5) * .5f), new Vector3(.12f, head - sill, 5 - to), "plaster", true);
+            g.Surface("Wall finish right low", new Vector3(3.495f, sill * .5f, 1), Quaternion.Euler(0, 90, 0), new Vector2(8, sill), "gymWall");
+            g.Surface("Wall finish right high", new Vector3(3.495f, (head + 3.1f) * .5f, 1), Quaternion.Euler(0, 90, 0), new Vector2(8, 3.1f - head), "gymWall");
+            g.Surface("Wall finish right pier", new Vector3(3.495f, (sill + head) * .5f, (from - 3) * .5f), Quaternion.Euler(0, 90, 0), new Vector2(from + 3, head - sill), "gymWall");
+            g.Surface("Wall finish right pier 2", new Vector3(3.495f, (sill + head) * .5f, (to + 5) * .5f), Quaternion.Euler(0, 90, 0), new Vector2(5 - to, head - sill), "gymWall");
+            g.Cluster("Window frames");
+            for (int i = 0; i <= 4; i++)
+                B(new Vector3(x - .04f, (sill + head) * .5f, from + i * (to - from) / 4), new Vector3(.12f, head - sill, .06f), "navy");
+            B(new Vector3(x - .08f, sill + .015f, 1), new Vector3(.2f, .03f, to - from + .06f), "white");
+            B(new Vector3(x - .04f, head, 1), new Vector3(.12f, .05f, to - from + .06f), "navy");
+            B(new Vector3(x - .04f, sill + .02f, 1), new Vector3(.12f, .05f, to - from + .06f), "navy");
+            g.Solid("Window glazing", new Vector3(x, (sill + head) * .5f, 1), new Vector3(.06f, head - sill, to - from));
+            g.Cluster("Street outside");
+            g.Surface("Street view", new Vector3(9.5f, 3.52f, 1), Quaternion.Euler(0, 90, 0), new Vector2(24, 9.6f), "exterior");
+            g.Surface("Pavement", new Vector3(6.56f, -.02f, 1), Quaternion.Euler(90, 0, 0), new Vector2(5.9f, 24), "stone");
+        }
+
+        // Recessed LED panels in two rows; desktop adds real spot lights beneath them (see GymPropSet).
+        void CeilingPanels()
+        {
+            foreach (float x in new[] { -1.6f, 1.6f })
+                foreach (float z in new[] { -1.4f, 1.2f, 3.6f })
+                {
+                    B(new Vector3(x, 3.075f, z), new Vector3(1.24f, .05f, .64f), "white");
+                    B(new Vector3(x, 3.05f, z), new Vector3(1.16f, .012f, .56f), "ceilingLamp");
+                }
+            for (int i = -2; i < 4; i++) B(new Vector3(0, 3.086f, i * 1.25f), new Vector3(7, .024f, .014f), "stone");
         }
 
         void Dental()
@@ -140,6 +187,13 @@ namespace EmergencyVR.Environment.Presentation
             // Recessed opaque mirror finish conveys the wall without a second render camera on Quest.
             B(new Vector3(-3.475f, 1.58f, .8f), new Vector3(.04f, 1.5f, 3.7f), "metal");
             B(new Vector3(-3.445f, 1.58f, .8f), new Vector3(.019f, 1.40f, 3.60f), "glass");
+            g.Text("HIDRATACIÓN", new Vector3(1.15f, 1.55f, -2.93f), .015f);
+            g.Text("ZONA DE ENTRENAMIENTO", new Vector3(3.44f, 2.84f, 2.2f), .019f, 90);
+            if (GymPropSet.Available)
+            {
+                GymPropSet.Build(root);
+                return;
+            }
 
             g.Cluster("Weight bench and free weights");
             Vector3 c = new Vector3(-2.17f, 0, 1.05f);
@@ -185,8 +239,6 @@ namespace EmergencyVR.Environment.Presentation
             g.Solid("Treadmill", t + new Vector3(0, .52f, 0), new Vector3(.92f, 1.04f, 1.8f));
             g.Cluster("Recovery corner");
             Bench(new Vector3(-2.7f, 0, -1.84f), .95f, 90);
-            g.Text("HIDRATACIÓN", new Vector3(-3.47f, 2.26f, -1.8f), .015f, -90);
-            g.Text("ZONA DE ENTRENAMIENTO", new Vector3(3.44f, 2.65f, 2.2f), .019f, 90);
         }
 
         void Mall()

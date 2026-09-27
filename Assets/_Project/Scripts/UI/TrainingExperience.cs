@@ -83,6 +83,7 @@ namespace EmergencyVR.UI
             foreach (var line in FindObjectsByType<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual>(FindObjectsSortMode.None))
             { rayLayers[line.gameObject] = line.gameObject.layer; line.gameObject.layer = 5; }
             CreateCanvas();
+            CreateGuide();
             Review.Manager.Changed += Changed;
             Review.SelectionChanged += Selected;
             Review.Procedures.MeasurementRecorded += Measured;
@@ -172,6 +173,9 @@ namespace EmergencyVR.UI
             if (redraw) Render();
             if (Time.unscaledTime >= nextRefresh)
             { nextRefresh = Time.unscaledTime + .2f; foreach (var update in live) update(); }
+            UpdateGuideHighlight();
+            UpdateAssistKey();
+            UpdateWorldKeys();
         }
 
         public void Navigate(ExperiencePage page)

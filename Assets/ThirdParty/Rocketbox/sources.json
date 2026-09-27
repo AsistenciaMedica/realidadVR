@@ -50,6 +50,161 @@
       "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_idle_cough_01.max.fbx",
       "bytes": 1646352,
       "sha256": "273b3e91a1c57ab53f1b517216010601fbfb33c649525f7960045fdc5f05e738"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Daniel/Textures/m026_body_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_04/Textures/m026_body_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Daniel/Textures/m026_body_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_04/Textures/m026_body_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Daniel/Textures/m026_head_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_04/Textures/m026_head_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Daniel/Textures/m026_head_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_04/Textures/m026_head_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Daniel/Daniel.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_04/Export/Sports_Male_04_facial.fbx",
+      "sha256": "3a52f4423aed8e8039b1cbd34f2fdfa808b7790c5130a34f555f1eb40f638ef1"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Textures/m154_body_color_blue.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Textures/m154_body_color_blue.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Textures/m154_body_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Textures/m154_body_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Textures/m154_head_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Textures/m154_head_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Textures/m154_head_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Textures/m154_head_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Textures/m154_opacity_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Textures/m154_opacity_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Paramedic/Paramedic.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Medical_Male_02/Export/Medical_Male_02.fbx",
+      "sha256": "2cc76daa16b37898dcd2f9533026313eb8dcd98322a350ebd4108d9a17d516d8"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/Textures/f013_body_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Textures/f013_body_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/Textures/f013_body_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Textures/f013_body_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/Textures/f013_head_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Textures/f013_head_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/Textures/f013_head_normal.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Textures/f013_head_normal.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/Textures/f013_opacity_color.png",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Textures/f013_opacity_color.tga",
+      "note": "Converted from TGA to PNG"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/GymStaff/GymStaff.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Female_02/Export/Sports_Female_02.fbx",
+      "sha256": "b96d9952e6e5d232ddd12e0ec844e371623d9922d03c73814299fd4dbc0a9710"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/f_cell_phone_talk_02.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_xyz/f_cell_phone_talk_02.max.fbx",
+      "sha256": "3b5564c72ca5278c27c3cf7ed596bffd3c69e4253c43f1aed8f8b7abbd4896ce"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/f_crouch_idle.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/f_crouch_idle.max.fbx",
+      "sha256": "b7e67dee31fc07bc777e93ddf1a88ac58c99954ba67731e5acefeac4c8590f49"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/f_gestic_talk_neutral_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/f_gestic_talk_neutral_01.max.fbx",
+      "sha256": "fee2c764dcfac6f2edd85e73e11b1a13aac305372cbd657207d4c947b21a2476"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/f_idle_breathe_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/f_idle_breathe_01.max.fbx",
+      "sha256": "e470ba984484149c8269772b7640b754bd996ba83b23ae75535128412997aa45"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_cell_phone_listen_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_cell_phone_listen_01.max.fbx",
+      "sha256": "c2d650e5c963c6b9c818a91c114bc972729e4096405b85fba0b5b41a7a51bfc5"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_cell_phone_talk_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_cell_phone_talk_01.max.fbx",
+      "sha256": "9501002826cec966b7e3abfb9e1dfb5a9c528760343b0d6509a3ce4e0f85a2d7"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_crouch_idle.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_crouch_idle.max.fbx",
+      "sha256": "d3704294853eda39d566cb31b0e6a6c50bd3cc3c1bda9102c1156c1537c12eeb"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_gestic_talk_neutral_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_gestic_talk_neutral_01.max.fbx",
+      "sha256": "4c2b9ff481a9538dafbbe7f6aa6ffd6b948b5d34bb16a1e2052e943bbbbd3cd8"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_idle_breathe_02.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_idle_breathe_02.max.fbx",
+      "sha256": "857e957cdf9eda42799563e5401ca0a57e5b586f71fe485dda7a0bf2843f6c58"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_sit_chair_breathe_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_sit_chair_breathe_01.max.fbx",
+      "sha256": "8e4dae334b6036bf7da539e2763d57b453b4f382cb1b024e441f5329ce66ea0c"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_sit_chair_idle_nervous_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_sit_chair_idle_nervous_01.max.fbx",
+      "sha256": "bcea54edc9d740f6fbe213934b536280fa6faf2d264f5985a9a33a3562defcf7"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_sit_chair_idle_touch_face.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_sit_chair_idle_touch_face.max.fbx",
+      "sha256": "2af9f8daccb9386057b30f4fa9822fa5c78dc5956b352fb2aec38c3bca432518"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_sit_stand_up_chair_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_xyz/m_sit_stand_up_chair_01.max.fbx",
+      "sha256": "69439ca9df8e330af75e82bd1b4e64e5e6858d3de0761515e67bad649a9989ac"
+    },
+    {
+      "file": "Assets/ThirdParty/Rocketbox/Animations/m_walk_neutral_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_xy/m_walk_neutral_01.max.fbx",
+      "sha256": "e6805ae6b6b49fe10f06c1b17b14ddde90d09b9fea689ac34793df252f44dcd0"
     }
   ]
 }

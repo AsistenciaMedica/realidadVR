@@ -20,6 +20,9 @@ namespace EmergencyVR.Editor
             {
                 if(settings!=null)settings.InitManagerOnStart=false;
                 PlayerSettings.fullScreenMode=FullScreenMode.Windowed;
+                DesktopRenderingSetup.Ensure();
+                VisualMaterialsSetup.Ensure();
+                CharacterAssetBuilder.Build();
                 var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
                     scenes=new[]{DemoProjectBuilder.BootstrapPath,DemoProjectBuilder.TrainingPath},
                     locationPathName=output,target=BuildTarget.StandaloneWindows64,

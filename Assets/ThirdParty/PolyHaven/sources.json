@@ -60,6 +60,22 @@
       "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_nor_gl_1k.jpg",
       "license": "CC0-1.0",
       "sha256": "56bbe2d960b47ddb2dc538be2953a1ad07083b017cdada1cdc7958421a6cfcd9"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/rubber_tiles_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rubber_tiles/rubber_tiles_diff_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/rubber_tiles_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rubber_tiles/rubber_tiles_nor_gl_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/exterior_street_view.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/urban_street_04.jpg",
+      "license": "CC0-1.0",
+      "note": "Horizon band of the left half, resized to 2048 px wide."
     }
   ]
 }

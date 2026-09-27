@@ -1,0 +1,206 @@
+{
+  "note": "Placeholder voices generated with local Windows text-to-speech (tools/Generate-Case01Voices.ps1). Replace with recorded actors before commercial release; keep the same ids.",
+  "voices": {
+    "daniel": {
+      "voice": "Microsoft Raul",
+      "rate": "-8%",
+      "pitch": "-4%",
+      "volume": "90"
+    },
+    "operator": {
+      "voice": "Microsoft Sabina",
+      "rate": "+4%",
+      "pitch": "+0%",
+      "volume": "100"
+    },
+    "companion": {
+      "voice": "Microsoft Raul",
+      "rate": "+6%",
+      "pitch": "+10%",
+      "volume": "100"
+    },
+    "paramedic": {
+      "voice": "Microsoft Raul",
+      "rate": "+0%",
+      "pitch": "+4%",
+      "volume": "100"
+    }
+  },
+  "lines": [
+    {
+      "id": "DANIEL_GREETING_01",
+      "speaker": "daniel",
+      "text": "Hola… sí, te escucho."
+    },
+    {
+      "id": "DANIEL_MAIN_SYMPTOM_01",
+      "speaker": "daniel",
+      "text": "He parado hace nada y me estoy mareando."
+    },
+    {
+      "id": "DANIEL_SYMPTOM_DESCRIPTION_01",
+      "speaker": "daniel",
+      "text": "Como si me fuera a desmayar… se me oscurece un poco la vista."
+    },
+    {
+      "id": "DANIEL_ONSET_01",
+      "speaker": "daniel",
+      "text": "Al bajar de la cinta y quedarme quieto."
+    },
+    {
+      "id": "DANIEL_LOSS_OF_CONSCIOUSNESS_01",
+      "speaker": "daniel",
+      "text": "No… me he sentado porque no me encontraba bien."
+    },
+    {
+      "id": "DANIEL_CHEST_PAIN_01",
+      "speaker": "daniel",
+      "text": "No me duele el pecho."
+    },
+    {
+      "id": "DANIEL_BREATHING_DIFFICULTY_01",
+      "speaker": "daniel",
+      "text": "No me falta el aire."
+    },
+    {
+      "id": "DANIEL_PALPITATIONS_01",
+      "speaker": "daniel",
+      "text": "No he notado que se me acelere."
+    },
+    {
+      "id": "DANIEL_CARDIAC_HISTORY_01",
+      "speaker": "daniel",
+      "text": "Que yo sepa, no tengo problemas del corazón."
+    },
+    {
+      "id": "DANIEL_MEDICATION_01",
+      "speaker": "daniel",
+      "text": "No tomo medicación todos los días."
+    },
+    {
+      "id": "DANIEL_FOOD_DRINK_01",
+      "speaker": "daniel",
+      "text": "Comí antes de venir… y he bebido durante el entrenamiento."
+    },
+    {
+      "id": "DANIEL_CONSENT_HELP_01",
+      "speaker": "daniel",
+      "text": "Sí, ayúdame, por favor."
+    },
+    {
+      "id": "DANIEL_STATUS_00",
+      "speaker": "daniel",
+      "text": "Me estoy mareando."
+    },
+    {
+      "id": "DANIEL_STATUS_01_IMPROVING",
+      "speaker": "daniel",
+      "text": "Sigo mareado, pero así estoy algo mejor."
+    },
+    {
+      "id": "DANIEL_STATUS_01",
+      "speaker": "daniel",
+      "text": "Sigo mareado."
+    },
+    {
+      "id": "DANIEL_STATUS_02",
+      "speaker": "daniel",
+      "text": "Estoy mejor, aunque sigo flojo."
+    },
+    {
+      "id": "DANIEL_STATUS_03",
+      "speaker": "daniel",
+      "text": "No se me pasa."
+    },
+    {
+      "id": "DANIEL_STATUS_04",
+      "speaker": "daniel",
+      "text": "Me ha vuelto el mareo."
+    },
+    {
+      "id": "OP_GREETING",
+      "speaker": "operator",
+      "text": "Emergencias, uno uno dos. ¿Qué le ocurre?"
+    },
+    {
+      "id": "OP_CLARIFY",
+      "speaker": "operator",
+      "text": "Entiendo. Si hay una persona que se encuentra mal, dígame qué le pasa y dónde está."
+    },
+    {
+      "id": "OP_LOCATION",
+      "speaker": "operator",
+      "text": "¿Dónde se encuentran exactamente? Necesito la dirección."
+    },
+    {
+      "id": "OP_LOCATION_MORE",
+      "speaker": "operator",
+      "text": "Necesito la dirección completa para enviar la ambulancia. ¿En qué calle está el gimnasio?"
+    },
+    {
+      "id": "OP_CONSCIOUS",
+      "speaker": "operator",
+      "text": "¿La persona está consciente? ¿Le contesta cuando le habla?"
+    },
+    {
+      "id": "OP_BREATHING",
+      "speaker": "operator",
+      "text": "¿Respira con normalidad?"
+    },
+    {
+      "id": "OP_CHECK",
+      "speaker": "operator",
+      "text": "De acuerdo. Compruébelo ahora y dígamelo. No cuelgue."
+    },
+    {
+      "id": "OP_WHAT",
+      "speaker": "operator",
+      "text": "Cuénteme qué ha pasado."
+    },
+    {
+      "id": "OP_AGE",
+      "speaker": "operator",
+      "text": "¿Qué edad tiene, aproximadamente?"
+    },
+    {
+      "id": "OP_RED_FLAGS",
+      "speaker": "operator",
+      "text": "¿Le duele el pecho o le falta el aire?"
+    },
+    {
+      "id": "OP_RED_FLAGS_ASK",
+      "speaker": "operator",
+      "text": "Pregúnteselo, por favor. Es importante."
+    },
+    {
+      "id": "OP_DISPATCH",
+      "speaker": "operator",
+      "text": "De acuerdo. Le envío una ambulancia, ya está en camino. Mientras llega, manténgalo tumbado, no le dé nada de comer ni de beber y no le deje solo. Si pierde el conocimiento o deja de respirar con normalidad, vuelva a llamar al uno uno dos."
+    },
+    {
+      "id": "OP_GOODBYE",
+      "speaker": "operator",
+      "text": "La ayuda está en camino. Hasta ahora."
+    },
+    {
+      "id": "CO_ACK",
+      "speaker": "companion",
+      "text": "Vale, llamo yo al uno uno dos. ¿Qué les digo?"
+    },
+    {
+      "id": "CO_CONFIRMED",
+      "speaker": "companion",
+      "text": "Ya está. La ambulancia viene de camino. Me han dicho que no le dejemos solo y que lo mantengamos tumbado."
+    },
+    {
+      "id": "PA_ARRIVE",
+      "speaker": "paramedic",
+      "text": "Hola, somos del equipo de emergencias. ¿Qué ha pasado?"
+    },
+    {
+      "id": "PA_THANKS",
+      "speaker": "paramedic",
+      "text": "Muy bien, gracias. Nos hacemos cargo a partir de aquí."
+    }
+  ]
+}

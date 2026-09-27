@@ -26,9 +26,20 @@ namespace EmergencyVR.Environment.Presentation
             Add("lamp", new Color(.82f, .88f, .86f), emission: new Color(.32f, .36f, .34f));
             // Corporate signage has its own token; clinical furniture and surfaces retain their existing palette.
             Add("brandNavy", EmergencyVR.UI.VitalBrand.Navy);
+            // Gym shell: CC0 Poly Haven surfaces, tiled to ~1 m rubber tiles across the 7 x 8 m floor.
+            Add("gymFloor", new Color(.72f, .72f, .72f), smooth: .08f,
+                map: "rubber_tiles", tiling: new Vector2(7, 8), saved: "GymFloor");
+            Add("gymWall", new Color(.93f, .94f, .93f), smooth: .06f,
+                map: "plastered_wall", tiling: new Vector2(3, 1.5f), saved: "GymWall");
+            Add("ceilingLamp", new Color(.95f, .96f, .95f), emission: new Color(2.2f, 2.13f, 2.02f), saved: "CeilingLamp");
+            Add("exterior", Color.white, saved: "ExteriorView");
 
-            void Add(string name, Color color, float metallic = 0, float smooth = .12f, Color emission = default)
+            void Add(string name, Color color, float metallic = 0, float smooth = .12f, Color emission = default,
+                string map = null, Vector2 tiling = default, string saved = null)
             {
+                // Saved assets keep their shader keywords in players; the runtime copy never edits the asset.
+                var asset = saved == null ? null : Resources.Load<Material>("Visual/Materials/" + saved);
+                if (asset != null) { materials.Add(name, new Material(asset) { name = "Vital environment / " + name }); return; }
                 var shader = template == null ? Shader.Find("Universal Render Pipeline/Lit") : template.shader;
                 var material = new Material(shader) { name = "Vital environment / " + name, enableInstancing = true };
                 material.SetColor("_BaseColor", color);
@@ -38,6 +49,21 @@ namespace EmergencyVR.Environment.Presentation
                 {
                     material.EnableKeyword("_EMISSION");
                     material.SetColor("_EmissionColor", emission);
+                }
+                if (map != null)
+                {
+                    var albedo = Resources.Load<Texture2D>("Visual/Textures/" + map + "_color");
+                    var normal = Resources.Load<Texture2D>("Visual/Textures/" + map + "_normal");
+                    if (albedo != null)
+                    {
+                        material.SetTexture("_BaseMap", albedo);
+                        material.SetTextureScale("_BaseMap", tiling);
+                    }
+                    if (normal != null)
+                    {
+                        material.SetTexture("_BumpMap", normal);
+                        material.EnableKeyword("_NORMALMAP");
+                    }
                 }
                 materials.Add(name, material);
             }

@@ -1,0 +1,149 @@
+{
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "assets": [
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/treadmill_a.glb",
+      "title": "Treadmill Machine",
+      "author": "sousinho",
+      "source": "https://sketchfab.com/3d-models/faed3a2a275b4fd68089e1d8bdfb7f89",
+      "license": "CC-BY-4.0",
+      "sha256": "46e899f98617e0944efce42f1a24059e9fabba6e9a05e999cb1703786987984c"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/treadmill_b.glb",
+      "title": "treadmill ProForm",
+      "author": "EmanuelRestrepoVelez",
+      "source": "https://sketchfab.com/3d-models/03e4ff99ecc24e5f8ea49d4e8df876e8",
+      "license": "CC-BY-4.0",
+      "sha256": "83a062e903dd563dd3b1e75b716e2def0e71389322e8a38de5c81e9e65bc54ed"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/elliptical.glb",
+      "title": "Elliptical trainer",
+      "author": "r.m.kowalewski",
+      "source": "https://sketchfab.com/3d-models/ebab27ba3cd14c75a36643919d3c2a71",
+      "license": "CC-BY-4.0",
+      "sha256": "20752c2abb4b33d95da28952d6f425417f410e5664c2780ae3ec8f0c6c268043"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/power_rack_bench.glb",
+      "title": "Weight Room Set 1",
+      "author": "tylerhalterman",
+      "source": "https://sketchfab.com/3d-models/1d18318c3e81407b8321159fb3424026",
+      "license": "CC-BY-4.0",
+      "sha256": "96ba2d058e38d75b23bd515f44750db5d5c7fad1d952bf8f399c80085b39d78a"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/dumbbell_rack.glb",
+      "title": "Weight Room Set 2",
+      "author": "tylerhalterman",
+      "source": "https://sketchfab.com/3d-models/fa481412927e43dfbeab9f6da464c15b",
+      "license": "CC-BY-4.0",
+      "sha256": "1c9770a4cfed964a41aa708e757103fa911203d21c29d5372d52241fa0d4cec7"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/lat_pulldown.glb",
+      "title": "Gym Lat Pulldown",
+      "author": "neilken",
+      "source": "https://sketchfab.com/3d-models/50fb1df222e6468f9d7ada63c45d673d",
+      "license": "CC-BY-4.0",
+      "sha256": "b8474932894b85423d8f6e342046abcd5ec7ea464823c9d3c37f37e74a8ac013"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/body_solid_machine.glb",
+      "title": "Gym Machine_ Body Solid",
+      "author": "Huunguyen98",
+      "source": "https://sketchfab.com/3d-models/4d1d0fb6879f42a9bccf1666a752c276",
+      "license": "CC-BY-4.0",
+      "sha256": "8a4bf07e5075c7247d8cdf7ed13552fabf2cf315913b7ce000fbb56fd4e2f2df"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/kettlebell.glb",
+      "title": "kettlebell",
+      "author": "anesbe89",
+      "source": "https://sketchfab.com/3d-models/2e09cbcbde964a658d51838e2f9866bb",
+      "license": "CC-BY-4.0",
+      "sha256": "b550fc8c1f149dc723da00d704865f43588112a40df24e5987142a39f68f8586"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/barbell.glb",
+      "title": "Weight Room Set 3",
+      "author": "tylerhalterman",
+      "source": "https://sketchfab.com/3d-models/8bfa29f8961b40258d5d1dc63d19c9a2",
+      "license": "CC-BY-4.0",
+      "sha256": "2fac6425006b8a3410d42a25956147eed75836160a35cef0f1e5cf066cdbe7f1"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/weight_plates.glb",
+      "title": "Weight Lifting Plates",
+      "author": "Dakota.Hinkle",
+      "source": "https://sketchfab.com/3d-models/f26c89d6991542af9ab37970b4683fb9",
+      "license": "CC-BY-4.0",
+      "sha256": "a44bb84400a23b0c3b74df60b50fd7c33377d1383bc7db6b34e4f565996591a7"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/yoga_mat.glb",
+      "title": "Yoga Mat",
+      "author": "JeremyGrayson",
+      "source": "https://sketchfab.com/3d-models/fd65a9c9aa634e97bd70cd184c2fd152",
+      "license": "CC-BY-4.0",
+      "sha256": "78ecd3b5b0bbbd088e9fd5c3bd7118f175eb6e0591df12a51eed3302b5eff156"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/punching_bag.glb",
+      "title": "Vintage / Old punching bag",
+      "author": "maxsbond.work",
+      "source": "https://sketchfab.com/3d-models/487e01cd3eea41c8a49062956c79eb66",
+      "license": "CC-BY-4.0",
+      "sha256": "b46229abcc631a62bd5908a34c102aa7205142749e50bf9a4302cd2b8b01134f"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/lockers.glb",
+      "title": "Lockers - By Velivian Fesothe",
+      "author": "fesothe",
+      "source": "https://sketchfab.com/3d-models/fd38da81ce0e41f29869c0dc7d051d2c",
+      "license": "CC-BY-4.0",
+      "sha256": "0960fca8ee7ff0be2d81aad936584c664ea2654ffeba4ffc48dafbdf7c7a4fea"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/water_cooler.glb",
+      "title": "Water cooler",
+      "author": "tboiston",
+      "source": "https://sketchfab.com/3d-models/4b88c4c4e94c497ca39f831f374e89fc",
+      "license": "CC-BY-4.0",
+      "sha256": "61cc3d096eceb5ecf9fe0bd8b4ad99679dc79e09e99565c3cf9628f20dc85c72"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/wall_clock.glb",
+      "title": "Wall Clock",
+      "author": "felipeprodev",
+      "source": "https://sketchfab.com/3d-models/2e964ac0242e4b1789adfd9549c653dc",
+      "license": "CC-BY-4.0",
+      "sha256": "f51aee403907e7184c3cde4767bf6396b5d2864f712d3ee19edabc4eba728ae6"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/first_aid_kit.glb",
+      "title": "first aid kit",
+      "author": "sergeykuchmin",
+      "source": "https://sketchfab.com/3d-models/5a8e5955aa1f4cab89bca44c279349a8",
+      "license": "CC-BY-4.0",
+      "sha256": "cd8f08dc8497b231e231ae117b6025e692996fab96fc01aab56f4a57778a1e56"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/desk_phone.glb",
+      "title": "Office Phone",
+      "author": "DanTronMcTronDan",
+      "source": "https://sketchfab.com/3d-models/ecefa2359e574c69b0926ea253646332",
+      "license": "CC-BY-4.0",
+      "sha256": "12bc8dc757ee9d44733e06140502f81e75c7374a39589b04f9eead785d0d7edf"
+    },
+    {
+      "file": "Assets/ThirdParty/GymModels/Resources/Gym/smartphone.glb",
+      "title": "IPHONE X LOWPOLY",
+      "author": "FredDrabble",
+      "source": "https://sketchfab.com/3d-models/3067c70fb7d14bd3b2b03e3246d6052d",
+      "license": "CC-BY-4.0",
+      "sha256": "b5a8ab4cc3e12fb26fc395576f7c384539abc618f3083321316f225a65b1f99e"
+    }
+  ]
+}

@@ -64,6 +64,7 @@ namespace EmergencyVR.Desktop
             var cam=new GameObject("Desktop Camera",typeof(Camera),typeof(AudioListener)); cam.transform.SetParent(transform,false); cam.transform.localPosition=Vector3.up*1.62f;
             View=cam.GetComponent<Camera>(); View.tag="MainCamera"; View.nearClipPlane=.045f; View.farClipPlane=100;
             View.fieldOfView=65; View.clearFlags=CameraClearFlags.SolidColor; View.backgroundColor=new Color(.12f,.17f,.19f);
+            DesktopAtmosphere.Apply(View);
             ResetPosition();
         }
         IEnumerator Start()

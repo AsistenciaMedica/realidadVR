@@ -48,6 +48,20 @@ namespace EmergencyVR.Environment.Presentation
             item.transform.localRotation = Quaternion.Dot(rotation, rotation) < .000001f ? Quaternion.identity : rotation;
             item.GetComponent<BoxCollider>().size = size;
         }
+        /// <summary>Textured plane (Unity quad: UVs + tangents) for surfaces that need a tiled material.</summary>
+        public void Surface(string name, Vector3 center, Quaternion rotation, Vector2 size, string material)
+        {
+            var item = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Object.Destroy(item.GetComponent<Collider>());
+            item.name = name;
+            item.transform.SetParent(root, false);
+            item.transform.localPosition = center;
+            item.transform.localRotation = rotation;
+            item.transform.localScale = new Vector3(size.x, size.y, 1);
+            var renderer = item.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = palette[material];
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+        }
         public void Text(string text, Vector3 position, float size = .018f, float yaw = 0, bool light = false)
         {
             var item = new GameObject(text, typeof(TextMesh));

@@ -85,6 +85,8 @@ namespace EmergencyVR.Scenarios
             Procedures=EmergencyVR.Medical.Interaction.MedicalProcedureRig.Attach(this);
             var help=gameObject.AddComponent<EmergencyVR.Dialogue.ClinicalHelpController>();
             help.Initialize(Manager);
+            gameObject.AddComponent<EmergencyVR.Dialogue.PhoneCallController>().Initialize(this);
+            gameObject.AddComponent<EmergencyVR.Patient.Presentation.Case01Cast>().Initialize(this);
             var body=gameObject.AddComponent<EmergencyVR.Patient.Presentation.Case01PatientPresentation>();
             body.Initialize(this);
             var variations=gameObject.AddComponent<Case01VariationController>();
