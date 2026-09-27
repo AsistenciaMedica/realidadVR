@@ -15,7 +15,7 @@ namespace EmergencyVR.Medical.Interaction
         void Update()
         {
             if(desktop==null && Time.unscaledTime>=lookupAt){desktop=FindFirstObjectByType<DesktopDemoController>();lookupAt=Time.unscaledTime+.5f;}
-            if(desktop==null||Keyboard.current==null||Mouse.current==null){if(dragging)controller.ReleaseContact();dragging=false;return;}
+            if(desktop==null||desktop.WorldInputBlocked||Keyboard.current==null||Mouse.current==null){if(dragging)controller.ReleaseContact();dragging=false;return;}
             var mouse=Mouse.current;
             if(Keyboard.current.cKey.wasPressedThisFrame)
             {

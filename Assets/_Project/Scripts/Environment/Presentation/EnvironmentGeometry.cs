@@ -68,7 +68,7 @@ namespace EmergencyVR.Environment.Presentation
         {
             float height = width * .245f;
             Shape("box", position, new Vector3(width, height, .025f), "brandNavy");
-            var panel = new GameObject("Vital VR corporate sign", typeof(RectTransform), typeof(Canvas));
+            var panel = new GameObject("VITAL VR corporate sign", typeof(RectTransform), typeof(Canvas));
             panel.transform.SetParent(root, false);
             panel.transform.localPosition = position + Vector3.back * .014f;
             var rect = panel.GetComponent<RectTransform>();

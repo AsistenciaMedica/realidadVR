@@ -18,7 +18,7 @@ namespace EmergencyVR.Medical.Interaction
         public MedicalToolKind Kind { get; private set; }
         public TextMesh Display;
         public bool IsAttached => attached;
-        public bool CanBeGrabbed => !resetting && (!attached || !IsPad);
+        public bool CanBeGrabbed => !resetting && rig!=null && rig.AllowsEquipment(Kind) && (!attached || !IsPad);
         bool IsPad => Kind == MedicalToolKind.RightPad || Kind == MedicalToolKind.LeftPad;
 
         public void Initialize(MedicalProcedureRig rig, MedicalToolKind kind)
@@ -50,7 +50,7 @@ namespace EmergencyVR.Medical.Interaction
 
         public void Use()
         {
-            if (resetting || rig.Manager == null || !rig.Manager.IsRunning || rig.Manager.MedicalSession == null) return;
+            if (resetting || rig.Manager == null || !rig.Manager.AcceptsInput || rig.Manager.MedicalSession == null || !rig.AllowsEquipment(Kind)) return;
             if (Kind == MedicalToolKind.AED) { rig.AED.Use(); return; }
             if (IsPad)
             {
@@ -62,6 +62,16 @@ namespace EmergencyVR.Medical.Interaction
             }
             if (Kind == MedicalToolKind.Phone)
             {
+                if(rig.Manager.MedicalSession.Capabilities.usesObservedPatientData)
+                {
+                    var help=rig.Review.GetComponent<EmergencyVR.Dialogue.ClinicalHelpController>();
+                    if(help!=null&&help.RequestCall(false))
+                    {
+                        if(Display!=null) Display.text="112\nSIMULACIÓN";
+                        rig.Hint="Llamada simulada. Comunica la ubicación y lo observado desde el panel de ayuda.";
+                    }
+                    return;
+                }
                 if (rig.SubmitNext("CallEmergencyServices"))
                 {
                     if (Display != null) Display.text = "AYUDA\nSOLICITADA";
@@ -91,13 +101,14 @@ namespace EmergencyVR.Medical.Interaction
         public bool OnReleased()
         {
             if (resetting) return false;
+            if(!rig.AllowsEquipment(Kind)) { Drop();return false; }
             if (attached) return true;
             if (IsPad)
             {
                 if (rig.AED.Place(this, Kind == MedicalToolKind.RightPad)) return true;
                 Drop(); return false;
             }
-            if (rig.Manager == null || !rig.Manager.IsRunning || rig.Manager.MedicalSession == null ||
+            if (rig.Manager == null || !rig.Manager.AcceptsInput || rig.Manager.MedicalSession == null ||
                 Kind == MedicalToolKind.Phone || Kind == MedicalToolKind.AED)
             { Drop(); return false; }
             var target = Kind == MedicalToolKind.BloodPressure ? rig.Visuals.UpperArmAnchor :
@@ -154,6 +165,7 @@ namespace EmergencyVR.Medical.Interaction
             var attempt = rig.Manager.MedicalSession;
             reading = true; if (Display != null) Display.text = "...";
             yield return new WaitForSeconds((float)rig.Settings.readingDelaySeconds);
+            while (rig.Manager.IsPaused && attached && rig.Manager.MedicalSession == attempt) yield return null;
             // A pending acquisition must never submit to a different attempt or continue after its result is frozen.
             if (!attached || !rig.Manager.IsRunning || attempt == null || rig.Manager.MedicalSession != attempt)
             { reading = false; yield break; }
@@ -170,6 +182,7 @@ namespace EmergencyVR.Medical.Interaction
                     Kind == MedicalToolKind.Glucose ? $"{p.glucose:0.0}\nmmol/L" : "OK";
             if (accepted)
             {
+                rig.RecordMeasurement(Kind, p);
                 rig.Measurements++; rig.Audio.Pulse(.04f, 800); MedicalHaptics.Pulse(.12f, .03f);
                 rig.Hint = "Adquisición registrada. El instrumento puede retirarse y recolocarse para una nueva medición prevista.";
             }

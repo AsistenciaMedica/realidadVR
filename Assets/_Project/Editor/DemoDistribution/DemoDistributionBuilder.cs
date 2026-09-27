@@ -65,15 +65,16 @@ namespace EmergencyVR.Editor
                 });
                 if(report.summary.result!=BuildResult.Succeeded) throw new InvalidOperationException("Windows build failed: "+report.summary.result);
                 File.WriteAllText(directory+"/LEEME.txt",
-                    "VITAL VR - Entrena hoy. Salva vidas mañana.\nExtraer todo el ZIP y abrir EmergencyVR.exe.\n"+
-                    "WASD: caminar. Boton derecho: mirar. Clic: paciente. E: coger/soltar. Q: usar. Z/X: orientar. R: inicio. Esc: panel.\n"+
-                    "C: RCP manual cerca del paciente. Apuntar al torax y arrastrar el raton abajo con clic; soltar para retroceso.\n"+
-                    "Elegir caso, iniciar, registrar acciones y finalizar. Guardar resultado JSON desde el panel.\n"+
-                    "Biblioteca: "+medical.scenarios.Length+" escenarios medicos declarativos pendientes de validacion. Usar selector y seed.\n"+
-                    "Avanzar 30s permite practicar esperas del guion sin esperar tiempo real. Revisar debrief y errores criticos.\n"+
-                    "RCP: metricas virtuales de desplazamiento, ritmo y retroceso, sin calibracion clinica de profundidad.\n"+
-                    "DEA: coger, abrir, encender, despegar y colocar dos parches; retirar manos para analizar/descargar.\n"+
-                    "Los resultados se guardan en AppData/LocalLow/EmergencyVR/Emergency VR Technical Demo/ReviewResults.\n");
+                    "VITAL VR - Simulaci?n y entrenamiento cl?nico inmersivo.\nExtraer todo el ZIP y abrir EmergencyVR.exe.\n"+
+                    "Bienvenida > elegir entorno y entrenamiento > preparaci?n > iniciar > resultados.\n"+
+                    "Pr?ctica guiada: ayudas y valores simulados. Evaluaci?n: consultar los instrumentos.\n"+
+                    "WASD: caminar. Bot?n derecho: mirar. E: coger/soltar. Q: usar. Z/X: orientar. R: volver al punto inicial.\n"+
+                    "C: RCP manual cerca del paciente. Apuntar al t?rax y arrastrar el rat?n; soltar para retroceso.\n"+
+                    "Escape: pausa real / continuar. Acciones y ficha se abren sin ocultar el monitor.\n"+
+                    "Finalizar abre el resumen, las acciones, la cronolog?a, las m?tricas y las referencias.\n"+
+                    "Guardar informe exporta JSON a AppData/LocalLow/EmergencyVR/VITAL VR/ReviewResults.\n"+
+                    "Los informes de la demo anterior permanecen en su carpeta original.\n"+
+                    "Cat?logo: "+medical.scenarios.Length+" variantes. Contenido en revisi?n cl?nica; m?tricas RCP virtuales sin calibraci?n de maniqu?.\n");
                 File.WriteAllText("Builds/Windows/latest-build.json",JsonUtility.ToJson(new Release {directory=directory,createdUtc=DateTime.UtcNow.ToString("O"),unityVersion=Application.unityVersion},true));
                 Debug.Log("WINDOWS_DEMO_BUILT "+directory);
             }

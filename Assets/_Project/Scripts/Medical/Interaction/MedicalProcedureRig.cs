@@ -17,6 +17,7 @@ namespace EmergencyVR.Medical.Interaction
         public MedicalInteractionSettings Settings {get;private set;}
         public PatientVisualController Visuals {get;private set;}
         public CPRInteractionController CPR {get;private set;}
+        public ProcedureHandAnimator Hands {get;private set;}
         public AEDInteractionController AED {get;private set;}
         public MedicalProcedureAudio Audio {get;private set;}
         public Material GloveMaterial {get;private set;}
@@ -24,16 +25,38 @@ namespace EmergencyVR.Medical.Interaction
         public string Hint {get;set;}="Acércate al paciente. C: RCP · E: coger/soltar · Q: usar objeto.";
         public int Measurements {get;set;}
         public int UnsafeAttempts {get;set;}
+        public event Action<MedicalToolKind, PatientSnapshot, double> MeasurementRecorded;
+        public void RecordMeasurement(MedicalToolKind kind, PatientSnapshot snapshot)
+        {
+            var session=Manager?.MedicalSession;
+            if(session==null || !Manager.AcceptsInput) return;
+            if(session.Capabilities.usesObservedPatientData)
+            {
+                // Existing proximity tools cannot impersonate advanced validated acquisitions.
+                // CASE 01 I0 has no measurement grants; future adapters submit their own evidence.
+                return;
+            }
+            MeasurementRecorded?.Invoke(kind, snapshot.Copy(), Manager.MedicalSession.Elapsed);
+        }
+        public bool AllowsEquipment(MedicalToolKind kind)
+        {
+            var config=Manager?.MedicalDefinition?.clinicalV2;
+            if(config==null || !config.capabilities.usesObservedPatientData) return true;
+            var profile=Manager.MedicalSession?.TrainingProfile ?? config.trainingProfiles.First(p=>p.ExportId==config.metadata.trainingProfile);
+            var name=kind==MedicalToolKind.Oximeter?"SpO2":kind==MedicalToolKind.RightPad||kind==MedicalToolKind.LeftPad?"AED":kind.ToString();
+            return profile.allowedEquipment.Contains(name);
+        }
         public bool IsWindows => FindFirstObjectByType<EmergencyVR.Desktop.DesktopDemoController>()!=null;
         readonly List<Material> materials=new List<Material>();
         readonly List<MedicalPhysicalTool> tools=new List<MedicalPhysicalTool>();
+        GameObject communicationStand;
         Material white,navy,red,cyan,metal;
         GameObject equipment,airway,hiddenSceneryAED;bool hiddenSceneryWasActive;MedicalScenarioRuntime lastSession;bool wasRunning;TextMesh bedside;
         public static MedicalProcedureRig Attach(ReviewCaseSession review)
         {
             if(review==null)throw new ArgumentNullException(nameof(review));
             var existing=FindFirstObjectByType<MedicalProcedureRig>();if(existing!=null&&existing.Review==review)return existing;
-            var go=new GameObject("Vital VR medical interaction kit");var rig=go.AddComponent<MedicalProcedureRig>();rig.Initialize(review);return rig;
+            var go=new GameObject("VITAL VR medical interaction kit");var rig=go.AddComponent<MedicalProcedureRig>();rig.Initialize(review);return rig;
         }
         void Initialize(ReviewCaseSession review)
         {
@@ -44,6 +67,7 @@ namespace EmergencyVR.Medical.Interaction
             Audio=gameObject.AddComponent<MedicalProcedureAudio>();Audio.Initialize(Visuals.ChestAnchor);
             AED=gameObject.AddComponent<AEDInteractionController>();AED.Initialize(this);
             CPR=gameObject.AddComponent<CPRInteractionController>();CPR.Initialize(this,Visuals);
+            Hands=gameObject.AddComponent<ProcedureHandAnimator>();Hands.Initialize(this);
             BuildKit();Review.SelectionChanged+=Selected;Manager.Changed+=StateChanged;Selected();
         }
         public bool IsPhysicalAction(string id)
@@ -53,11 +77,11 @@ namespace EmergencyVR.Medical.Interaction
         }
         public bool SubmitNext(string action)
         {
-            if(Manager==null||!Manager.IsRunning||Manager.MedicalSession==null||Manager.MedicalDefinition==null)return false;
+            if(Manager==null||!Manager.AcceptsInput||Manager.MedicalSession==null||Manager.MedicalDefinition==null)return false;
             var done=Manager.MedicalSession.Completed;
-            var rule=Manager.MedicalDefinition.actions.FirstOrDefault(r=>r.action==action&&!done.Contains(r.id)&&r.kind!="dangerous"&&r.kind!="incorrect"&&r.prerequisites.All(done.Contains)&&Manager.MedicalSession.Elapsed>=Manager.MedicalSession.EarliestTime(r.id));
+            var rule=Manager.MedicalDefinition.actions.FirstOrDefault(r=>r.action==action&&(!done.Contains(r.id)||r.repeatPolicy!=ActionRepeatPolicy.LegacySingleUse)&&r.kind!="dangerous"&&r.kind!="incorrect"&&r.prerequisites.All(done.Contains)&&Manager.MedicalSession.Elapsed>=Manager.MedicalSession.EarliestTime(r.id));
             if(rule==null)return false;
-            Manager.SubmitAction(rule.id);return Manager.MedicalSession.Completed.Contains(rule.id);
+            return Manager.TrySubmitAction(rule.id);
         }
         public string NextId(string action)
         {
@@ -71,24 +95,48 @@ namespace EmergencyVR.Medical.Interaction
             // Return attached instruments to their owner before hiding the kit or switching patients/environments.
             ResetTools();AED.ResetAttempt();CPR.ResetAttempt();CPR.SetWindowsEngaged(false);RestoreSceneryAED();
             bool medical=Review.Selected.medical!=null;
+            bool initialResponder=medical&&Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true;
+            foreach(Transform child in equipment.transform)child.gameObject.SetActive(!initialResponder);
             equipment.SetActive(medical);if(airway!=null)airway.SetActive(medical);
+            foreach(var tool in tools) tool.gameObject.SetActive(medical && AllowsEquipment(tool.Kind));
+            if(medical && Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true && airway!=null) airway.SetActive(false);
+            if(communicationStand!=null)communicationStand.SetActive(initialResponder);
             Measurements=0;UnsafeAttempts=0;
             if(!medical)return;
             var anchor=GameObject.Find("PortableEquipmentAnchor");equipment.transform.position=anchor!=null?anchor.transform.position:new Vector3(-1.8f,.98f,3.75f);
+            if(initialResponder)
+            {
+                if(communicationStand==null)
+                {
+                    communicationStand=new GameObject("Gym emergency communication point");communicationStand.transform.SetParent(transform,false);
+                    Shape(communicationStand,"Reception side table",new Vector3(0,.85f,0),new Vector3(.48f,.07f,.38f),navy);
+                    Shape(communicationStand,"Reception table support",new Vector3(0,.42f,0),new Vector3(.10f,.84f,.10f),metal);
+                    var support=communicationStand.AddComponent<BoxCollider>();support.center=new Vector3(0,.85f,0);support.size=new Vector3(.48f,.07f,.38f);
+                    var label=Display(communicationStand,"Emergency telephone sign",new Vector3(0,1.10f,.10f),.012f);label.text="TELÉFONO\n112 · SIMULACIÓN";
+                }
+                communicationStand.SetActive(true);communicationStand.transform.position=new Vector3(-1.8f,0,2.8f);
+                foreach(var tool in tools)if(tool.Kind==MedicalToolKind.Phone)tool.transform.position=communicationStand.transform.position+new Vector3(0,.90f,0);
+            }
             var scenery=anchor==null?null:anchor.transform.parent.Find("Reused medical equipment/DefibrillatorPlaceholder");
             if(scenery!=null){hiddenSceneryAED=scenery.gameObject;hiddenSceneryWasActive=hiddenSceneryAED.activeSelf;hiddenSceneryAED.SetActive(false);}
-            Hint="E: coger/soltar · Q: usar equipo · C: RCP manual";
+            Hint=Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true?"Habla con el paciente y registra tus observaciones.":"E: coger/soltar · Q: usar equipo · C: RCP manual";
         }
         void StateChanged()
         {
             if(Manager.MedicalSession!=lastSession){lastSession=Manager.MedicalSession;ResetTools();AED.ResetAttempt();CPR.ResetAttempt();Measurements=0;UnsafeAttempts=0;}
-            Audio.SetPatient(Manager.MedicalSession?.Patient??Review.Selected.medical?.initialState);
+            Audio.SetPatient(Manager.MedicalSession?.Patient??Review.Selected.medical?.initialState,
+                Manager.MedicalSession?.Capabilities.usesClinicalStateMachine==true);
             if(wasRunning&&!Manager.IsRunning&&Manager.MedicalResult!=null)Manager.MedicalResult.procedures=Report();
             wasRunning=Manager.IsRunning;
             if(bedside!=null)bedside.text="VITAL VR\n"+(TrainingMode?Review.PatientReadout():"MODO EVALUACIÓN\nConsultar instrumentos")+"\n"+(TrainingMode?Hint:"");
         }
         public ProcedureMetrics Report()=>new ProcedureMetrics {mode=TrainingMode?"TRAINING":"EVALUATION",cpr=CPR.Metrics,rightPadPlaced=AED.State.RightPad,leftPadPlaced=AED.State.LeftPad,shocks=AED.State.Shocks,measurements=Measurements,unsafeDeviceAttempts=UnsafeAttempts};
-        void ResetTools(){foreach(var tool in tools)if(tool!=null)tool.ResetTool();}
+        void ResetTools()
+        {
+            foreach(var tool in tools)if(tool!=null)tool.ResetTool();
+            if(communicationStand!=null&&Manager?.MedicalDefinition?.clinicalV2?.capabilities.usesObservedPatientData==true)
+                foreach(var tool in tools)if(tool.Kind==MedicalToolKind.Phone)tool.transform.position=communicationStand.transform.position+new Vector3(0,.90f,0);
+        }
         void BuildKit()
         {
             equipment=new GameObject("Portable medical tools");equipment.transform.SetParent(transform,false);

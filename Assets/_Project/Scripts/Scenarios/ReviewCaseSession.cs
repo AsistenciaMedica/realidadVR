@@ -31,6 +31,8 @@ namespace EmergencyVR.Scenarios
         public double Score => Manager.MedicalResult!=null?Manager.MedicalResult.scorePercent:evaluation.LatestResult?.ScorePercent??0;
         public string PatientReadout()
         {
+            if(Selected.medical?.clinicalV2?.capabilities.usesObservedPatientData==true)
+                return EmergencyVR.UI.ClinicalObservationText.Format(Manager.MedicalSession?.Observations);
             var p=Manager.MedicalSession?.Patient??Selected.medical?.initialState;
             if(p==null) return "Demo técnica original";
             var noPerfusion=p.circulation=="pulseless";
@@ -55,7 +57,7 @@ namespace EmergencyVR.Scenarios
             if(manager==null || catalog==null || catalog.entries.Length==0) return;
             var session=manager.gameObject.AddComponent<ReviewCaseSession>();
             session.Initialize(catalog,manager);
-            EmergencyVR.UI.ReviewCasePanel.Attach(session);
+            EmergencyVR.UI.TrainingExperience.Attach(session);
         }
 
         public void Initialize(ReviewCaseCatalog catalog,ScenarioManager manager)
@@ -81,6 +83,12 @@ namespace EmergencyVR.Scenarios
             }
             Catalog.entries=entries.ToArray();
             Procedures=EmergencyVR.Medical.Interaction.MedicalProcedureRig.Attach(this);
+            var help=gameObject.AddComponent<EmergencyVR.Dialogue.ClinicalHelpController>();
+            help.Initialize(Manager);
+            var body=gameObject.AddComponent<EmergencyVR.Patient.Presentation.Case01PatientPresentation>();
+            body.Initialize(this);
+            var variations=gameObject.AddComponent<Case01VariationController>();
+            variations.Initialize(this);
         }
 
         public bool Select(int index)
@@ -88,7 +96,7 @@ namespace EmergencyVR.Scenarios
             if(Manager.IsRunning || index<0 || index>=Catalog.entries.Length) return false;
             var entry=Catalog.entries[index];
             if(entry.definition==null) return false;
-            entry.definition.ToDomain();
+            if(entry.medical==null) entry.definition.ToDomain();
             runtimeScenario.defaultCase=entry.definition;
             Manager.Configure(runtimeScenario,patient,evaluation);
             if(entry.medical!=null) Manager.ConfigureMedical(entry.medical,medicalLibrary);
@@ -104,6 +112,8 @@ namespace EmergencyVR.Scenarios
 
         public string ExportResult()
         {
+            if(Manager.MedicalResult!=null && Selected.medical?.clinicalV2?.capabilities.usesObjectiveBasedEvaluation==true)
+                return SaveReport(JsonUtility.ToJson(ClinicalV2Report.From(Manager.MedicalResult),true));
             if(Manager.MedicalResult!=null) return SaveReport(JsonUtility.ToJson(Manager.MedicalResult,true));
             if(evaluation.LatestResult==null) return ExportMessage="Finaliza un intento antes de exportar.";
             var result=evaluation.LatestResult;

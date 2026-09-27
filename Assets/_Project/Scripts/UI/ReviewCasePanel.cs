@@ -35,7 +35,7 @@ namespace EmergencyVR.UI
             {
                 title.rectTransform.anchoredPosition=new Vector2(125,415);title.rectTransform.sizeDelta=new Vector2(690,60);
                 title.alignment=TextAnchor.MiddleRight;title.fontSize=24;
-                var tagline=Label("Vital VR tagline",new Vector2(-350,387),new Vector2(245,18),12);
+                var tagline=Label("VITAL VR tagline",new Vector2(-350,387),new Vector2(245,18),12);
                 tagline.text=VitalBrand.Tagline;tagline.color=VitalBrand.Muted;
             }
             previous=Button("Caso anterior",new Vector2(-250,345),new Vector2(470,65),()=>review.Select((review.SelectedIndex+review.Catalog.entries.Length-1)%review.Catalog.entries.Length));
@@ -62,7 +62,7 @@ namespace EmergencyVR.UI
 
         void Refresh()
         {
-            title.text="Vital VR · "+(review.SelectedIndex+1)+"/"+review.Catalog.entries.Length+" · Seed "+review.Manager.MedicalSeed;
+            title.text="VITAL VR · "+(review.SelectedIndex+1)+"/"+review.Catalog.entries.Length+" · Seed "+review.Manager.MedicalSeed;
             briefing.text=review.Selected.definition.displayName+"\n"+(review.Procedures.TrainingMode?review.PatientReadout():"Evaluación: observar paciente y consultar instrumentos.");
             if(debrief)
             {

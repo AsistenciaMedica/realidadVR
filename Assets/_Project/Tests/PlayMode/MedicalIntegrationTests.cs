@@ -23,7 +23,11 @@ namespace EmergencyVR.Tests
         [UnityTest] public IEnumerator SharedSelectorPreservesTechnicalDemoAndSwitchesAllFourModules()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");yield return null;
-            var review=Object.FindFirstObjectByType<ReviewCaseSession>();Assert.That(review.Catalog.entries.Length,Is.EqualTo(45));
+            var review=Object.FindFirstObjectByType<ReviewCaseSession>();
+            Assert.That(review.Catalog.entries.Length,Is.EqualTo(46));
+            Assert.That(review.Catalog.entries.Count(e=>e.medical==null),Is.EqualTo(1),"The original technical demo remains available.");
+            Assert.That(review.Catalog.entries.Count(e=>e.medical!=null&&e.medical.id!="review-hypotension-v2"),Is.EqualTo(44),"All legacy medical cases remain available.");
+            Assert.That(review.Catalog.entries.Count(e=>e.medical?.id=="review-hypotension-v2"),Is.EqualTo(1),"CASE 01 is an additional version, never a replacement for v1.");
             foreach(var env in new[]{"gym","mall","dental","football"})
             {
                 int i=System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==env);

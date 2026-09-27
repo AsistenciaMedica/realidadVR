@@ -6,7 +6,8 @@ namespace EmergencyVR.UI
     // Shared presentation tokens. Product branding never changes scenario or interaction identifiers.
     public static class VitalBrand
     {
-        public const string Tagline="Entrena hoy. Salva vidas mañana.";
+        public const string ProductName="VITAL VR";
+        public const string Tagline="Simulación y entrenamiento clínico inmersivo";
         public static readonly Color Navy=new Color32(3,17,35,255);
         public static readonly Color Surface=new Color32(11,32,55,255);
         public static readonly Color Red=new Color32(237,25,57,255);
@@ -22,7 +23,7 @@ namespace EmergencyVR.UI
         public static RawImage AddLockup(Transform parent,Vector2 position,Vector2 available)
         {
             var texture=LoadLockup();if(texture==null)return null;
-            var go=new GameObject("Vital VR brand",typeof(RectTransform),typeof(RawImage));go.transform.SetParent(parent,false);
+            var go=new GameObject("VITAL VR brand",typeof(RectTransform),typeof(RawImage));go.transform.SetParent(parent,false);
             var image=go.GetComponent<RawImage>();image.texture=texture;image.color=Color.white;image.raycastTarget=false;
             var rect=go.GetComponent<RectTransform>();rect.anchoredPosition=position;
             float ratio=Mathf.Min(available.x/texture.width,available.y/texture.height);

@@ -11,6 +11,7 @@ namespace EmergencyVR.Patient.Presentation
         PatientRigAdapter rig;
         Transform lookTarget;
         Transform originalBodyCollider,originalHeadCollider;
+        GameObject importedPatient;
         Quaternion originalBodyOrientation;
         Vector3 chestRest,abdomenRest,headRestPosition,poseRestPosition,jawRestPosition,leftLidRest,rightLidRest;
         Quaternion headRest,poseRest;
@@ -26,6 +27,8 @@ namespace EmergencyVR.Patient.Presentation
 #endif
         float[] originalFaceWeights;
         public PatientRigAdapter Rig => rig;
+        // Optional per-case choreography owns body/head bones; shared clinical breathing and face remain available.
+        public bool ExternalBodyPresentation { get; set; }
         public PatientVisualState VisualState => visual;
         public PatientPosture EffectivePosture => startingPose??visual.Posture;
         public bool NeedsHumanAsset => rig==null || rig.provisionalAsset;
@@ -60,7 +63,21 @@ namespace EmergencyVR.Patient.Presentation
                 var oldBody=patient.transform.Find("Body");var oldHead=patient.transform.Find("Head");
                 Material source=oldBody!=null?oldBody.GetComponent<Renderer>()?.sharedMaterial:null;
                 var centre=oldBody!=null?oldBody.localPosition:Vector3.zero;
-                var proxy=PatientAnatomicalProxy.Create(patient.transform,centre,source);Bind(proxy);
+                var imported=Resources.Load<GameObject>("Visual/Patient");
+                if(imported!=null)
+                {
+                    importedPatient=Instantiate(imported,patient.transform);
+                    importedPatient.name="Realistic Patient";
+                    importedPatient.transform.localPosition=centre;
+                    importedPatient.transform.localRotation=Quaternion.identity;
+                    importedPatient.transform.localScale=Vector3.one;
+                    var importedRig=importedPatient.GetComponent<PatientRigAdapter>();
+                    if(importedRig!=null) Bind(importedRig);
+                }
+                if(rig==null)
+                {
+                    var proxy=PatientAnatomicalProxy.Create(patient.transform,centre,source);Bind(proxy);
+                }
                 // Keep original XRSimpleInteractable and its registered colliders working.
                 if(oldBody!=null)
                 {
@@ -79,6 +96,7 @@ namespace EmergencyVR.Patient.Presentation
             patient.OnStateChanged.AddListener(OnPatientStateChanged);
             OnPatientStateChanged(patient.State);
         }
+
         public void Bind(PatientRigAdapter replacement)
         {
             if(replacement==null) throw new System.ArgumentNullException(nameof(replacement));
@@ -164,7 +182,8 @@ namespace EmergencyVR.Patient.Presentation
             if(rig.controlledRagdoll!=null && rig.controlledRagdoll.OwnsPose) return;
             elapsed+=Time.deltaTime;float blend=1-Mathf.Exp(-Time.deltaTime*6);
             awareness=Mathf.Lerp(awareness,PatientBreathingAnimator.Awareness(visual.Consciousness),blend);
-            breathingClock+=Time.deltaTime*visual.RespiratoryRate/60;
+            if(patient.ClinicalState!=null) breathingClock=patient.ClinicalState.RespiratoryPhase;
+            else breathingClock+=Time.deltaTime*visual.RespiratoryRate/60;
             var breath=visual.RespiratoryRate<=0?0:PatientBreathingAnimator.Excursion(visual.Breathing,60,breathingClock);
             excursion=Mathf.Lerp(excursion,breath,blend);
             float reaction=elapsed<shockUntil?Mathf.Sin((shockUntil-elapsed)/.22f*Mathf.PI)*.003f:0;
@@ -188,7 +207,8 @@ namespace EmergencyVR.Patient.Presentation
                     if(leg<rig.feet.Length && rig.feet[leg]!=null)rig.feet[leg].localRotation=Quaternion.Slerp(rig.feet[leg].localRotation,Quaternion.Euler(posture==PatientPosture.Seated?90:0,0,0),blend*.45f);
                 }
             }
-            AnimateAttention(blend);AnimateFace(blend);AnimateSkin();
+            if(!ExternalBodyPresentation) AnimateAttention(blend);
+            AnimateFace(blend);AnimateSkin();
             if(rig.provisionalAsset && rig.poseRoot!=null)
             {
                 // Registered XR targets follow the assisted pose instead of remaining in empty space.
@@ -275,6 +295,10 @@ namespace EmergencyVR.Patient.Presentation
             compression=0;excursion=0;airwayTilt=0;
         }
         void OnDisable() { RestorePresentation(); }
-        void OnDestroy() { if(patient!=null) patient.OnStateChanged.RemoveListener(OnPatientStateChanged); }
+        void OnDestroy()
+        {
+            if(patient!=null) patient.OnStateChanged.RemoveListener(OnPatientStateChanged);
+            if(importedPatient!=null) Destroy(importedPatient);
+        }
     }
 }

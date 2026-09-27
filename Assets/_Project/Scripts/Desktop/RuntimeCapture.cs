@@ -9,14 +9,14 @@ namespace EmergencyVR.Desktop
 {
     public static class RuntimeCapture
     {
-        public static void Save(Camera camera,string path)
+        public static void Save(Camera camera,string path,int width=1440,int height=1000)
         {
-            var target=new RenderTexture(1440,1000,24);var pixels=new Texture2D(1440,1000,TextureFormat.RGB24,false);var previous=RenderTexture.active;
-            try {target.Create();RenderPipeline.SubmitRenderRequest(camera,new UniversalRenderPipeline.SingleCameraRequest {destination=target});RenderTexture.active=target;pixels.ReadPixels(new Rect(0,0,1440,1000),0,0);pixels.Apply();Directory.CreateDirectory(Path.GetDirectoryName(path));File.WriteAllBytes(path,EncodePng(pixels));}
+            var target=new RenderTexture(width,height,24);var pixels=new Texture2D(width,height,TextureFormat.RGB24,false);var previous=RenderTexture.active;
+            try {target.Create();RenderPipeline.SubmitRenderRequest(camera,new UniversalRenderPipeline.SingleCameraRequest {destination=target});RenderTexture.active=target;pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();Directory.CreateDirectory(Path.GetDirectoryName(path));File.WriteAllBytes(path,EncodePng(pixels));}
             finally {RenderTexture.active=previous;target.Release();Object.Destroy(target);Object.Destroy(pixels);}
         }
         // Runtime ImageConversion is not enabled in this project. PNG encoding uses existing .NET only.
-        static byte[] EncodePng(Texture2D texture)
+        public static byte[] EncodePng(Texture2D texture)
         {
             int width=texture.width,height=texture.height;var colors=texture.GetPixels32();
             var raw=new byte[height*(width*3+1)];int k=0;

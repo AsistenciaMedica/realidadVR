@@ -1,23 +1,25 @@
-# Vital VR — simulación de emergencias
+# VITAL VR
 
-**Entrena hoy. Salva vidas mañana.** Proyecto Unity 6000.3.23f1 con demo Windows,
+**Simulación y entrenamiento clínico inmersivo.** Proyecto Unity 6000.3.23f1 con demo Windows,
 44 variantes médicas declarativas, cuatro ambientes procedurales, RCP virtual,
 DEA manipulable y portal comercial con administración. Los casos siguen
-`CLIENT_REVIEW`; el humano y las manos siguen siendo provisionales.
+`CLIENT_REVIEW`. La nueva experiencia incluye bienvenida, catálogo por entorno,
+preparación, monitor clínico, pausa real y revisión de resultados.
 
 Para continuar desde este repositorio: **Emergency VR → Demo → Play with keyboard
-and mouse**. Ver [demo Windows](docs/CLIENT_DEMO.md),
+and mouse**. Ver [experiencia de entrenamiento](docs/TRAINING_EXPERIENCE.md), [demo Windows](docs/CLIENT_DEMO.md),
 [estado visual y pruebas](docs/VISUAL_INTERACTION_STATUS.md) y
 [capturas reales](docs/screenshots/README.md).
 
-Identidad visual actual: [branding de Vital VR](docs/BRANDING.md), con logos,
-paleta y capturas web. Los cambios del simulador quedan para la próxima compilación;
-en esta fase no se ha regenerado el ZIP.
+Identidad del simulador: **VITAL VR**, con interfaz nativa compartida entre Desktop
+y VR. El [branding del portal web](docs/BRANDING.md) tiene su documentación propia.
+Los registros visuales anteriores describen entregas históricas; el flujo actual
+se documenta en [TRAINING_EXPERIENCE](docs/TRAINING_EXPERIENCE.md).
 
 Se conserva **TrainingRoom** con arquitectura, mobiliario y prefabs reemplazables.
 Para regenerarla y revisar su validación, ver
 [TrainingRoom procedural](docs/TRAINING_ROOM_ENVIRONMENT.md).
-La validación de rendimiento en Quest 3 sigue pendiente; esta fase no genera APK.
+La validación de comodidad y rendimiento con hardware Quest 3 sigue pendiente.
 
 No es un dispositivo médico ni software clínico certificado. La demo prueba
 interacciones y estados arbitrarios; no enseña un protocolo médico aprobado.
@@ -40,20 +42,20 @@ Los menús 1–3 preparan referencias, prefabs, escenas, casos y configuración.
 hay que montar manualmente un rig ni enlazar botones. El menú 2 conserva escenas,
 prefabs, materiales y casos existentes; vuelve a asignar URP y el orden de escenas.
 
-## Demo prevista
+## Recorrido de entrenamiento
 
-Bootstrap carga TrainingRoom. La sala tiene un rig con mandos, cuatro zonas de
-teleport, giro de 30°, un cubo agarrable, un paciente placeholder y UI world-space.
+Al abrir la aplicación aparece la bienvenida **VITAL VR** sobre un fondo neutro.
+La escena base se prepara en segundo plano y se revela al iniciar el ejercicio.
 
-1. Moverse entre zonas turquesa y agarrar/soltar el cubo con Grip.
-2. Apuntar al panel y pulsar Trigger sobre **Iniciar caso demo**.
-3. Seleccionar el paciente con Grip: registra `demo.inspect`, cambia de estado/color.
-4. Pulsar **Transición demo**: registra `demo.confirm`, cambia al estado final.
-5. Pulsar **Finalizar**: mostrar puntuación, duración, errores y omisiones.
+1. Elegir uno de los cuatro entornos y un entrenamiento del catálogo.
+2. Leer la preparación y elegir práctica guiada o evaluación.
+3. Pulsar **Iniciar entrenamiento** para activar el caso y su reloj.
+4. Usar equipo y acciones; consultar monitor y ficha independientemente del menú.
+5. Pausar con Escape en Desktop o B/Y en VR; continuar o finalizar el intento.
+6. Revisar resumen, acciones, cronología, métricas y referencias; guardar el informe.
 
-Los dos pasos correctos dan 100/100. Finalizar antes muestra omisiones. Ejecutar
-el segundo paso primero registra un error sin avanzar el estado. Los cambios de
-estado/color son pruebas técnicas, no resultados clínicos.
+La ayuda incluye una práctica de controles que conserva la secuencia técnica
+original. El catálogo, evolución clínica y scoring existentes se reutilizan.
 
 ## Pruebas que ya se pueden ejecutar
 
@@ -69,6 +71,7 @@ Unity. Pruebas y límites: [TESTING](docs/TESTING.md) y [VALIDATION_REPORT](docs
 
 ## Documentación
 
+- [Nueva experiencia de entrenamiento y verificación](docs/TRAINING_EXPERIENCE.md).
 - [Demo Windows y portal Railway](docs/CLIENT_DEMO.md).
 - [Alcance actual y fuentes de los cinco pilotos médicos](docs/MVP_SCOPE_AND_MEDICAL_REVIEW.md).
 - [Arquitectura y extensión de casos](docs/ARCHITECTURE.md).
@@ -82,5 +85,7 @@ Versionar `Assets` y sus `.meta`, `Packages`
 (incluido `packages-lock.json` cuando Unity lo genere), `ProjectSettings` y docs.
 `Library`, `Temp`, `Logs`, `Builds`, cachés y resultados locales están ignorados.
 
-La entrega Windows incluye cinco guiones declarativos provisionales. Las destrezas
-físicas de RCP, DEA y mediciones, hand tracking y los cuatro entornos finales siguen pendientes.
+El catálogo incluye 44 variantes en revisión clínica. RCP, DEA y adquisiciones
+son interacciones virtuales; las métricas no acreditan una técnica clínica real.
+El seguimiento de manos sin mandos y la validación física en Quest requieren
+trabajo y comprobaciones específicos.

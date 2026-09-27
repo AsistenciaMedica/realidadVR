@@ -15,10 +15,12 @@ namespace EmergencyVR.Patient
         MaterialPropertyBlock properties;
         public PatientState State { get; private set; } = PatientState.Normal;
         EmergencyVR.Medical.PatientSnapshot medicalState;
+        public EmergencyVR.Medical.PatientClinicalState ClinicalState { get; private set; }
         public EmergencyVR.Medical.PatientSnapshot MedicalState => medicalState?.Copy();
-        public void ClearMedicalState() { medicalState=null; }
-        public void PresentMedical(EmergencyVR.Medical.PatientSnapshot state)
+        public void ClearMedicalState() { medicalState=null; ClinicalState=null; }
+        public void PresentMedical(EmergencyVR.Medical.PatientSnapshot state, EmergencyVR.Medical.PatientClinicalState clinicalState=null)
         {
+            ClinicalState=clinicalState;
             medicalState=state.Copy();
             // Preserve the enum/API used by existing XR components; physiology lives in the medical snapshot.
             var legacy=state.consciousness=="Unresponsive" ? (state.respiration=="normal"?PatientState.UnconsciousBreathing:PatientState.UnconsciousNotBreathing) : PatientState.Conscious;

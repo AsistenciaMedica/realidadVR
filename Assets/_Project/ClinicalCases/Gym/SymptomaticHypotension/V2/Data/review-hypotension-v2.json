@@ -1,0 +1,1000 @@
+{
+  "metadata": {
+    "scenarioId": "review-hypotension-v2",
+    "scenarioVersion": "2.0.0",
+    "clinicalSpecVersion": "0.1",
+    "trainingProfile": "I0_FIRST_RESPONDER",
+    "initialClinicalStateId": "HYP_00_INITIAL_PRESYNCOPE",
+    "clinicalReviewRequired": true,
+    "displayName": "Daniel · Malestar después del ejercicio",
+    "category": "Presíncope",
+    "difficulty": "Inicial",
+    "environment": "gym",
+    "description": "Entrenamiento para primer interviniente. Daniel acaba de finalizar ejercicio y necesita ayuda en el gimnasio. Practica la valoración inicial, la comunicación y la solicitud de ayuda.",
+    "history": "",
+    "incident": "Daniel está junto a la zona de cardio después de detener el ejercicio.",
+    "referenceIds": [
+      "bp",
+      "faint"
+    ]
+  },
+  "patientProfile": {
+    "id": "daniel_case01",
+    "name": "Daniel",
+    "age": 40,
+    "sex": "male"
+  },
+  "capabilities": {
+    "usesClinicalStateMachine": true,
+    "usesObservedPatientData": true,
+    "usesPhysicalPositionConfirmation": true,
+    "usesIntentDialogue": true,
+    "usesAdvancedMeasurements": false,
+    "usesObjectiveBasedEvaluation": true
+  },
+  "trainingProfiles": [
+    {
+      "id": 0,
+      "allowedActions": [
+        "TalkToPatient",
+        "AssessResponsiveness",
+        "ObserveBreathing",
+        "AssistPatient",
+        "RequestHelp",
+        "DelegateHelp",
+        "ReassessPatient",
+        "PerformHandover"
+      ],
+      "allowedEquipment": ["Phone"],
+      "allowedMeasurements": [],
+      "allowedProcedures": []
+    }
+  ],
+  "clinicalStates": [
+    {
+      "id": "HYP_00_INITIAL_PRESYNCOPE",
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 1,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [
+        "dizziness",
+        "pallor",
+        "weakness",
+        "nausea",
+        "darkened_vision"
+      ],
+      "vitalTrajectories": [
+        {
+          "vital": "HeartRate",
+          "ruleId": "R_INITIAL_PROTOTYPE",
+          "startValue": 88,
+          "targetValue": 88,
+          "durationSeconds": 0,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Systolic",
+          "ruleId": "R_INITIAL_PROTOTYPE",
+          "startValue": 85,
+          "targetValue": 85,
+          "durationSeconds": 0,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Diastolic",
+          "ruleId": "R_INITIAL_PROTOTYPE",
+          "startValue": 55,
+          "targetValue": 55,
+          "durationSeconds": 0,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "RespiratoryRate",
+          "ruleId": "R_INITIAL_PROTOTYPE",
+          "startValue": 18,
+          "targetValue": 18,
+          "durationSeconds": 0,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "SpO2",
+          "ruleId": "R_INITIAL_PROTOTYPE",
+          "startValue": 97,
+          "targetValue": 97,
+          "durationSeconds": 0,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        }
+      ]
+    },
+    {
+      "id": "HYP_01_SUPPORTED_OBSERVATION",
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 2,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [
+        "dizziness",
+        "pallor",
+        "weakness"
+      ],
+      "vitalTrajectories": [
+        {
+          "vital": "HeartRate",
+          "ruleId": "R_SUPPORTED_TRAJECTORY",
+          "startValue": 88,
+          "targetValue": 84,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Systolic",
+          "ruleId": "R_SUPPORTED_TRAJECTORY",
+          "startValue": 85,
+          "targetValue": 95,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Diastolic",
+          "ruleId": "R_SUPPORTED_TRAJECTORY",
+          "startValue": 55,
+          "targetValue": 60,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "RespiratoryRate",
+          "ruleId": "R_SUPPORTED_TRAJECTORY",
+          "startValue": 18,
+          "targetValue": 17,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "SpO2",
+          "ruleId": "R_SUPPORTED_TRAJECTORY",
+          "startValue": 97,
+          "targetValue": 97,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        }
+      ]
+    },
+    {
+      "id": "HYP_02_IMPROVING",
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 2,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [
+        "residual_weakness"
+      ],
+      "vitalTrajectories": [
+        {
+          "vital": "HeartRate",
+          "ruleId": "R_IMPROVING_TRAJECTORY",
+          "startValue": 84,
+          "targetValue": 80,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Systolic",
+          "ruleId": "R_IMPROVING_TRAJECTORY",
+          "startValue": 95,
+          "targetValue": 105,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Diastolic",
+          "ruleId": "R_IMPROVING_TRAJECTORY",
+          "startValue": 60,
+          "targetValue": 65,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "RespiratoryRate",
+          "ruleId": "R_IMPROVING_TRAJECTORY",
+          "startValue": 17,
+          "targetValue": 16,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "SpO2",
+          "ruleId": "R_IMPROVING_TRAJECTORY",
+          "startValue": 97,
+          "targetValue": 97,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        }
+      ]
+    },
+    {
+      "id": "HYP_03_PERSISTENT_SYMPTOMS",
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 0,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [
+        "dizziness",
+        "pallor",
+        "weakness"
+      ],
+      "vitalTrajectories": [
+        {
+          "vital": "HeartRate",
+          "ruleId": "R_PERSISTENT_TRAJECTORY",
+          "startValue": 88,
+          "targetValue": 88,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Systolic",
+          "ruleId": "R_PERSISTENT_TRAJECTORY",
+          "startValue": 85,
+          "targetValue": 85,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Diastolic",
+          "ruleId": "R_PERSISTENT_TRAJECTORY",
+          "startValue": 55,
+          "targetValue": 55,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "RespiratoryRate",
+          "ruleId": "R_PERSISTENT_TRAJECTORY",
+          "startValue": 18,
+          "targetValue": 18,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "SpO2",
+          "ruleId": "R_PERSISTENT_TRAJECTORY",
+          "startValue": 97,
+          "targetValue": 97,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        }
+      ]
+    },
+    {
+      "id": "HYP_04_RECURRENT_PRESYNCOPE",
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 3,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [
+        "recurrent_dizziness",
+        "pallor",
+        "weakness",
+        "postural_instability"
+      ],
+      "vitalTrajectories": [
+        {
+          "vital": "HeartRate",
+          "ruleId": "R_RECURRENT_TRAJECTORY",
+          "startValue": 80,
+          "targetValue": 92,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Systolic",
+          "ruleId": "R_RECURRENT_TRAJECTORY",
+          "startValue": 105,
+          "targetValue": 82,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "Diastolic",
+          "ruleId": "R_RECURRENT_TRAJECTORY",
+          "startValue": 65,
+          "targetValue": 52,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "RespiratoryRate",
+          "ruleId": "R_RECURRENT_TRAJECTORY",
+          "startValue": 16,
+          "targetValue": 19,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        },
+        {
+          "vital": "SpO2",
+          "ruleId": "R_RECURRENT_TRAJECTORY",
+          "startValue": 97,
+          "targetValue": 97,
+          "durationSeconds": 30,
+          "interpolation": 1,
+          "clinicalReviewRequired": true
+        }
+      ]
+    },
+    {
+      "id": "HYP_07_HANDOVER",
+      "preserveSymptomsOnEntry": true,
+      "consciousness": 0,
+      "orientation": 0,
+      "position": 0,
+      "canSpeak": true,
+      "canCooperate": true,
+      "symptoms": [],
+      "vitalTrajectories": []
+    }
+  ],
+  "transitions": [
+    {
+      "id": "POSITION_SUPPORTED",
+      "from": "HYP_00_INITIAL_PRESYNCOPE",
+      "to": "HYP_01_SUPPORTED_OBSERVATION",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "PhysicalPositionConfirmed",
+          "seconds": 0
+        },
+        {
+          "type": "PhysicalPosition",
+          "value": "Supine",
+          "seconds": 0
+        }
+      ],
+      "priority": 20,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "INITIAL_PERSISTENCE",
+      "from": "HYP_00_INITIAL_PRESYNCOPE",
+      "to": "HYP_03_PERSISTENT_SYMPTOMS",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "NoMeaningfulImprovement",
+          "seconds": 0
+        }
+      ],
+      "priority": 30,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "OBSERVATION_PERSISTENCE",
+      "from": "HYP_01_SUPPORTED_OBSERVATION",
+      "to": "HYP_03_PERSISTENT_SYMPTOMS",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "NoMeaningfulImprovement",
+          "seconds": 0
+        }
+      ],
+      "priority": 30,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "GRADUAL_IMPROVEMENT",
+      "from": "HYP_01_SUPPORTED_OBSERVATION",
+      "to": "HYP_02_IMPROVING",
+      "conditions": [
+        {
+          "type": "TrajectoryCompleted",
+          "value": "",
+          "seconds": 0
+        }
+      ],
+      "priority": 10,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "POSTURAL_RECURRENCE",
+      "from": "HYP_02_IMPROVING",
+      "to": "HYP_04_RECURRENT_PRESYNCOPE",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "UnsafeRiseAttempt",
+          "seconds": 0
+        },
+        {
+          "type": "PhysicalPosition",
+          "value": "Standing",
+          "seconds": 0
+        }
+      ],
+      "priority": 20,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "REESTABLISHED_SUPPORT",
+      "from": "HYP_04_RECURRENT_PRESYNCOPE",
+      "to": "HYP_01_SUPPORTED_OBSERVATION",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "PhysicalPositionConfirmed",
+          "seconds": 0
+        },
+        {
+          "type": "PhysicalPosition",
+          "value": "Supine",
+          "seconds": 0
+        }
+      ],
+      "priority": 20,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "HANDOVER_FROM_0",
+      "from": "HYP_00_INITIAL_PRESYNCOPE",
+      "to": "HYP_07_HANDOVER",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "HandoverCompleted",
+          "seconds": 0
+        }
+      ],
+      "priority": 100,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "HANDOVER_FROM_1",
+      "from": "HYP_01_SUPPORTED_OBSERVATION",
+      "to": "HYP_07_HANDOVER",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "HandoverCompleted",
+          "seconds": 0
+        }
+      ],
+      "priority": 100,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "HANDOVER_FROM_2",
+      "from": "HYP_02_IMPROVING",
+      "to": "HYP_07_HANDOVER",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "HandoverCompleted",
+          "seconds": 0
+        }
+      ],
+      "priority": 100,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "HANDOVER_FROM_3",
+      "from": "HYP_03_PERSISTENT_SYMPTOMS",
+      "to": "HYP_07_HANDOVER",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "HandoverCompleted",
+          "seconds": 0
+        }
+      ],
+      "priority": 100,
+      "optionalTrajectory": []
+    },
+    {
+      "id": "HANDOVER_FROM_4",
+      "from": "HYP_04_RECURRENT_PRESYNCOPE",
+      "to": "HYP_07_HANDOVER",
+      "conditions": [
+        {
+          "type": "Signal",
+          "value": "HandoverCompleted",
+          "seconds": 0
+        }
+      ],
+      "priority": 100,
+      "optionalTrajectory": []
+    }
+  ],
+  "learningObjectives": [
+    {
+      "id": "OBJ_01",
+      "name": "RecognizeRiskAndAssess",
+      "requiredOutcomes": [
+        "ResponsivenessAssessed",
+        "BreathingObserved"
+      ],
+      "anyOutcomes": []
+    },
+    {
+      "id": "OBJ_02",
+      "name": "ProtectPatientFromFall",
+      "requiredOutcomes": [],
+      "anyOutcomes": [
+        "ProtectedFromFall",
+        "MaintainedSafeSupportedPosition",
+        "AssistedToSafePosition"
+      ]
+    },
+    {
+      "id": "OBJ_03",
+      "name": "GatherRelevantInformation",
+      "requiredOutcomes": [
+        "RelevantInformationGathered"
+      ],
+      "anyOutcomes": []
+    },
+    {
+      "id": "OBJ_04",
+      "name": "ReassessEvolution",
+      "requiredOutcomes": [
+        "PatientReassessed"
+      ],
+      "anyOutcomes": []
+    },
+    {
+      "id": "OBJ_05",
+      "name": "RequestAndCommunicateHelp",
+      "requiredOutcomes": [
+        "HelpConfirmed",
+        "HandoverCompleted"
+      ],
+      "anyOutcomes": []
+    }
+  ],
+  "dialogue": [
+    {
+      "intent": 0,
+      "responses": [
+        {
+          "id": "DANIEL_GREETING_01",
+          "intent": 0,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Hola… sí, te escucho.",
+          "audioReference": "DANIEL_GREETING_01",
+          "subtitle": "Hola… sí, te escucho.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 1,
+      "responses": [
+        {
+          "id": "DANIEL_MAIN_SYMPTOM_01",
+          "intent": 1,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "He parado hace nada y me estoy mareando.",
+          "audioReference": "DANIEL_MAIN_SYMPTOM_01",
+          "subtitle": "He parado hace nada y me estoy mareando.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 2,
+      "responses": [
+        {
+          "id": "DANIEL_SYMPTOM_DESCRIPTION_01",
+          "intent": 2,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Como si me fuera a desmayar… se me oscurece un poco la vista.",
+          "audioReference": "DANIEL_SYMPTOM_DESCRIPTION_01",
+          "subtitle": "Como si me fuera a desmayar… se me oscurece un poco la vista.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 3,
+      "responses": [
+        {
+          "id": "DANIEL_ONSET_01",
+          "intent": 3,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Al bajar de la cinta y quedarme quieto.",
+          "audioReference": "DANIEL_ONSET_01",
+          "subtitle": "Al bajar de la cinta y quedarme quieto.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 4,
+      "responses": [
+        {
+          "id": "DANIEL_LOSS_OF_CONSCIOUSNESS_01",
+          "intent": 4,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "No… me he sentado porque no me encontraba bien.",
+          "audioReference": "DANIEL_LOSS_OF_CONSCIOUSNESS_01",
+          "subtitle": "No… me he sentado porque no me encontraba bien.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 5,
+      "responses": [
+        {
+          "id": "DANIEL_CHEST_PAIN_01",
+          "intent": 5,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "No me duele el pecho.",
+          "audioReference": "DANIEL_CHEST_PAIN_01",
+          "subtitle": "No me duele el pecho.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 6,
+      "responses": [
+        {
+          "id": "DANIEL_BREATHING_DIFFICULTY_01",
+          "intent": 6,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "No me falta el aire.",
+          "audioReference": "DANIEL_BREATHING_DIFFICULTY_01",
+          "subtitle": "No me falta el aire.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 7,
+      "responses": [
+        {
+          "id": "DANIEL_PALPITATIONS_01",
+          "intent": 7,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "No he notado que se me acelere.",
+          "audioReference": "DANIEL_PALPITATIONS_01",
+          "subtitle": "No he notado que se me acelere.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 8,
+      "responses": [
+        {
+          "id": "DANIEL_CARDIAC_HISTORY_01",
+          "intent": 8,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Que yo sepa, no tengo problemas del corazón.",
+          "audioReference": "DANIEL_CARDIAC_HISTORY_01",
+          "subtitle": "Que yo sepa, no tengo problemas del corazón.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 9,
+      "responses": [
+        {
+          "id": "DANIEL_MEDICATION_01",
+          "intent": 9,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "No tomo medicación todos los días.",
+          "audioReference": "DANIEL_MEDICATION_01",
+          "subtitle": "No tomo medicación todos los días.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 10,
+      "responses": [
+        {
+          "id": "DANIEL_FOOD_DRINK_01",
+          "intent": 10,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Comí antes de venir… y he bebido durante el entrenamiento.",
+          "audioReference": "DANIEL_FOOD_DRINK_01",
+          "subtitle": "Comí antes de venir… y he bebido durante el entrenamiento.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 11,
+      "responses": [
+        {
+          "id": "DANIEL_CONSENT_HELP_01",
+          "intent": 11,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE",
+            "HYP_01_SUPPORTED_OBSERVATION",
+            "HYP_02_IMPROVING",
+            "HYP_03_PERSISTENT_SYMPTOMS",
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Sí, ayúdame, por favor.",
+          "audioReference": "DANIEL_CONSENT_HELP_01",
+          "subtitle": "Sí, ayúdame, por favor.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    },
+    {
+      "intent": 12,
+      "responses": [
+        {
+          "id": "DANIEL_STATUS_00",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_00_INITIAL_PRESYNCOPE"
+          ],
+          "text": "Me estoy mareando.",
+          "audioReference": "DANIEL_STATUS_00",
+          "subtitle": "Me estoy mareando.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        },
+        {
+          "id": "DANIEL_STATUS_01_IMPROVING",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_01_SUPPORTED_OBSERVATION"
+          ],
+          "text": "Sigo mareado, pero así estoy algo mejor.",
+          "audioReference": "DANIEL_STATUS_01_IMPROVING",
+          "subtitle": "Sigo mareado, pero así estoy algo mejor.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 30
+        },
+        {
+          "id": "DANIEL_STATUS_01",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_01_SUPPORTED_OBSERVATION"
+          ],
+          "text": "Sigo mareado.",
+          "audioReference": "DANIEL_STATUS_01",
+          "subtitle": "Sigo mareado.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        },
+        {
+          "id": "DANIEL_STATUS_02",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_02_IMPROVING"
+          ],
+          "text": "Estoy mejor, aunque sigo flojo.",
+          "audioReference": "DANIEL_STATUS_02",
+          "subtitle": "Estoy mejor, aunque sigo flojo.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        },
+        {
+          "id": "DANIEL_STATUS_03",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_03_PERSISTENT_SYMPTOMS"
+          ],
+          "text": "No se me pasa.",
+          "audioReference": "DANIEL_STATUS_03",
+          "subtitle": "No se me pasa.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        },
+        {
+          "id": "DANIEL_STATUS_04",
+          "intent": 12,
+          "allowedClinicalStates": [
+            "HYP_04_RECURRENT_PRESYNCOPE"
+          ],
+          "text": "Me ha vuelto el mareo.",
+          "audioReference": "DANIEL_STATUS_04",
+          "subtitle": "Me ha vuelto el mareo.",
+          "requiresCanSpeak": true,
+          "marksObservation": true,
+          "minStateSeconds": 0
+        }
+      ]
+    }
+  ],
+  "acceptableAlternatives": [
+    {
+      "id": "ALT_SAFE_SUPPORT",
+      "objectiveId": "OBJ_02",
+      "equivalentOutcomes": [
+        "ProtectedFromFall",
+        "MaintainedSafeSupportedPosition",
+        "AssistedToSafePosition"
+      ]
+    }
+  ],
+  "clinicalRules": [
+    {
+      "ruleId": "R_INITIAL_PROTOTYPE",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Valores iniciales de prototipo aprobados para Etapa B; no son constantes universales ni contenido clínicamente validado."
+    },
+    {
+      "ruleId": "R_SUPPORTED_TRAJECTORY",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Trayectoria gradual inicial de 30 s; junto con la siguiente fase completa 60 s dentro de la ventana candidata de 30–90 s de la especificación. No garantiza respuesta real a una postura."
+    },
+    {
+      "ruleId": "R_IMPROVING_TRAJECTORY",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Segunda trayectoria gradual de 30 s, con debilidad residual. Mejoría fisiológica independiente del progreso de objetivos."
+    },
+    {
+      "ruleId": "R_PERSISTENT_TRAJECTORY",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Los objetivos de persistencia son los aprobados por el usuario. Los 30 s sólo parametrizan interpolación técnica provisional desde el valor actual; requieren revisión en Etapa E. No son umbral clínico ni temporizador de ayuda. Rama activada por señal explícita NoMeaningfulImprovement."
+    },
+    {
+      "ruleId": "R_RECURRENT_TRAJECTORY",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Los valores de recurrencia son los aprobados por el usuario. Interpolación técnica provisional de 30 s, pendiente de revisión en Etapa E; nunca una recomendación clínica. Requiere intento real de incorporación confirmado, sin caída ni pérdida de consciencia automática."
+    },
+    {
+      "ruleId": "R_SAFE_PHYSICAL_POSITION",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "Solicitar asistencia no confirma postura. Sólo una confirmación física válida es entrada clínica. Cancelar no cambia la posición efectiva."
+    },
+    {
+      "ruleId": "R_EARLY_HELP",
+      "sourceId": "SPEC_0_1",
+      "clinicalReviewRequired": true,
+      "notes": "La petición o delegación de ayuda está disponible desde el inicio sin requisitos de TA, SpO2 ni entrevista completada. La confirmación de ayuda es un evento separado."
+    },
+    {
+      "ruleId": "R_SOURCE_HYPOTENSION",
+      "sourceId": "bp",
+      "clinicalReviewRequired": true,
+      "notes": "Fuente de contexto general heredada. No valida las cifras, trayectorias ni rúbrica de este prototipo."
+    },
+    {
+      "ruleId": "R_SOURCE_PRESYNCOPE",
+      "sourceId": "faint",
+      "clinicalReviewRequired": true,
+      "notes": "Fuente de contexto general heredada. Las reglas de autoría específicas se trazan a CLINICAL_IMPLEMENTATION_SPEC_HIPOTENSION_SINTOMATICA.md y a la aprobación de Etapa B."
+    }
+  ]
+}

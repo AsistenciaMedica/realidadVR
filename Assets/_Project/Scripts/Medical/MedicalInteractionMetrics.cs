@@ -35,6 +35,8 @@ namespace EmergencyVR.Medical
         int intervals;
         bool cycle,placement=true;
         public CPRMetrics Metrics => metrics.Copy();
+        // A UI pause interrupts an unfinished gesture without recording a clinical compression.
+        public void CancelPendingCycle() { cycle=false; peak=0; placement=true; }
         public CPRSampleEvaluator(MedicalInteractionSettings settings) {settings.Validate();this.settings=new MedicalInteractionSettings {minimumDepth=settings.minimumDepth,maximumDepth=settings.maximumDepth,minimumRate=settings.minimumRate,maximumRate=settings.maximumRate,recoilThreshold=settings.recoilThreshold,cycleThreshold=settings.cycleThreshold,maximumHandError=settings.maximumHandError,maximumHandAngle=settings.maximumHandAngle};}
         public bool Sample(double time,double depth,double handError,double handAngle,bool bothHands,string source)
         {

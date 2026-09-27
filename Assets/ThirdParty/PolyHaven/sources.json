@@ -1,0 +1,65 @@
+{
+  "license": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/concrete_floor_02_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_02/concrete_floor_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "6db84a6d87dc50508b9d134d6fbd2b7e876b8081a5f43a118a249ca18de73af5"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/concrete_floor_02_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_02/concrete_floor_02_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "fcda391b57a816d646ae15544688be53790478da5cd48dbe514b3c6901415e61"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/aerial_grass_rock_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "57b8041bfe0d0f01430e4dbaad45e7ddddf0a9fc97317f90dbc51f7b0d9e1b5d"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/aerial_grass_rock_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_grass_rock/aerial_grass_rock_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "1aa3e23bff453f152e089b9f83aa36b4901651e019f7e2ca01d5331a9bbbda78"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/plastered_wall_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "73312ebb6eabc8e0a55addd8a82a8924bcd1e717b9488a887cc77f14b6ea554e"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/plastered_wall_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "504e1f7baf4b68714c64b6670e7954bebe99efe31c49f7ce5a2089e4b76023b5"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/wood_floor_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor/wood_floor_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "2a1c07687b6dbb214c4b9213739c6d92d425f1f0fc8ab3ac157f105d78240789"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/wood_floor_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor/wood_floor_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "452247f0d0d1b7fc7f8324ff3b6ed60bcc6de1405f4284eeb8d9bce90d4939c2"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/terrazzo_tiles_color.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "462e3e719cda0472a33152523cf5ca2fc660e1c5869348be1609ba3dca12a2ef"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/terrazzo_tiles_normal.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "56bbe2d960b47ddb2dc538be2953a1ad07083b017cdada1cdc7958421a6cfcd9"
+    }
+  ]
+}

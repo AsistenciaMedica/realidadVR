@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using EmergencyVR.Environment.Presentation;
 using EmergencyVR.Patient;
 using UnityEngine;
@@ -40,7 +40,7 @@ namespace EmergencyVR.Environment
             var presenter = FindFirstObjectByType<ScenarioEnvironmentPresenter>();
             if (presenter == null)
             {
-                presenter = new GameObject("Vital VR environment modules").AddComponent<ScenarioEnvironmentPresenter>();
+                presenter = new GameObject("VITAL VR environment modules").AddComponent<ScenarioEnvironmentPresenter>();
                 presenter.Initialize(patient);
             }
             presenter.Select(environment);

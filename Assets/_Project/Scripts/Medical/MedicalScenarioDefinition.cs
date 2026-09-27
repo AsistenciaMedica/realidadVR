@@ -69,6 +69,8 @@ namespace EmergencyVR.Medical
     [Serializable] public sealed class ActionRule
     {
         public string id, action, kind="required", feedback="Acción registrada.", guard="", anchorAction="";
+        public string semanticAction="";
+        public ActionRepeatPolicy repeatPolicy=ActionRepeatPolicy.LegacySingleUse;
         public string[] prerequisites=Array.Empty<string>();
         public int points=10, penalty=10;
         public bool critical;
@@ -112,16 +114,20 @@ namespace EmergencyVR.Medical
         public PatientTimelineEvent[] timeline=Array.Empty<PatientTimelineEvent>();
         public OutcomeRule[] outcomes=Array.Empty<OutcomeRule>();
         public int errorPenalty=5, criticalScoreCap=49;
+        // Composed from the separately serialized clinical JSON registry. Unity's inline
+        // serializer otherwise materializes this omitted reference for every legacy case.
+        [NonSerialized] public ClinicalScenarioV2Definition clinicalV2;
         public MedicalScenarioDefinition Copy()
         {
             var x=(MedicalScenarioDefinition)MemberwiseClone(); x.initialState=initialState.Copy(); x.variation=variation.Copy();
             x.symptoms=(string[])symptoms.Clone(); x.visibleSigns=(string[])visibleSigns.Clone(); x.recommendedSequence=(string[])recommendedSequence.Clone(); x.references=(string[])references.Clone(); x.debrief=(string[])debrief.Clone();
-            x.actions=actions.Select(a=>a.Copy()).ToArray(); x.timeline=timeline.Select(e=>e.Copy()).ToArray(); x.outcomes=outcomes.Select(o=>o.Copy()).ToArray(); return x;
+            x.actions=actions.Select(a=>a.Copy()).ToArray(); x.timeline=timeline.Select(e=>e.Copy()).ToArray(); x.outcomes=outcomes.Select(o=>o.Copy()).ToArray(); x.clinicalV2=clinicalV2==null?null:clinicalV2.Copy(); return x;
         }
         public void Validate(MedicalLibrary library)
         {
             if(string.IsNullOrWhiteSpace(id)||string.IsNullOrWhiteSpace(name)||actions==null||actions.Length==0||outcomes==null||outcomes.Length==0||timeline==null) throw new ArgumentException("Incomplete scenario.");
-            if(!new[]{"DRAFT","REFERENCE_REVIEWED","CLIENT_REVIEW","APPROVED"}.Contains(medicalValidationStatus) || !new[]{"gym","mall","dental","football"}.Contains(environment)) throw new ArgumentException("Invalid validation/environment.");
+            if(!new[]{"DRAFT","REFERENCE_REVIEWED","CLIENT_REVIEW","APPROVED","CLINICAL_REVIEW_REQUIRED"}.Contains(medicalValidationStatus) || !new[]{"gym","mall","dental","football"}.Contains(environment)) throw new ArgumentException("Invalid validation/environment.");
+            if(clinicalV2!=null) clinicalV2.Validate(id);
             initialState.Validate();
             if(errorPenalty<0||criticalScoreCap<0||criticalScoreCap>100||references.Length==0||references.Any(r=>!library.references.Any(x=>x.id==r))) throw new ArgumentException("Invalid scoring or references.");
             var ids=actions.Select(a=>a.id).ToArray();
@@ -130,6 +136,7 @@ namespace EmergencyVR.Medical
             foreach(var a in actions)
             {
                 if(!library.actions.Any(x=>x.id==a.action)||!new[]{"required","optional","incorrect","dangerous"}.Contains(a.kind)||a.points<0||a.penalty<0||a.effect==null) throw new ArgumentException("Invalid action rule.");
+                if(!Enum.IsDefined(typeof(ActionRepeatPolicy),a.repeatPolicy)) throw new ArgumentException("Unknown action repeat policy.");
                 if(!new[]{"","swallow","normalBreathing","arrest","shock","noShock","noTrauma","seizureStopped","conscious"}.Contains(a.guard)) throw new ArgumentException("Unknown guard.");
                 known(a.prerequisites); if(a.prerequisites.Contains(a.id)) throw new ArgumentException("Self prerequisite.");
                 if(!string.IsNullOrEmpty(a.anchorAction)) known(new[]{a.anchorAction});

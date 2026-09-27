@@ -28,3 +28,5 @@ Thumbs.db
 /.playwright-cli/
 /demo/data/
 /demo/.env*
+/.utmp/
+node_modules/

@@ -1,0 +1,69 @@
+using System;
+using EmergencyVR.Medical;
+using EmergencyVR.Patient.Presentation;
+using EmergencyVR.Scenarios;
+using UnityEngine;
+
+namespace EmergencyVR.Dialogue
+{
+    // The runtime selects authored responses and records what was obtained. This adapter
+    // only transports intent and exposes detached subtitle/audio-reference data.
+    public sealed class ClinicalDialogueController : MonoBehaviour
+    {
+        ScenarioManager manager;
+        MedicalScenarioRuntime attempt;
+        string attemptId;
+        DialogueResponseDefinition lastResponse;
+        AudioSource voice;
+        Case01HypotensionAssets assets;
+        public event Action<DialogueResponseDefinition> ResponsePresented;
+        public bool HasVoiceForLastResponse { get; private set; }
+        public bool IsSpeaking => voice != null && voice.isPlaying;
+        public DialogueResponseDefinition LastResponse => attempt==manager?.MedicalSession && attemptId==attempt?.ClinicalState?.AttemptId ? lastResponse?.Copy() : null;
+        public void Initialize(ScenarioManager owner) { manager=owner; }
+        public void ResetForAttempt()
+        {
+            attempt=manager?.MedicalSession; attemptId=attempt?.ClinicalState?.AttemptId; lastResponse=null;
+            if(voice!=null) voice.Stop(); HasVoiceForLastResponse=false;
+            assets=attempt?.ClinicalState==null?null:ClinicalScenarioV2Catalog.FindPresentationAssets(attempt.ClinicalState.ScenarioId) as Case01HypotensionAssets;
+        }
+        public DialogueResponseDefinition Ask(DialogueIntent intent,bool guided=false)
+        {
+            if(manager==null || !manager.AcceptsInput || manager.MedicalSession==null) return null;
+            if(attempt!=manager.MedicalSession || attemptId!=manager.MedicalSession.ClinicalState?.AttemptId) ResetForAttempt();
+            if(!attempt.Capabilities.usesIntentDialogue) return null;
+            DialogueResponseDefinition response=null;
+            manager.PerformClinical((runtime,time)=>response=runtime.Ask(intent,time,"Player",guided,runtime.ClinicalState.AttemptId));
+            if(response!=null)
+            {
+                lastResponse=response.Copy();
+                PlayVoice(response);
+                ResponsePresented?.Invoke(response.Copy());
+            }
+            return response?.Copy();
+        }
+        void PlayVoice(DialogueResponseDefinition response)
+        {
+            var clip=assets==null?null:assets.FindAudio(response.audioReference);
+            HasVoiceForLastResponse=clip!=null;
+            if(voice!=null) voice.Stop();
+            if(clip==null) return; // Authored subtitles remain complete; no fabricated or robotic final voice.
+            if(voice==null)
+            {
+                var visuals=FindFirstObjectByType<PatientVisualController>();
+                var go=new GameObject("VITAL VR patient voice",typeof(AudioSource));
+                go.transform.SetParent(visuals!=null&&visuals.ChinAnchor!=null?visuals.ChinAnchor:transform,false);
+                voice=go.GetComponent<AudioSource>();voice.playOnAwake=false;voice.spatialBlend=1;
+                voice.rolloffMode=AudioRolloffMode.Linear;voice.minDistance=.6f;voice.maxDistance=8;voice.volume=.7f;
+            }
+            voice.clip=clip;voice.Play();
+        }
+        void Update()
+        {
+            if(attempt!=manager?.MedicalSession || attemptId!=manager?.MedicalSession?.ClinicalState?.AttemptId) ResetForAttempt();
+            if(manager!=null&&!manager.IsRunning&&voice!=null&&voice.isPlaying) voice.Stop();
+        }
+        void OnDisable() { if(voice!=null) voice.Stop(); }
+        void OnDestroy() { if(voice!=null) Destroy(voice.gameObject); }
+    }
+}

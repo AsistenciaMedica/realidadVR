@@ -14,6 +14,7 @@ namespace EmergencyVR.Medical.Interaction
         bool manualContact,proximityContact,lastBothHands,hasSample;
         string lastSource="NONE";
         public bool Touching => manualContact||proximityContact;
+        public bool HasManualContact => manualContact;
         public bool WindowsEngaged {get;private set;}
         public CPRMetrics Metrics => evaluator.Metrics;
         public Transform ChestAnchor => visuals.ChestAnchor;
@@ -37,7 +38,7 @@ namespace EmergencyVR.Medical.Interaction
         public bool CanCompress
         {
             get {
-                if(rig==null||rig.Review==null||rig.Manager==null||!rig.Manager.IsRunning||rig.Manager.MedicalSession==null)return false;
+                if(rig==null||rig.Review==null||rig.Manager==null||!rig.Manager.AcceptsInput||rig.Manager.MedicalSession==null)return false;
                 var patient=rig.Manager.MedicalSession.Patient;
                 return patient.consciousness=="Unresponsive"&&(patient.respiration=="absent"||patient.respiration=="agonal");
             }
@@ -56,7 +57,7 @@ namespace EmergencyVR.Medical.Interaction
             }
             shownDepth=Mathf.Clamp(depth,0,.075f);visuals.SetCompressionDepth(shownDepth);
             lastError=error;lastAngle=angle;lastBothHands=bothHands;lastSource=source;hasSample=true;
-            if(evaluator.Sample(Time.realtimeSinceStartupAsDouble,shownDepth,error,angle,bothHands,source))CompletedCycle();
+            if(evaluator.Sample(rig.Manager.SimulationClock,shownDepth,error,angle,bothHands,source))CompletedCycle();
             if(rig.TrainingMode)rig.Hint=error>rig.Settings.maximumHandError?"Centra ambas manos sobre el tórax.":$"Compresiones: {Metrics.compressions} · recorrido virtual {shownDepth*100:0.0} cm";
             ShowHands(true);
         }
@@ -68,7 +69,8 @@ namespace EmergencyVR.Medical.Interaction
         {
             if(!hasSample||evaluator==null)return;
             hasSample=false;
-            if(evaluator.Sample(Time.realtimeSinceStartupAsDouble,0,lastError,lastAngle,lastBothHands,lastSource))CompletedCycle();
+            if(rig.Manager.IsPaused){evaluator.CancelPendingCycle();return;}
+            if(evaluator.Sample(rig.Manager.SimulationClock,0,lastError,lastAngle,lastBothHands,lastSource))CompletedCycle();
         }
         void CompletedCycle()
         {

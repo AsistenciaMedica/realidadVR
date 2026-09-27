@@ -1,0 +1,55 @@
+{
+  "license": "MIT",
+  "copyright": "Copyright (c) 2020 Microsoft",
+  "commit": "0943055db6ec570bcef9f2c8b41c9e5467c808f9",
+  "assets": [
+    {
+      "file": "LICENSE.md",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/LICENSE.md",
+      "bytes": 1066,
+      "sha256": "17474e386e0b9e1a700cc3d06b2b0882a2c376d9c6b49c7f8274409b8f8d2352"
+    },
+    {
+      "file": "Patient.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_01/Export/Sports_Male_01_facial.fbx",
+      "bytes": 1822128,
+      "sha256": "b0e262262fef3d4fee50189ec34ec1bc73e053c42d65fca81cf0c3674742de06"
+    },
+    {
+      "file": "Textures/m021_body_color.tga",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_01/Textures/m021_body_color.tga",
+      "bytes": 12582956,
+      "sha256": "339b846c274d2b8cb5d717ddd3cbc18a9623cc3f4fd8aa7430232c57376feb72"
+    },
+    {
+      "file": "Textures/m021_body_normal.tga",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_01/Textures/m021_body_normal.tga",
+      "bytes": 12582956,
+      "sha256": "8c5e9d416e16b670b1e590200b026e936be266cbffd1e142b51aa5d9b84d8c77"
+    },
+    {
+      "file": "Textures/m021_head_color.tga",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_01/Textures/m021_head_color.tga",
+      "bytes": 12582956,
+      "sha256": "8edb8b17ddcc2da63ae9531da3f6dccbe75dcfe26519b79faa4110c0c84e1664"
+    },
+    {
+      "file": "Textures/m021_head_normal.tga",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Avatars/Professions/Sports_Male_01/Textures/m021_head_normal.tga",
+      "bytes": 12582956,
+      "sha256": "d59b32f8baed259cf5cb2069031f935866dcdcddf3a8821fb08fb4ba180940fb"
+    },
+    {
+      "file": "Animations/m_idle_breathe_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_idle_breathe_01.max.fbx",
+      "bytes": 1397280,
+      "sha256": "281735704260d96e882d13e3c77d0ede00ed5d2e40805cd305000b3e5cbb1090"
+    },
+    {
+      "file": "Animations/m_idle_cough_01.fbx",
+      "source": "https://raw.githubusercontent.com/microsoft/Microsoft-Rocketbox/0943055db6ec570bcef9f2c8b41c9e5467c808f9/Assets/Animations/all_animations_max_motextr_static/m_idle_cough_01.max.fbx",
+      "bytes": 1646352,
+      "sha256": "273b3e91a1c57ab53f1b517216010601fbfb33c649525f7960045fdc5f05e738"
+    }
+  ]
+}

@@ -31,9 +31,16 @@ namespace EmergencyVR.Medical
         public PatientSnapshot initialPatient, finalPatient;
         public EvaluationSection[] sections;
         public ProcedureMetrics procedures;
+        public bool objectiveBasedEvaluation;
+        public string attemptId, clinicalSpecVersion, trainingProfile, buildVersion;
+        public ClinicalEvent[] clinicalEvents=Array.Empty<ClinicalEvent>();
+        public LearningObjectiveProgress[] objectives=Array.Empty<LearningObjectiveProgress>();
+        public MeasurementObservation[] measurements=Array.Empty<MeasurementObservation>();
+        public InterviewObservation[] interviews=Array.Empty<InterviewObservation>();
+        public PhysicalObservation[] physicalObservations=Array.Empty<PhysicalObservation>();
     }
     // Pure C#: no scene, Unity clock, input or platform dependencies. One instance per attempt.
-    public sealed class MedicalScenarioRuntime
+    public sealed partial class MedicalScenarioRuntime
     {
         readonly MedicalScenarioDefinition definition;
         readonly Dictionary<string,MedicalAction> library;
@@ -44,7 +51,7 @@ namespace EmergencyVR.Medical
         readonly List<MedicalLogEntry> log=new List<MedicalLogEntry>();
         readonly List<string> critical=new List<string>();
         readonly Dictionary<string,double> eventDelays=new Dictionary<string,double>();
-        readonly PatientSnapshot initial;
+        PatientSnapshot initial;
         readonly int seed;
         readonly string witness;
         PatientSnapshot patient;
@@ -57,7 +64,7 @@ namespace EmergencyVR.Medical
         public string LastFeedback { get; private set; }="Caso iniciado. Valores de simulación.";
         public string[] Completed { get { return accepted.Keys.ToArray(); } }
         public string[] ActionIds { get { return definition.actions.Select(a=>a.id).ToArray(); } }
-        public MedicalScenarioRuntime(MedicalScenarioDefinition data,MedicalLibrary catalog,int seed)
+        public MedicalScenarioRuntime(MedicalScenarioDefinition data,MedicalLibrary catalog,int seed,string buildVersion="",TrainingProfileId? profile=null)
         {
             data.Validate(catalog); definition=data.Copy(); this.seed=seed;
             library=catalog.actions.ToDictionary(a=>a.id,a=>new MedicalAction {id=a.id,label=a.label,section=a.section,description=a.description});
@@ -66,7 +73,8 @@ namespace EmergencyVR.Medical
             patient.age=v.minAge+(int)(random.Next()*(v.maxAge-v.minAge+1)); patient.sex=v.sexes[(int)(random.Next()*v.sexes.Length)];
             patient.position=v.positions[(int)(random.Next()*v.positions.Length)]; witness=v.witnessStatements[(int)(random.Next()*v.witnessStatements.Length)];
             new PatientEffect {heartRateDelta=patient.heartRate==0?0:random.Spread(v.heartRateSpread),spo2Delta=patient.spo2==0?0:random.Spread(v.spo2Spread),glucoseDelta=random.Spread(v.glucoseSpread)}.Apply(patient);
-            patient.dialogue=definition.initialDialogue; initial=patient.Copy();
+            patient.dialogue=definition.initialDialogue;
+            InitializeClinicalV2(buildVersion,profile); initial=patient.Copy();
             foreach(var e in definition.timeline) eventDelays[e.id]=Math.Max(0,e.afterSeconds+(e.kind=="deterioration"?random.Spread(v.timelineJitterSeconds):0));
         }
         public double EarliestTime(string id)
@@ -77,8 +85,9 @@ namespace EmergencyVR.Medical
         }
         public void Tick(double time)
         {
-            if(IsFinished) return;
+            if(IsFinished || IsPaused) return;
             if(double.IsNaN(time)||double.IsInfinity(time)||time<elapsed) throw new ArgumentException("Clock must be finite and monotonic.");
+            if(clinicalMachine!=null) { TickClinicalV2(time); return; }
             if(processedEvents.Count==definition.timeline.Length) { elapsed=time;return; }
             // Sort absolute due times, so a large tick has the same result as many small ticks.
             var due=definition.timeline.Where(e=>!processedEvents.Contains(e.id) && (string.IsNullOrEmpty(e.anchorAction)||accepted.ContainsKey(e.anchorAction)))
@@ -97,6 +106,12 @@ namespace EmergencyVR.Medical
         public string Submit(string id,double time)
         {
             if(IsFinished) return "Finished";
+            if(IsPaused) return "Paused";
+            if(HasClinicalFeatures) return SubmitClinicalV2(id,time);
+            return SubmitLegacy(id,time);
+        }
+        string SubmitLegacy(string id,double time)
+        {
             Tick(time);
             var a=definition.actions.FirstOrDefault(x=>x.id==id);
             string disposition, message;
@@ -148,7 +163,9 @@ namespace EmergencyVR.Medical
         public MedicalDebrief Finish(double time)
         {
             if(IsFinished) return CopyResult(result);
+            if(IsPaused) return null;
             Tick(time);
+            if(Capabilities.usesObjectiveBasedEvaluation) return FinishClinicalV2();
             var required=definition.actions.Where(a=>a.kind=="required").ToArray();
             var missing=required.Where(a=>!accepted.ContainsKey(a.id)).ToArray();
             foreach(var a in missing.Where(a=>a.critical)) AddCritical(a.id+": omisión crítica — "+library[a.action].label);
@@ -175,6 +192,7 @@ namespace EmergencyVR.Medical
                 recommendations=definition.debrief.Concat(new[]{branch==null?"Revisar acciones omitidas y solicitar relevo.":branch.feedback,"RCP: se evalúa secuencia declarada; profundidad, ritmo y retroceso no medidos.",definition.timingBasis}).ToArray(),medicalReferences=references,sourceUrls=references.Select(r=>r.url).ToArray(),
                 timeToCpr=FirstTime("StartCPR"),timeToAed=FirstTime("AttachAEDPads")};
             LastFeedback="Resultado simulado: "+outcome+" · "+score.ToString("0")+"/100";
+            if(HasClinicalFeatures) AttachClinicalContext(result);
             return CopyResult(result);
         }
         double FirstTime(string action) { var times=definition.actions.Where(a=>a.action==action&&accepted.ContainsKey(a.id)).Select(a=>accepted[a.id]).ToArray(); return times.Length==0?-1:times.Min(); }
@@ -188,7 +206,10 @@ namespace EmergencyVR.Medical
             copy.omittedActions=(string[])r.omittedActions.Clone(); copy.correctActions=(string[])r.correctActions.Clone(); copy.incorrectActions=(string[])r.incorrectActions.Clone(); copy.criticalErrors=(string[])r.criticalErrors.Clone(); copy.recommendations=(string[])r.recommendations.Clone(); copy.sourceUrls=(string[])r.sourceUrls.Clone();
             copy.actions=r.actions.Select(a=>a.Copy()).ToArray(); copy.timeline=r.timeline.Select(a=>a.Copy()).ToArray(); copy.initialPatient=r.initialPatient.Copy(); copy.finalPatient=r.finalPatient.Copy();
             copy.sections=r.sections.Select(s=>new EvaluationSection {name=s.name,scorePercent=s.scorePercent,earnedPoints=s.earnedPoints,possiblePoints=s.possiblePoints,measured=s.measured}).ToArray();
-            copy.medicalReferences=r.medicalReferences.Select(s=>new MedicalReference {id=s.id,organization=s.organization,title=s.title,year=s.year,url=s.url,accessedAt=s.accessedAt}).ToArray(); return copy;
+            copy.medicalReferences=r.medicalReferences.Select(s=>new MedicalReference {id=s.id,organization=s.organization,title=s.title,year=s.year,url=s.url,accessedAt=s.accessedAt}).ToArray();
+            copy.objectiveBasedEvaluation=r.objectiveBasedEvaluation;copy.attemptId=r.attemptId;copy.clinicalSpecVersion=r.clinicalSpecVersion;copy.trainingProfile=r.trainingProfile;copy.buildVersion=r.buildVersion;
+            copy.clinicalEvents=r.clinicalEvents.Select(x=>x.Copy()).ToArray();copy.objectives=r.objectives.Select(x=>x.Copy()).ToArray();
+            copy.measurements=r.measurements.Select(x=>(MeasurementObservation)x.Copy()).ToArray();copy.interviews=r.interviews.Select(x=>(InterviewObservation)x.Copy()).ToArray();copy.physicalObservations=r.physicalObservations.Select(x=>(PhysicalObservation)x.Copy()).ToArray();return copy;
         }
         sealed class SeedRandom
         {

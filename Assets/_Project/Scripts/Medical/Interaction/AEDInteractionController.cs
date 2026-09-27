@@ -12,7 +12,7 @@ namespace EmergencyVR.Medical.Interaction
         public TextMesh Display;
         float analysisStarted;
         bool contactWarning;
-        bool Running => rig != null && rig.Manager != null && rig.Manager.IsRunning && rig.Manager.MedicalSession != null;
+        bool Running => rig != null && rig.Manager != null && rig.Manager.AcceptsInput && rig.Manager.MedicalSession != null;
         bool Touching => rig.CPR != null && rig.CPR.Touching;
 
         public void Initialize(MedicalProcedureRig rig) { this.rig = rig; }

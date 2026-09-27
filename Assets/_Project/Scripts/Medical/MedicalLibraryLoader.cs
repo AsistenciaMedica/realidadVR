@@ -9,7 +9,11 @@ namespace EmergencyVR.Medical
         {
             var data=Resources.Load<TextAsset>("MedicalScenarios");
             if(data==null) throw new InvalidOperationException("Missing MedicalScenarios.json. Existing technical demo remains available.");
-            var library=JsonUtility.FromJson<MedicalLibrary>(data.text); library.Validate(); return library;
+            var library=JsonUtility.FromJson<MedicalLibrary>(data.text);
+            library.Validate();
+            EmergencyVR.Scenarios.ClinicalScenarioV2Catalog.LoadInto(library);
+            library.Validate();
+            return library;
         }
     }
 }

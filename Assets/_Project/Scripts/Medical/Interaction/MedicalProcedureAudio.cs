@@ -14,8 +14,11 @@ namespace EmergencyVR.Medical.Interaction
         AudioSource Source(Transform parent,float volume){var go=new GameObject("Vital audio",typeof(AudioSource));go.transform.SetParent(parent,false);var source=go.GetComponent<AudioSource>();source.spatialBlend=1;source.rolloffMode=AudioRolloffMode.Linear;source.minDistance=.7f;source.maxDistance=10;source.volume=volume;source.playOnAwake=false;return source;}
         static AudioClip MakeTone(){int rate=22050;var samples=new float[rate/5];for(int i=0;i<samples.Length;i++){float t=(float)i/samples.Length;samples[i]=Mathf.Sin(2*Mathf.PI*800*i/rate)*Mathf.Sin(t*Mathf.PI)*.3f;}var clip=AudioClip.Create("Vital generated device cue",samples.Length,1,rate,false);clip.SetData(samples,0);return clip;}
         static AudioClip MakeNoise(string name,int seed){int rate=22050;var random=new System.Random(seed);var samples=new float[rate*3];float filtered=0;for(int i=0;i<samples.Length;i++){filtered=Mathf.Lerp(filtered,(float)random.NextDouble()*2-1,.08f);float phase=(float)i/samples.Length;samples[i]=filtered*.3f*Mathf.Pow(Mathf.Sin(phase*Mathf.PI),2);}var clip=AudioClip.Create(name,samples.Length,1,rate,false);clip.SetData(samples,0);return clip;}
-        public void SetPatient(PatientSnapshot p)
+        public void SetPatient(PatientSnapshot p,bool runtimeRespiratoryPhase=false)
         {
+            // Stage B exposes the shared phase; voiced/phase-driven breathing is integrated in G.
+            // Do not play the legacy independent loop over a v2 runtime-owned respiratory cycle.
+            if(runtimeRespiratoryPhase){breath.Stop();return;}
             if(p==null||p.respiration=="absent"||p.respiratoryRate<=0){breath.Stop();return;}
             breath.pitch=Mathf.Clamp((float)p.respiratoryRate/20,.5f,2);breath.volume=p.respiration=="fast"?.12f:.05f;if(!breath.isPlaying)breath.Play();
         }

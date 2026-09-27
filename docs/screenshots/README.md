@@ -1,4 +1,10 @@
-# Capturas de Vital VR
+# Capturas de VITAL VR
+
+## Experiencia de entrenamiento actual
+
+Bienvenida, selección, preparación, monitorización y resultados del ejecutable
+Unity: [galería y verificación](../TRAINING_EXPERIENCE.md#evidencia-de-esta-entrega).
+Las secciones siguientes documentan entregas anteriores y el portal web.
 
 ## Branding web
 

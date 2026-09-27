@@ -27,7 +27,7 @@ namespace EmergencyVR.Editor
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play Mode first.");
             DemoProjectBuilder.EnsureFolders();
             PlayerSettings.companyName = "EmergencyVR";
-            PlayerSettings.productName = "Emergency VR Technical Demo";
+            PlayerSettings.productName = "VITAL VR";
             PlayerSettings.bundleVersion = "0.1.0";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.emergencyvr.trainingdemo");
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);

@@ -50,7 +50,7 @@ namespace EmergencyVR.UI
                 if(logo==null){title.text="<i>Vital <color=#ED1939>VR</color></i> · ENTRENAMIENTO";title.supportRichText=true;title.rectTransform.anchoredPosition=new Vector2(0,270);title.rectTransform.sizeDelta=new Vector2(930,60);}
                 else
                 {
-                    var tag=new GameObject("Vital VR tagline",typeof(RectTransform),typeof(Text));tag.transform.SetParent(transform,false);
+                    var tag=new GameObject("VITAL VR tagline",typeof(RectTransform),typeof(Text));tag.transform.SetParent(transform,false);
                     var copy=tag.GetComponent<Text>();copy.font=title.font;copy.text=VitalBrand.Tagline;copy.fontSize=15;
                     copy.color=VitalBrand.Muted;copy.alignment=TextAnchor.MiddleCenter;copy.raycastTarget=false;
                     copy.rectTransform.anchoredPosition=new Vector2(-300,245);copy.rectTransform.sizeDelta=new Vector2(330,21);
@@ -81,7 +81,7 @@ namespace EmergencyVR.UI
                 transitionButton.interactable=false;
                 VitalBrand.RefreshButtonTone(transitionButton);
                 var medical=manager.MedicalResult;
-                status.text="Vital VR · "+manager.MedicalDefinition.name+"\n"+manager.Feedback+
+                status.text="VITAL VR · "+manager.MedicalDefinition.name+"\n"+manager.Feedback+
                     (medical==null?"\nUsa las acciones del selector. PENDING MEDICAL VALIDATION":$"\n{medical.scorePercent:0} / 100 · {medical.outcome}\nErrores críticos: {medical.criticalErrors.Length}. Ver debrief en el selector.");
                 return;
             }
