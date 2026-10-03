@@ -1,6 +1,6 @@
 {
   "name": "EmergencyVR.Tests.PlayMode",
   "rootNamespace": "EmergencyVR.Tests",
-  "references": ["EmergencyVR.Core", "EmergencyVR.Runtime", "Unity.XR.CoreUtils", "Unity.XR.Interaction.Toolkit", "Unity.ugui"],
+  "references": ["EmergencyVR.Core", "EmergencyVR.Runtime", "Unity.XR.CoreUtils", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "Unity.RenderPipelines.Core.Runtime", "Unity.RenderPipelines.Universal.Runtime", "Unity.ugui"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

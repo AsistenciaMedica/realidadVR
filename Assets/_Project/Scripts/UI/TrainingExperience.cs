@@ -169,7 +169,8 @@ namespace EmergencyVR.UI
             {
                 bool pressed = false;
                 foreach (var hand in new[] { XRNode.LeftHand, XRNode.RightHand })
-                    pressed |= InputDevices.GetDeviceAtXRNode(hand).TryGetFeatureValue(CommonUsages.secondaryButton, out var value) && value;
+                    pressed |= (QuestLookSimulation.TryGetSecondaryButton(hand, out var value) ||
+                        InputDevices.GetDeviceAtXRNode(hand).TryGetFeatureValue(CommonUsages.secondaryButton, out value)) && value;
                 if (pressed && !secondaryHeld) { Recenter(); if (Page == ExperiencePage.Training || Page == ExperiencePage.Pause) TogglePause(); }
                 secondaryHeld = pressed;
             }

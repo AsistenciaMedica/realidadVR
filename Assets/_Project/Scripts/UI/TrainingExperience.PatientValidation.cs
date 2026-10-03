@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EmergencyVR.Dialogue;
+using EmergencyVR.Desktop;
 using EmergencyVR.Medical;
 using EmergencyVR.Medical.Interaction;
 using EmergencyVR.Patient.Presentation;
@@ -16,12 +17,15 @@ namespace EmergencyVR.UI
     {
         [Serializable] sealed class PatientRosterSmokeReport
         {
-            public int schemaVersion = 1;
+            public int schemaVersion = 2;
             public string purpose = "Identity, presentation and conversation smoke. Clinical outcomes require the clinical suites.";
             public string supportReview = "Legacy seated cases must pass PatientSceneStaging.ValidateSupport before captures. Daniel uses separate CASE 01 choreography. Body captures still require visual review.";
             public string capturedUtc, buildVersion, result, failure;
             public List<PatientRosterSmokeSample> patients = new List<PatientRosterSmokeSample>();
             public bool danielRestored, legacyRestored;
+            public bool headsetTested = false, questLookSimulation;
+            public string verification, interactionMethod = "Semantic UI events for capture orchestration. XR pointer/trigger validation is a separate suite.";
+            public int captureWidth, captureHeight;
         }
         [Serializable] sealed class PatientRosterSmokeSample
         {
@@ -37,9 +41,16 @@ namespace EmergencyVR.UI
         {
             var args = System.Environment.GetCommandLineArgs();
             int flag = Array.IndexOf(args, "-vital-capture-directory");
-            string directory = flag >= 0 && flag + 1 < args.Length ? args[flag + 1] : Path.Combine(Application.persistentDataPath, "PatientRosterPreview");
+            string directory = flag >= 0 && flag + 1 < args.Length ? args[flag + 1] : QuestLookSimulation.Enabled
+                ? Path.Combine(Application.persistentDataPath, "TestResults", "astra", "00-antes")
+                : Path.Combine(Application.persistentDataPath, "PatientRosterPreview");
             Directory.CreateDirectory(directory);
-            var report = new PatientRosterSmokeReport { capturedUtc = DateTime.UtcNow.ToString("O"), buildVersion = Application.version };
+            var report = new PatientRosterSmokeReport
+            {
+                capturedUtc = DateTime.UtcNow.ToString("O"), buildVersion = Application.version,
+                questLookSimulation = QuestLookSimulation.Enabled, captureWidth = EvidenceWidth, captureHeight = EvidenceHeight,
+                verification = QuestLookSimulation.Enabled ? "Verificado en simulación de apariencia Quest en Windows. Sin visor." : "Verificado en escritorio. Sin visor."
+            };
             var steps = PatientRosterSmokeSteps(directory, report);
             bool passed = true;
             while (true)
@@ -60,6 +71,26 @@ namespace EmergencyVR.UI
         IEnumerator PatientRosterSmokeSteps(string directory, PatientRosterSmokeReport report)
         {
             Application.targetFrameRate = 60;
+            // Preserve the first-visit default in baseline menu evidence before the
+            // assessment-only roster probe deliberately hides unacquired readings.
+            if (QuestLookSimulation.Enabled)
+            {
+                yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
+                Require(!IsDesktop && canvas.renderMode == RenderMode.WorldSpace, "Quest-look must use the world-space VR interface.");
+                CaptureInterface(directory, "00-welcome");
+                Navigate(ExperiencePage.Environments);
+                yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
+                CaptureInterface(directory, "00-environments");
+                foreach (var environment in Review.Scope.environments)
+                {
+                    Browse(environment.id);
+                    yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
+                    CaptureInterface(directory, "00-catalog-" + environment.id);
+                }
+                Prepare(Array.FindIndex(Review.Catalog.entries, entry => entry.medical?.id == "review-hypotension-v2"));
+                yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
+                CaptureInterface(directory, "00-first-briefing-default-mode");
+            }
             Review.Procedures.TrainingMode = false;
             yield return null;
             string[] ids = Review.Scope.ScenarioIds.ToArray();
@@ -71,9 +102,9 @@ namespace EmergencyVR.UI
                 int index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.id == id);
                 var definition = Review.Catalog.entries[index].medical;
                 var identity = definition.patientIdentity;
-                bool captureUi = i == 0 || i == 1 || i == 5 || i == 10;
+                bool captureUi = QuestLookSimulation.Enabled ? i < ids.Length : i == 0 || i == 1 || i == 5 || i == 10;
                 string prefix = (i + 1).ToString("00") + "-" + id;
-                Prepare(index); yield return null; yield return new WaitForSecondsRealtime(.1f);
+                Prepare(index); yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
                 string title = pageRoot.GetComponentsInChildren<Text>().Single(t => t.name == "Page title").text;
                 Require(title == LearnerTitle(definition), "Briefing leaked a diagnostic title: " + id);
                 if (captureUi) CaptureInterface(directory, prefix + "-briefing");
@@ -117,9 +148,13 @@ namespace EmergencyVR.UI
                     Require(sample.supportVerified, "Invalid seated support for " + id + ": " + sample.supportFailure);
                 }
                 if (captureUi) CaptureInterface(directory, prefix + "-session");
-                CapturePatientPortrait(directory, prefix + "-patient");
+                var portrait = CapturePatientPortrait(directory, prefix + "-patient");
+                while (portrait.MoveNext()) yield return portrait.Current;
                 if (visual.EffectivePosture == PatientPosture.Seated)
-                    CapturePatientPortrait(directory, prefix + "-seat-contact", true);
+                {
+                    var contact = CapturePatientPortrait(directory, prefix + "-seat-contact", true);
+                    while (contact.MoveNext()) yield return contact.Current;
+                }
                 if (definition.clinicalV2 == null)
                 {
                     Require(PatientConversation.Lines.Length == 0, "Conversation from a previous attempt leaked into " + id);
@@ -145,12 +180,12 @@ namespace EmergencyVR.UI
                     sample.transcript = response.text; sample.hasVoiceForResponse = dialogue.HasVoiceForLastResponse;
                     Click("Open dialogue"); yield return null;
                 }
-                yield return new WaitForSecondsRealtime(.25f);
+                yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
                 if (captureUi) CaptureInterface(directory, prefix + "-conversation");
-                TogglePause(); yield return null;
+                TogglePause(); yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
                 Require(!PatientConversation.CanAsk, "Conversation accepted input during pause: " + id);
                 if (captureUi) CaptureInterface(directory, prefix + "-pause");
-                TogglePause(); FinishTraining(); yield return null;
+                TogglePause(); FinishTraining(); yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
                 if (captureUi) CaptureInterface(directory, prefix + "-debrief");
                 if (i == ids.Length) report.danielRestored = true;
                 else if (i > ids.Length) report.legacyRestored = true;
@@ -158,7 +193,7 @@ namespace EmergencyVR.UI
             Require(report.patients.Select(p => p.patientId).Distinct().Count() == 15, "Patient identities are not distinct.");
         }
 
-        void CapturePatientPortrait(string directory, string name, bool side = false)
+        IEnumerator CapturePatientPortrait(string directory, string name, bool side = false)
         {
             var previousPosition = viewer.transform.position;
             var previousRotation = viewer.transform.rotation;
@@ -174,14 +209,17 @@ namespace EmergencyVR.UI
                 foreach (var renderer in responderRenderers) renderer.forceRenderingOff = true;
                 var bounds = Review.Procedures.Visuals.Rig.face.bounds;
                 Require(FindPatientCaptureView(bounds, side), "No unobstructed full-body capture position for " + name);
+                // TrackedPoseDriver, body animation and gaze need frames after the
+                // simulated HMD pose changes; rendering immediately captures stale eyes.
+                yield return null; yield return new WaitForSecondsRealtime(.5f); yield return new WaitForEndOfFrame();
                 Debug.Log("VITAL_PATIENT_CAPTURE " + name + " camera=" + viewer.transform.position.ToString("F3"));
-                EmergencyVR.Desktop.RuntimeCapture.Save(viewer, Path.Combine(directory, name + ".png"), Screen.width, Screen.height);
+                SaveCaptureEvidence(directory, name, side ? "actor-seat-contact-inspection-no-interface" : "actor-portrait-inspection-no-interface");
             }
             finally
             {
                 foreach (var pair in rendering) if (pair.Key != null) pair.Key.forceRenderingOff = pair.Value;
                 canvas.enabled = previousCanvas;
-                viewer.transform.SetPositionAndRotation(previousPosition, previousRotation);
+                SetCaptureHeadPose(previousPosition, previousRotation);
             }
         }
 
@@ -211,19 +249,29 @@ namespace EmergencyVR.UI
                             .Any(hit => !IgnoreCaptureCollider(hit.collider))) { blocked = true; break; }
                     }
                     if (blocked) continue;
-                    viewer.transform.SetPositionAndRotation(position, Quaternion.LookRotation(bounds.center - position, Vector3.up));
+                    var rotation = Quaternion.LookRotation(bounds.center - position, Vector3.up);
                     bool framed = true;
                     for (int corner = 0; corner < 8; corner++)
                     {
                         var point = bounds.center + Vector3.Scale(bounds.extents + Vector3.one * .06f,
                             new Vector3((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
-                        var viewport = viewer.WorldToViewportPoint(point);
+                        // Evaluate candidate poses without racing TrackedPoseDriver.
+                        var local = Quaternion.Inverse(rotation) * (point - position);
+                        float halfHeight = Mathf.Max(.001f, local.z * Mathf.Tan(viewer.fieldOfView * Mathf.Deg2Rad * .5f));
+                        var viewport = new Vector3(.5f + local.x / (2 * halfHeight * ((float)EvidenceWidth / EvidenceHeight)),
+                            .5f + local.y / (2 * halfHeight), local.z);
                         if (viewport.z <= viewer.nearClipPlane || viewport.x < .03f || viewport.x > .97f || viewport.y < .03f || viewport.y > .97f)
                         { framed = false; break; }
                     }
-                    if (framed) return true;
+                    if (framed) { SetCaptureHeadPose(position, rotation); return true; }
                 }
             return false;
+        }
+
+        void SetCaptureHeadPose(Vector3 position, Quaternion rotation)
+        {
+            if (QuestLookSimulation.Instance != null) QuestLookSimulation.Instance.SetHeadPose(position, rotation);
+            else viewer.transform.SetPositionAndRotation(position, rotation);
         }
 
         bool IgnoreCaptureCollider(Collider collider)

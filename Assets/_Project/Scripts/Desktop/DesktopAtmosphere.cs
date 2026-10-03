@@ -15,6 +15,7 @@ namespace EmergencyVR.Desktop
 
         public static void Apply(Camera view)
         {
+            if (QuestLookSimulation.Enabled) return;
             int level = Array.IndexOf(QualitySettings.names, QualityName);
             if (level >= 0 && QualitySettings.GetQualityLevel() != level) QualitySettings.SetQualityLevel(level, true);
             if (view == null) return;

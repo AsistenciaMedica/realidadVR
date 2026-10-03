@@ -13,7 +13,7 @@ namespace EmergencyVR.Environment.Presentation
         /// <summary>Returns false when the imported models are unavailable, so the procedural fallback is kept.</summary>
         public static bool Available => Resources.Load<GameObject>("Gym/treadmill_a") != null;
 
-        public static void Build(Transform root)
+        public static void Build(Transform root, bool desktopLighting = true)
         {
             var parent = new GameObject("Gym equipment (licensed models)").transform;
             parent.SetParent(root, false);
@@ -45,7 +45,7 @@ namespace EmergencyVR.Environment.Presentation
             // Corner details.
             Prop(parent, "punching_bag", new Vector3(3.05f, .55f, 1.0f), 0, 1.25f, Fit.Height);
             Prop(parent, "wall_clock", new Vector3(-3.47f, 2.35f, -1.6f), 90, .36f, Fit.Length, solid: false, onFloor: false);
-            if (!Application.isMobilePlatform) Lighting(root);
+            if (desktopLighting && !Application.isMobilePlatform && !EmergencyVR.Desktop.QuestLookSimulation.Enabled) Lighting(root);
         }
 
         /// <summary>Desktop: warm-neutral spot lights under the six LED panels and a box-projected reflection probe.</summary>
@@ -90,12 +90,12 @@ namespace EmergencyVR.Environment.Presentation
             var model = Object.Instantiate(prefab, holder, false).transform;
             model.name = "Model";
             // Imported glTF scenes can carry authoring cameras/lights; only geometry belongs in the room.
-            foreach (var extra in model.GetComponentsInChildren<Camera>(true)) Object.Destroy(extra.gameObject);
-            foreach (var extra in model.GetComponentsInChildren<Light>(true)) Object.Destroy(extra.gameObject);
+            foreach (var extra in model.GetComponentsInChildren<Camera>(true)) Dispose(extra.gameObject);
+            foreach (var extra in model.GetComponentsInChildren<Light>(true)) Dispose(extra.gameObject);
 
             // Measure unrotated, scale to the real dimension, then rest the base on the floor at the anchor.
             var bounds = LocalBounds(holder, model);
-            if (bounds.size == Vector3.zero) { Object.Destroy(holder.gameObject); return null; }
+            if (bounds.size == Vector3.zero) { Dispose(holder.gameObject); return null; }
             float measured = fit == Fit.Height ? bounds.size.y : Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
             float scale = size / Mathf.Max(measured, .0001f);
             model.localScale *= scale;
@@ -131,6 +131,12 @@ namespace EmergencyVR.Environment.Presentation
                 }
             }
             return result;
+        }
+
+        static void Dispose(Object value)
+        {
+            if (Application.isPlaying) Object.Destroy(value);
+            else Object.DestroyImmediate(value);
         }
     }
 }

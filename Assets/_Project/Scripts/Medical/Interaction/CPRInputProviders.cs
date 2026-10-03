@@ -52,18 +52,33 @@ namespace EmergencyVR.Medical.Interaction
             if(origin==null)origin=FindFirstObjectByType<XROrigin>();if(origin==null){ClearContact();return;}
             if(!left.isValid)left=InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
             if(!right.isValid)right=InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-            bool leftPosition=left.TryGetFeatureValue(CommonUsages.devicePosition,out var lp);
-            bool rightPosition=right.TryGetFeatureValue(CommonUsages.devicePosition,out var rp);
-            bool leftTracked=leftPosition&&left.TryGetFeatureValue(CommonUsages.isTracked,out var lt)&&lt;
-            bool rightTracked=rightPosition&&right.TryGetFeatureValue(CommonUsages.isTracked,out var rt)&&rt;
             var space=origin.CameraFloorOffsetObject!=null?origin.CameraFloorOffsetObject.transform:origin.transform;
-            lp=space.TransformPoint(lp);rp=space.TransformPoint(rp);
+            bool simulated=QuestLookSimulation.TryGetControllerPose(XRNode.LeftHand,out var lp,out var lr,out var leftTracked);
+            QuestLookSimulation.TryGetControllerPose(XRNode.RightHand,out var rp,out var rr,out var rightTracked);
+            bool hasRotations=simulated;
+            bool gripping;
+            if(simulated)
+            {
+                QuestLookSimulation.TryGetGripTrigger(XRNode.LeftHand,out var lg,out _);
+                QuestLookSimulation.TryGetGripTrigger(XRNode.RightHand,out var rg,out _);
+                gripping=lg>.5f&&rg>.5f;
+            }
+            else
+            {
+                bool leftPosition=left.TryGetFeatureValue(CommonUsages.devicePosition,out lp);
+                bool rightPosition=right.TryGetFeatureValue(CommonUsages.devicePosition,out rp);
+                leftTracked=leftPosition&&left.TryGetFeatureValue(CommonUsages.isTracked,out var lt)&&lt;
+                rightTracked=rightPosition&&right.TryGetFeatureValue(CommonUsages.isTracked,out var rt)&&rt;
+                lp=space.TransformPoint(lp);rp=space.TransformPoint(rp);
+                hasRotations=left.TryGetFeatureValue(CommonUsages.deviceRotation,out lr)&right.TryGetFeatureValue(CommonUsages.deviceRotation,out rr);
+                lr=space.rotation*lr;rr=space.rotation*rr;
+                gripping=left.TryGetFeatureValue(CommonUsages.gripButton,out var lg)&&lg&&right.TryGetFeatureValue(CommonUsages.gripButton,out var rg)&&rg;
+            }
             var anchor=controller.ChestAnchor;var rest=controller.ChestRestPosition;var normal=anchor.up;
             // Contact detection is independent of grip buttons and remains live during AED analysis/shock.
             // Explicit anatomy volumes include head, arms and legs, not just the CPR contact region.
             controller.SetProximityContact(leftTracked&&controller.IsPatientContact(lp)||rightTracked&&controller.IsPatientContact(rp));
             bool tracked=leftTracked&&rightTracked;
-            bool gripping=left.TryGetFeatureValue(CommonUsages.gripButton,out var lg)&&lg&&right.TryGetFeatureValue(CommonUsages.gripButton,out var rg)&&rg;
             if(!tracked||!gripping||!controller.CanCompress){if(engaged)controller.ReleaseContact();engaged=false;return;}
             var middle=(lp+rp)*.5f;float error=Vector3.ProjectOnPlane(middle-rest,normal).magnitude;
             float elevation=Vector3.Dot(middle-rest,normal);
@@ -71,8 +86,8 @@ namespace EmergencyVR.Medical.Interaction
             if(!engaged){if(error>.15f||elevation>stackedGripOffset+.025f)return;engaged=true;}
             // Depth references the undeformed chest; moving the chest cannot inflate the next sample.
             float depth=Mathf.Clamp(stackedGripOffset-elevation,0,.09f),angle=180;
-            if(left.TryGetFeatureValue(CommonUsages.deviceRotation,out var lr)&&right.TryGetFeatureValue(CommonUsages.deviceRotation,out var rr))
-                angle=Mathf.Max(Vector3.Angle(space.rotation*lr*Vector3.up,normal),Vector3.Angle(space.rotation*rr*Vector3.up,normal));
+            if(hasRotations)
+                angle=Mathf.Max(Vector3.Angle(lr*Vector3.up,normal),Vector3.Angle(rr*Vector3.up,normal));
             controller.Feed(depth,error,angle,Vector3.Distance(lp,rp)<.16f,"XR_CONTROLLERS");
         }
         void ClearContact(){if(controller==null)return;if(engaged)controller.ReleaseContact();engaged=false;controller.SetProximityContact(false);}

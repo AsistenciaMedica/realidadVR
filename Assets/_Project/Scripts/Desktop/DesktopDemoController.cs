@@ -44,7 +44,7 @@ namespace EmergencyVR.Desktop
 #elif UNITY_EDITOR
             useDesktop=UnityEditor.SessionState.GetBool(PreviewKey,false);
 #endif
-            if(useDesktop) SceneManager.sceneLoaded+=Loaded;
+            if(useDesktop && !QuestLookSimulation.Enabled) SceneManager.sceneLoaded+=Loaded;
         }
         static void Loaded(Scene scene,LoadSceneMode mode)
         {
@@ -52,6 +52,7 @@ namespace EmergencyVR.Desktop
         }
         public static DesktopDemoController Create()
         {
+            if(QuestLookSimulation.Enabled) throw new InvalidOperationException("Quest look uses the authored XR rig; a desktop controller cannot be created.");
             var existing=FindFirstObjectByType<DesktopDemoController>(); if(existing!=null) return existing;
             return new GameObject("Desktop Demo Controller").AddComponent<DesktopDemoController>();
         }

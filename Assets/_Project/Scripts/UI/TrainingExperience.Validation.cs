@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using EmergencyVR.Desktop;
 
 namespace EmergencyVR.UI
 {
@@ -82,9 +83,27 @@ namespace EmergencyVR.UI
                 // A hidden D3D12 player has no readable system backbuffer. Render the real UI to an offscreen camera target.
                 if (IsDesktop) { canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = viewer; canvas.planeDistance = .5f; }
                 Canvas.ForceUpdateCanvases();
-                EmergencyVR.Desktop.RuntimeCapture.Save(viewer, Path.Combine(directory, name + ".png"), Screen.width, Screen.height);
+                SaveCaptureEvidence(directory, name, "learner-view");
             }
             finally { canvas.renderMode = mode; canvas.worldCamera = previousCamera; canvas.planeDistance = distance; Canvas.ForceUpdateCanvases(); }
+        }
+
+        int EvidenceWidth => QuestLookSimulation.Enabled ? QuestLookSimulation.CaptureWidth : Screen.width;
+        int EvidenceHeight => QuestLookSimulation.Enabled ? QuestLookSimulation.CaptureHeight : Screen.height;
+
+        void SaveCaptureEvidence(string directory, string name, string purpose)
+        {
+            if (QuestLookSimulation.Enabled)
+            {
+                Require(!IsDesktop && canvas.renderMode == RenderMode.WorldSpace,
+                    "Quest-look evidence requires the VR path and a world-space canvas.");
+                Require(Mathf.Abs(viewer.fieldOfView - QuestLookSimulation.FieldOfView) < .1f,
+                    "Quest-look evidence requires the configured simulated eye FOV.");
+            }
+            RuntimeCapture.Save(viewer, Path.Combine(directory, name + ".png"), EvidenceWidth, EvidenceHeight);
+            var metadata = CaptureFrameMetadata.Read(viewer, canvas, EvidenceWidth, EvidenceHeight,
+                QuestLookSimulation.Enabled, IsDesktop, purpose);
+            File.WriteAllText(Path.Combine(directory, name + ".capture.json"), JsonUtility.ToJson(metadata, true));
         }
     }
 }

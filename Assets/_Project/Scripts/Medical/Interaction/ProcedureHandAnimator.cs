@@ -286,17 +286,25 @@ namespace EmergencyVR.Medical.Interaction
         void Track(ArticulatedHand hand,XRNode node)
         {
             var device=InputDevices.GetDeviceAtXRNode(node);
-            bool tracked=origin!=null&&device.TryGetFeatureValue(CommonUsages.isTracked,out var value)&&value;
-            bool hasPose=device.TryGetFeatureValue(CommonUsages.devicePosition,out var position)&device.TryGetFeatureValue(CommonUsages.deviceRotation,out var rotation);
-            tracked&=hasPose;
+            bool simulated=QuestLookSimulation.TryGetControllerPose(node,out var position,out var rotation,out var tracked);
+            if(!simulated)
+            {
+                tracked=origin!=null&&device.TryGetFeatureValue(CommonUsages.isTracked,out var value)&&value;
+                bool hasPose=device.TryGetFeatureValue(CommonUsages.devicePosition,out position)&device.TryGetFeatureValue(CommonUsages.deviceRotation,out rotation);
+                tracked&=hasPose;
+            }
             if(controllerModels.TryGetValue(node,out var models))
                 foreach(var model in models)if(model!=null)model.forceRenderingOff=tracked||originalRendering[model];
             hand.gameObject.SetActive(tracked);
             if(!tracked)return;
             var frame=origin.CameraFloorOffsetObject!=null?origin.CameraFloorOffsetObject.transform:origin.transform;
-            hand.transform.SetPositionAndRotation(frame.TransformPoint(position),frame.rotation*rotation);
-            device.TryGetFeatureValue(CommonUsages.grip,out float grip);
-            device.TryGetFeatureValue(CommonUsages.trigger,out float trigger);
+            hand.transform.SetPositionAndRotation(simulated?position:frame.TransformPoint(position),simulated?rotation:frame.rotation*rotation);
+            float grip,trigger;
+            if(!QuestLookSimulation.TryGetGripTrigger(node,out grip,out trigger))
+            {
+                device.TryGetFeatureValue(CommonUsages.grip,out grip);
+                device.TryGetFeatureValue(CommonUsages.trigger,out trigger);
+            }
             hand.SetPose(rig.CPR.HasManualContact?MedicalHandPose.Compression:grip>.15f?MedicalHandPose.Grip:trigger>.15f?MedicalHandPose.Pinch:MedicalHandPose.Relaxed,Mathf.Max(.2f,Mathf.Max(grip,trigger)));
         }
         void OnDisable()
