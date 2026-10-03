@@ -419,6 +419,12 @@ h1 span { color: var(--brand-cyan); }
   padding: 0.7rem 1rem;
 }
 .training-flow { margin-top: 10px; }
+.included-cases ol { display: grid; gap: 16px; padding-left: 24px; }
+.included-cases li { padding: 16px; border: 1px solid var(--brand-line); border-radius: 14px; }
+.included-cases li[aria-current] { border-color: var(--brand-cyan); }
+.included-cases h4 { font-size: 1.1rem; margin: 0 0 10px; }
+.included-cases p { color: var(--brand-muted); line-height: 1.6; }
+.included-cases .case-status { font-size: 0.85rem; margin-bottom: 0; }
 .training-flow h3 {
   font-size: 0.9rem;
   letter-spacing: 0.18em;

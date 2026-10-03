@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "vital-vr-mvp-3x5",
+  "environments": [
+    {
+      "id": "gym",
+      "name": "Gimnasio",
+      "scenarioIds": [
+        "review-hypotension-v2",
+        "gym-faint",
+        "glucose-moderate",
+        "chest-pain",
+        "asthma"
+      ]
+    },
+    {
+      "id": "mall",
+      "name": "Centro comercial",
+      "scenarioIds": [
+        "review-unconscious-breathing-v1",
+        "review-abnormal-breathing-v1",
+        "choking-partial",
+        "confusion",
+        "dehydration"
+      ]
+    },
+    {
+      "id": "football",
+      "name": "Campo de fútbol",
+      "scenarioIds": [
+        "arrest-witnessed",
+        "football-faint",
+        "football-glucose",
+        "heat-exhaustion",
+        "hypoxia"
+      ]
+    }
+  ]
+}

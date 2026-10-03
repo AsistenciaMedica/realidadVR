@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { ScenarioArt } from '../components/GeneratedArt';
-import { scenarioCards } from '../data/content';
-
-const filters = ['Todos', 'RCP', 'DEA', 'Conciencia', 'Glucosa', 'Respiratorio', 'Trauma'];
+import useReleaseCatalog from '../data/useReleaseCatalog';
 
 export default function ScenariosPage() {
+  const { catalog, scenarioCards, error } = useReleaseCatalog();
   return (
     <Layout>
       <div className="container page-shell narrow-page">
@@ -13,25 +12,20 @@ export default function ScenariosPage() {
           <p className="eyebrow">ESCENARIOS / ENTORNOS REALES</p>
           <h2>Entrena donde las emergencias ocurren.</h2>
           <p className="subhead">
-            Cuatro ambientes procedimentales diseñados para practicar decisiones críticas bajo presión.
+            {catalog ? `${scenarioCards.length} escenarios con ${scenarioCards[0].cases.length} casos cada uno: ${catalog.scenarios.length} casos para practicar valoración, respuesta y decisiones ante emergencias.` : 'Cargando el catálogo de la primera edición…'}
           </p>
-          <div className="filter-row" aria-label="Filtros de escenarios">
-            {filters.map((filter, index) => (
-              <button key={filter} className={index === 0 ? 'filter-button active' : 'filter-button'} type="button">
-                {filter}
-              </button>
-            ))}
-          </div>
+          {error && <p role="status">{error}</p>}
         </section>
 
         <section className="scenario-grid">
-          {scenarioCards.map((scenario, index) => (
+          {scenarioCards.map((scenario) => (
             <article key={scenario.id} className={`scenario-card ${scenario.accent}`}>
               <div className="scenario-image-wrap">
-                <ScenarioArt variant={['dental', 'gym', 'mall', 'football'][index]} />
+                <ScenarioArt variant={scenario.id} />
               </div>
               <div className="scenario-content">
                 <h3>{scenario.name}</h3>
+                <p>{scenario.cases.length} casos incluidos</p>
                 <div className="tag-row">
                   {scenario.tags.map((tag) => (
                     <span key={tag} className="tiny-tag">{tag}</span>

@@ -119,5 +119,5 @@ export function createApi(root,options={}){
    send(404,{error:'Ruta API no encontrada.'});return true;
   }catch(error){send(error.status||500,{error:error.status?error.message:'No se pudo completar la operación.'});return true;}
  }
- handle.close=()=>db.close();handle.hasScenario=id=>catalog.scenarios.some(s=>s.id===id);return handle;
+ handle.close=()=>db.close();handle.hasScenario=id=>catalog.scenarios.some(s=>s.id===id);handle.hasEnvironment=id=>Boolean(catalog.releaseScope?.environments?.some(e=>e.id===id)&&catalog.scenarios.some(s=>s.environment===id));return handle;
 }

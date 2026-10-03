@@ -60,14 +60,14 @@ namespace EmergencyVR.Tests
             Assert.That(Quaternion.Angle(previous,visual.Rig.poseRoot.rotation),Is.GreaterThan(40));
             visual.ClearStartingPose();
         }
-        [UnityTest] public IEnumerator ImportedPatientAndHandsAreSharedAcrossAllEnvironments()
+        [UnityTest] public IEnumerator ImportedPatientAndHandsAreSharedAcrossReleaseEnvironments()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");yield return null;
             var review=Object.FindFirstObjectByType<ReviewCaseSession>();
             var visual=review.Procedures.Visuals;
             Assert.That(visual.NeedsHumanAsset,Is.False);
             Assert.That(review.Procedures.Hands.HasArticulatedHands,Is.True);
-            foreach(var environment in new[]{"dental","gym","mall","football"})
+            foreach(var environment in review.Scope.environments.Select(e=>e.id))
             {
                 Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==environment)),Is.True);
                 yield return null;

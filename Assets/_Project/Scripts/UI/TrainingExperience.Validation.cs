@@ -36,7 +36,8 @@ namespace EmergencyVR.UI
             CaptureInterface(directory, "01-welcome");
             Click("Start learning"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "02-environments");
             Click("Environment gym"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "03-catalog");
-            var index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.environment == "gym");
+            // This smoke exercises the legacy scored UI; CASE 01 has its own objective-based player validation.
+            var index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.id == "gym-faint");
             Click("Case " + Review.Catalog.entries[index].medical.id); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "04-briefing");
             Require(!Review.Manager.IsRunning && !WorldVisible, "Briefing must not start a case.");
             Click("Begin training"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "05-training");

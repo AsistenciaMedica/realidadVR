@@ -9,6 +9,7 @@ namespace EmergencyVR.Scenarios
     {
         public int schemaVersion=4;
         public string attemptId, scenarioId, caseId, caseName, scenarioVersion, clinicalSpecVersion, trainingProfile, buildVersion, createdUtc;
+        public string patientId, patientName;
         public double durationSeconds;
         public bool clinicalReviewRequired=true;
         public ClinicalEvent[] clinicalEvents;
@@ -22,6 +23,7 @@ namespace EmergencyVR.Scenarios
             if(result==null) throw new ArgumentNullException(nameof(result));
             return new ClinicalV2Report {
                 attemptId=result.attemptId,scenarioId=result.caseId,caseId=result.caseId,caseName=result.caseName,
+                patientId=result.initialPatient?.patientId,patientName=result.initialPatient?.patientName,
                 scenarioVersion=result.scenarioVersion,clinicalSpecVersion=result.clinicalSpecVersion,
                 trainingProfile=result.trainingProfile,buildVersion=result.buildVersion,createdUtc=result.createdUtc,durationSeconds=result.durationSeconds,
                 clinicalEvents=result.clinicalEvents.Select(e=>e.Copy()).ToArray(),

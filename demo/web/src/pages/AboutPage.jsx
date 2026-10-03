@@ -1,7 +1,8 @@
 import Layout from '../components/Layout';
-import { stats } from '../data/content';
+import useReleaseCatalog from '../data/useReleaseCatalog';
 
 export default function AboutPage() {
+  const { stats, error } = useReleaseCatalog();
   return (
     <Layout>
       <div className="container page-shell narrow-page">
@@ -39,6 +40,7 @@ export default function AboutPage() {
           </div>
 
           <div className="about-metrics">
+            {error && <p role="status">{error}</p>}
             {stats.map((stat) => (
               <div key={stat.label} className="stat-box large">
                 <strong>{stat.value}</strong>

@@ -8,9 +8,11 @@ del visor con ECG suministrada; los PNG finales se pueden colocar en
 
 ## Ejecutar y comprobar
 
-Requiere Node 24; no hay dependencias npm que instalar.
+Requiere Node 24. El frontend React se compila antes de arrancar el servidor:
 
 ```powershell
+npm --prefix demo/web ci
+npm --prefix demo/web run build
 npm --prefix demo run setup:local
 npm --prefix demo start
 npm --prefix demo run build
@@ -31,18 +33,25 @@ administrativos y todas sus modificaciones sí.
 
 | Área | Implementación |
 | --- | --- |
-| Catálogo | 44 casos compartidos con Unity; búsqueda, categoría, ambiente, dificultad, procedimiento, disponibilidad y validación; detalle con constantes, acciones, timeline, desenlaces y referencias |
+| Catálogo | Tres escenarios: gimnasio, centro comercial y campo de fútbol, con cinco casos cada uno (15 en total). El portal comercial muestra los cinco nombres por escenario; el administrador consulta el mismo catálogo. La vista heredada conserva los filtros y las fichas clínicas compatibles con cada motor. |
 | Clientes | Crear, listar, buscar, editar, suspender/reactivar; detalle con licencias y dispositivos |
 | Licencias | Generar, asignar, cambiar expiración y capacidad, suspender/reactivar, revocar permanentemente, revelar/copiar con autenticación |
 | Activaciones | Activar, validar, desactivar; límite por licencia; reintentos del mismo dispositivo idempotentes; consulta/desactivación administrativa |
 | Dashboard | Clientes y licencias activos, expiración a 30 días, dispositivos, escenarios, últimas activaciones, solicitudes de demo |
 | Contacto | Formulario validado, consentimiento explícito y persistencia para consulta administrativa; no envía correo automáticamente |
 
-La fuente editable del catálogo es
-`Assets/_Project/Resources/MedicalScenarios.json`. Ejecutar
+El alcance de lanzamiento se declara en
+`Assets/_Project/Resources/ReleaseScope.json`. La biblioteca médica completa se conserva en
+`Assets/_Project/Resources/MedicalScenarios.json`; el caso de hipotensión seleccionado
+usa su ficha v2 de `Assets/_Project/ClinicalCases/Gym/SymptomaticHypotension/V2/Data/`. Ejecutar
 `node tools/Sync-MedicalPortal.mjs` desde la raíz al cambiarla; actualiza
-`demo/public/scenarios.json` y `docs/SCENARIO_LIBRARY.md`. Las categorías se derivan
-de esos datos. No existe un segundo catálogo médico manual ni un CMS de aprobación.
+`demo/public/scenarios.json` (15 casos y su `releaseScope`) y `docs/SCENARIO_LIBRARY.md`.
+React carga este JSON para los escenarios, nombres de casos y conteos; volver a
+compilar el frontend después de sincronizar. Las rutas `/scenarios/gym`,
+`/scenarios/mall`, `/scenarios/football` y los 15 IDs de caso admiten recarga directa.
+La clínica dental y los casos aplazados devuelven 404. No existe un segundo catálogo
+médico manual ni un CMS de aprobación. La ficha v2 de hipotensión expone metadata
+de catálogo (`catalogOnly`); no se interpreta con constantes o puntuación del motor antiguo.
 Los casos permanecen `CLIENT_REVIEW` hasta la revisión responsable.
 
 ## API de licencias
@@ -132,21 +141,19 @@ producción, volumen/backups, datos del titular para aviso legal y privacidad,
 logo final aprobado y eventual integración de licencias en clientes Unity.
 No se ha realizado una build Docker ni un despliegue Railway en este equipo.
 
-## Verificación de esta iteración (2026-09-13)
+## Verificación del alcance 3 × 5 (2026-09-30)
 
-- Frontend y backend build: correctos (`TestResults/web-admin-build.txt`).
-- Tests Node: 16/16 (`TestResults/web-admin-tests.txt`), repetidos tras integración
-  visual en `TestResults/visual-web-tests.txt`, incluidos reinicio con
-  persistencia de cifrado/activaciones, límites concurrentes y configuración prod.
-- Smoke Edge: landing, 44 escenarios, filtros, detalle por URL y recarga,
-  autenticación, cliente/licencia, suspensión/reactivación/revocación,
-  activación/desactivación, catálogo admin, logout y contacto correctos.
-- Escritorio 1440×1000 y móvil 390×844 sin desbordamiento horizontal; capturas
-  revisadas en `TestResults/vital-landing-desktop.png`, `vital-landing-mobile.png`,
-  `vital-catalog-mobile.png`, `vital-admin-desktop.png`, `vital-admin-mobile.png`
-  y `vital-contact-mobile.png`.
+- Build de frontend estático y backend correcta; compilación React con Vite correcta.
+- Tests Node: 17/17, incluidos los tres enlaces de escenario, los 15 enlaces de
+  caso y el rechazo de clínica dental y del caso antiguo de hipotensión.
+- Smoke Edge: conteos 3/15/5, los 15 nombres exactos del catálogo, recarga de
+  enlaces, ficha v2 de hipotensión en el catálogo heredado y ausencia de errores JS.
+- Home, catálogo y tres detalles en móvil 390×844 sin desbordamiento horizontal.
+  Captura revisada: `TestResults/vital-release-mobile.png`.
+- La página heredada conserva tres escenarios, pestañas e imagen ampliable.
 
-El navegador usa `demo/tests/browser-server.mjs` (puerto loopback 4311, SQLite
-en memoria y contraseña exclusiva de test) para todas las altas y cambios.
-No se crearon clientes, licencias ni solicitudes en la base local real.
-La prueba reproducible es `demo/tests/medical-browser.js` mediante playwright-cli.
+Las pruebas de navegador usan `demo/tests/browser-server.mjs` (loopback 4311,
+SQLite en memoria). Ejecutar `demo/tests/release-browser.js` y
+`demo/tests/browser-check.js` mediante playwright-cli. Estas comprobaciones no
+crean clientes, licencias ni solicitudes. El recorrido administrativo ampliado
+permanece en `demo/tests/medical-browser.js`; no se ejecutó en este recorte.

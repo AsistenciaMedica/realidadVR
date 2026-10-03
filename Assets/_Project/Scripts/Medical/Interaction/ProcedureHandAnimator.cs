@@ -17,7 +17,9 @@ namespace EmergencyVR.Medical.Interaction
         readonly Dictionary<XRNode,Renderer[]> controllerModels=new Dictionary<XRNode,Renderer[]>();
         readonly Dictionary<Renderer,bool> originalRendering=new Dictionary<Renderer,bool>();
         string action;
-        float actionTime, lookupTime;
+        float actionTime, lookupTime, actionDuration=1.8f;
+        EmergencyVR.Dialogue.ClinicalDialogueController dialogue;
+        TextMesh watchDisplay;
         // Desktop first person: virtual shoulders relative to the camera and an adult shoulder-to-wrist reach.
         static readonly Vector3 LeftShoulder=new Vector3(-.19f,-.24f,.02f), RightShoulder=new Vector3(.19f,-.24f,.02f);
         const float ArmReach=.68f;
@@ -36,6 +38,7 @@ namespace EmergencyVR.Medical.Interaction
             var prefab=Resources.Load<GameObject>("Visual/"+name);
             var hand=prefab==null?null:Instantiate(prefab,transform).GetComponent<ArticulatedHand>();
             if(hand!=null)AddSleeve(hand.transform);
+            if(hand!=null&&name=="LeftHand")AddWatch(hand.transform);
             return hand;
         }
         Material sleeveMaterial;
@@ -82,10 +85,34 @@ namespace EmergencyVR.Medical.Interaction
             mesh.SetVertices(vertices);mesh.SetNormals(normals);mesh.SetTriangles(triangles,0);mesh.RecalculateBounds();
             return mesh;
         }
+        // A digital wristwatch on the dorsal (+Y) side of the left wrist, used to time breaths; it shows sim time.
+        void AddWatch(Transform hand)
+        {
+            var watch=new GameObject("Wristwatch").transform;watch.SetParent(hand,false);watch.localPosition=new Vector3(0,.024f,-.05f);
+            var band=new GameObject("Band",typeof(MeshFilter),typeof(MeshRenderer));band.transform.SetParent(hand,false);
+            band.GetComponent<MeshFilter>().sharedMesh=Tube(.034f,.034f,-.042f,-.058f,20);
+            var dark=new Material(Shader.Find("Universal Render Pipeline/Lit")){name="Watch"};dark.SetColor("_BaseColor",new Color(.03f,.03f,.035f));dark.SetFloat("_Smoothness",.6f);
+            band.GetComponent<MeshRenderer>().sharedMaterial=dark;
+            var face=GameObject.CreatePrimitive(PrimitiveType.Cylinder);Destroy(face.GetComponent<Collider>());
+            face.transform.SetParent(watch,false);face.transform.localScale=new Vector3(.036f,.004f,.04f);face.GetComponent<Renderer>().sharedMaterial=dark;
+            var text=new GameObject("Display",typeof(TextMesh)).GetComponent<TextMesh>();
+            text.transform.SetParent(watch,false);text.transform.localPosition=new Vector3(0,.0045f,0);text.transform.localRotation=Quaternion.Euler(90,0,0);
+            text.fontSize=64;text.characterSize=.0022f;text.anchor=TextAnchor.MiddleCenter;text.alignment=TextAlignment.Center;text.color=new Color(.55f,1,.85f);
+            watchDisplay=text;
+        }
+        void OnDialogue(EmergencyVR.Medical.DialogueResponseDefinition response)
+        {
+            // Greeting, asking consent and checking how he feels come with a reassuring hand on his shoulder.
+            if(response==null)return;
+            var intent=response.intent;
+            if(intent==EmergencyVR.Medical.DialogueIntent.GREETING||intent==EmergencyVR.Medical.DialogueIntent.CONSENT_HELP||intent==EmergencyVR.Medical.DialogueIntent.CURRENT_STATUS)
+            {action="TalkShoulder";actionTime=0;actionDuration=2.4f;}
+        }
         void OnAction(string name)
         {
             if(name=="StartCPR"||name=="ChestCompression"||name=="ContinueCPR")return;
             action=name;actionTime=0;
+            actionDuration=name=="ObserveBreathing"?4.5f:name=="AssessResponsiveness"?2.8f:name=="ReassessPatient"?2.6f:1.8f;
             rig.Visuals.Rig.GetComponent<ArticulatedPatient>()?.React(name);
         }
         public void ResetPose()
@@ -112,6 +139,8 @@ namespace EmergencyVR.Medical.Interaction
                 lookupTime=Time.unscaledTime+1;
             }
             actionTime+=Time.deltaTime;
+            if(dialogue==null&&rig.Manager.Dialogue!=null){dialogue=rig.Manager.Dialogue;dialogue.ResponsePresented+=OnDialogue;}
+            if(watchDisplay!=null)watchDisplay.text=System.TimeSpan.FromSeconds(rig.Manager.ElapsedSeconds).ToString(@"mm\:ss");
             if(!rig.Manager.IsRunning)ResetPose();
             if(desktop==null)
             {
@@ -167,17 +196,29 @@ namespace EmergencyVR.Medical.Interaction
                         pose=MedicalHandPose.Support;
                     }
                 }
-                else if(action!=null && actionTime<1.8f)
+                else if(action=="ObserveBreathing" && actionTime<actionDuration)
                 {
-                    var target=action=="AssessResponsiveness"?NearShoulder(camera,side):Target(action,side);
+                    // Observe without touching: raise the left wrist into view and time breaths on the watch.
+                    if(side==0)
+                    {
+                        float lift=Mathf.SmoothStep(0,1,Mathf.Clamp01(actionTime/.4f))*Mathf.SmoothStep(0,1,Mathf.Clamp01((actionDuration-actionTime)/.5f));
+                        position=Vector3.Lerp(position,camera.TransformPoint(new Vector3(-.17f,-.17f,.33f)),lift);
+                        rotation=Quaternion.Slerp(rotation,Quaternion.LookRotation(camera.forward+camera.right*.55f,-camera.forward+camera.up*.35f),lift);
+                    }
+                }
+                else if(action!=null && actionTime<actionDuration)
+                {
+                    var target=action=="AssessResponsiveness"||action=="ReassessPatient"||action=="TalkShoulder"?NearShoulder(camera,side):Target(action,side);
                     var shoulder=camera.TransformPoint(side==0?LeftShoulder:RightShoulder);
                     // Only reach what an arm can physically touch; otherwise the hands stay at rest.
                     if(target!=null && Vector3.Distance(shoulder,target.position)<=ArmReach)
                     {
-                        float reach=Mathf.SmoothStep(0,1,Mathf.Clamp01(actionTime/.35f))*Mathf.SmoothStep(0,1,Mathf.Clamp01((1.8f-actionTime)/.45f));
+                        float reach=Mathf.SmoothStep(0,1,Mathf.Clamp01(actionTime/.35f))*Mathf.SmoothStep(0,1,Mathf.Clamp01((actionDuration-actionTime)/.45f));
                         var approach=Vector3.ProjectOnPlane(target.position-camera.position,target.up).normalized;
                         var contactRotation=approach.sqrMagnitude>.01f?Quaternion.LookRotation(approach,target.up):target.rotation;
                         var offset=target.up*.03f-(contactRotation*Vector3.forward)*.065f+(contactRotation*Vector3.right)*(side==0?-.025f:.025f);
+                        // Two gentle taps on the shoulder while calling his name.
+                        if(action=="AssessResponsiveness"&&actionTime>.45f&&actionTime<1.35f)offset-=target.up*.012f*Mathf.Abs(Mathf.Sin((actionTime-.45f)*Mathf.PI*2.2f));
                         position=Vector3.Lerp(position,target.position+offset,reach);
                         rotation=Quaternion.Slerp(rotation,contactRotation,reach);
                         pose=action.Contains("Pulse")||action.Contains("Airway")?MedicalHandPose.Point:MedicalHandPose.Support;
@@ -267,6 +308,7 @@ namespace EmergencyVR.Medical.Interaction
         void OnDestroy()
         {
             if(sleeveMesh!=null)Destroy(sleeveMesh);
+            if(dialogue!=null)dialogue.ResponsePresented-=OnDialogue;
             if(sleeveMaterial!=null)Destroy(sleeveMaterial);
             if(rig==null)return;
             if(rig.Manager!=null)rig.Manager.ActionAccepted-=OnAction;

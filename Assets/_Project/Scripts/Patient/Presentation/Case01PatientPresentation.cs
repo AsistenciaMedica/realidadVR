@@ -150,6 +150,7 @@ namespace EmergencyVR.Patient.Presentation
             if (risePending || standing || regaining) ApplyRisePose(riseAmount);
             else ApplyPose(progress);
             PresentAttention();
+            PresentPerformance();
             SyncInteractionColliders();
         }
 
@@ -492,6 +493,7 @@ namespace EmergencyVR.Patient.Presentation
             defaultMesh = null; defaultMaterials = null;
             foreach (var asset in owned) if (asset != null) Destroy(asset); owned.Clear();
             original.Clear(); neutral.Clear(); hidden.Clear(); attempt = null; attemptId = null;
+            DestroyPerformance();
         }
         void OnDisable() { if (IsActive) Restore(); }
         void OnDestroy() { if (review != null) review.SelectionChanged -= SelectionChanged; if (IsActive) Restore(); }

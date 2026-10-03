@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { BackgroundScene, HeroMedicalScene } from '../components/GeneratedArt';
-import { highlights, stats } from '../data/content';
+import { highlights } from '../data/content';
+import useReleaseCatalog from '../data/useReleaseCatalog';
 
 export default function HomePage() {
+  const { stats, scenarioCards, error } = useReleaseCatalog();
   return (
     <Layout>
       <div className="container home-page">
@@ -47,8 +49,8 @@ export default function HomePage() {
                 <span>○ Preparar DEA</span>
               </div>
               <div className="sim-card">
-                <span className="sim-card-label">Clínica dental</span>
-                <strong>Uno de nuestros 4 ambientes procedurales</strong>
+                <span className="sim-card-label">Vital VR · primera edición</span>
+                <strong>{scenarioCards.length ? `${scenarioCards.length} escenarios · ${scenarioCards[0].cases.length} casos por escenario` : 'Entrenamiento en emergencias'}</strong>
               </div>
             </div>
           </div>
@@ -64,6 +66,7 @@ export default function HomePage() {
         </section>
 
         <section className="stats-band" aria-label="Números clave">
+          {error && <p role="status">{error}</p>}
           {stats.map((stat) => (
             <div key={stat.label} className="stat-box">
               <strong>{stat.value}</strong>

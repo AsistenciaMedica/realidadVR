@@ -84,12 +84,15 @@ namespace EmergencyVR.UI
             { rayLayers[line.gameObject] = line.gameObject.layer; line.gameObject.layer = 5; }
             CreateCanvas();
             CreateGuide();
+            PatientConversation = new EmergencyVR.Dialogue.PatientConversationController(
+                () => Review.Manager.MedicalSession, () => Review.Manager.MedicalDefinition, () => Review.Manager.AcceptsInput);
             Review.Manager.Changed += Changed;
             Review.SelectionChanged += Selected;
             Review.Procedures.MeasurementRecorded += Measured;
             ready = true;
             Render();
-            if (System.Environment.GetCommandLineArgs().Contains("-vital-ux-smoke")) StartCoroutine(ExperienceSmoke());
+            if (System.Environment.GetCommandLineArgs().Contains("-vital-patient-roster-smoke")) StartCoroutine(PatientRosterSmoke());
+            else if (System.Environment.GetCommandLineArgs().Contains("-vital-ux-smoke")) StartCoroutine(ExperienceSmoke());
         }
 
         void CreateCanvas()
@@ -189,6 +192,7 @@ namespace EmergencyVR.UI
         public void Browse(string environment)
         {
             if (Review.Manager.IsRunning) return;
+            if (environment != "" && !Review.Scope.environments.Any(e => e.id == environment)) return;
             SelectedEnvironment = environment; catalogPage = 0; category = difficulty = "Todas"; search = "";
             Navigate(ExperiencePage.Catalog);
         }

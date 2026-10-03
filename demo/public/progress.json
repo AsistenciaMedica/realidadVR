@@ -1,12 +1,12 @@
 {
-  "updated": "2026-09-13",
+  "updated": "2026-09-30",
   "items": [
     {
       "name": "TrainingRoom",
-      "category": "environment",
+      "category": "system",
       "status": "ready",
       "statusLabel": "Implementado",
-      "detail": "Entorno procedural de entrenamiento con camilla, equipamiento, iluminación y navegación. No sustituye los cuatro escenarios contratados."
+      "detail": "Espacio de práctica y desarrollo. El catálogo de lanzamiento incluye gimnasio, centro comercial y campo de fútbol."
     },
     {
       "name": "Gimnasio",
@@ -21,13 +21,6 @@
       "status": "partial",
       "statusLabel": "Procedural mejorado",
       "detail": "Pasillo comercial con escaparates opacos, bancos, vegetación y orientación. Acabado visual y validación en visor pendientes."
-    },
-    {
-      "name": "Clínica dental",
-      "category": "environment",
-      "status": "partial",
-      "statusLabel": "Procedural mejorado",
-      "detail": "Sillón, lámpara articulada, lavabo y almacenamiento procedurales. Equipo dental y paciente profesional pendientes de arte final."
     },
     {
       "name": "Campo de fútbol",
@@ -89,8 +82,8 @@
       "name": "Casos y desenlaces",
       "category": "system",
       "status": "review",
-      "statusLabel": "44 casos CLIENT_REVIEW",
-      "detail": "44 variantes configurables con deterioro, recuperación y desenlaces educativos en cuatro ambientes. Todos pendientes de validación médica."
+      "statusLabel": "15 casos en revisión",
+      "detail": "Tres escenarios con cinco casos cada uno. Evaluación y desenlaces educativos pendientes de validación médica."
     },
     {
       "name": "Meta Quest 3 / publicación",
@@ -102,8 +95,22 @@
   ],
   "cases": [
     {
-      "name": "Desvanecimiento",
-      "detail": "Guion de adulto que ya responde y respira normalmente, sin trauma. El estado y las decisiones son revisables.",
+      "name": "Daniel · Malestar después del ejercicio",
+      "detail": "Entrenamiento para primer interviniente. Daniel acaba de finalizar ejercicio y necesita ayuda en el gimnasio. Practica la valoración inicial, la comunicación y la solicitud de ayuda.",
+      "sources": [
+        {
+          "label": "NHS · Low blood pressure (hypotension)",
+          "url": "https://www.nhs.uk/conditions/low-blood-pressure-hypotension/"
+        },
+        {
+          "label": "NHS · Fainting",
+          "url": "https://www.nhs.uk/symptoms/fainting/"
+        }
+      ]
+    },
+    {
+      "name": "Síncope después de ejercicio",
+      "detail": "Síncope después de ejercicio. Valorar, actuar dentro de competencias y solicitar relevo.",
       "sources": [
         {
           "label": "NHS · Fainting",
@@ -112,46 +119,144 @@
       ]
     },
     {
-      "name": "Inconsciente con respiración",
-      "detail": "Rama de respiración normal sin trauma; observación y relevo. No se fuerza una recuperación por completar acciones.",
+      "name": "Hipoglucemia con confusión y deglución segura",
+      "detail": "Hipoglucemia con confusión y deglución segura. Valorar, actuar dentro de competencias y solicitar relevo.",
       "sources": [
         {
-          "label": "RCUK · First Aid 2025",
+          "label": "NHS · Low blood sugar (hypoglycaemia)",
+          "url": "https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/"
+        },
+        {
+          "label": "Resuscitation Council UK · First Aid Guidelines",
           "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
         }
       ]
     },
     {
-      "name": "Hipoglucemia consciente",
-      "detail": "Guion consciente con deglución segura y lecturas ficticias. La espera de reevaluación se simula; el piloto no incluye administración de fármacos.",
+      "name": "Dolor torácico con disnea",
+      "detail": "Dolor opresivo y disnea durante ejercicio. Activar emergencias sin esperar mediciones.",
       "sources": [
         {
-          "label": "NHS · Low blood sugar",
-          "url": "https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/"
+          "label": "NHS · Shortness of breath",
+          "url": "https://www.nhs.uk/symptoms/shortness-of-breath/"
         }
       ]
     },
     {
-      "name": "Hipotensión sintomática",
-      "detail": "Revisión de hallazgos y solicitud de evaluación. La demo no establece la causa de la hipotensión.",
+      "name": "Crisis asmática · inhalador propio",
+      "detail": "Crisis asmática · inhalador propio. Valorar, actuar dentro de competencias y solicitar relevo.",
       "sources": [
         {
-          "label": "NHS · Low blood pressure",
-          "url": "https://www.nhs.uk/conditions/low-blood-pressure-hypotension/"
+          "label": "NHS · Asthma",
+          "url": "https://www.nhs.uk/conditions/asthma/"
+        }
+      ]
+    },
+    {
+      "name": "Inconsciente con respiración · piloto migrado",
+      "detail": "Inconsciente con respiración · piloto migrado. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "Resuscitation Council UK · Adult basic life support Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines"
         },
         {
-          "label": "RCUK · ABCDE",
-          "url": "https://www.resus.org.uk/library/abcde-approach"
+          "label": "Resuscitation Council UK · First Aid Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
         }
       ]
     },
     {
-      "name": "Ausencia de respiración normal",
-      "detail": "Piloto BLS para reanimador lego ante sospecha de parada cardíaca. La parada respiratoria aislada con pulso confirmado requiere un guion separado.",
+      "name": "Sin respiración normal · piloto migrado",
+      "detail": "Sin respiración normal · piloto migrado. Valorar, actuar dentro de competencias y solicitar relevo.",
       "sources": [
         {
-          "label": "RCUK · Adult Basic Life Support 2025",
+          "label": "Resuscitation Council UK · Adult basic life support Guidelines",
           "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Obstrucción parcial · tos eficaz",
+      "detail": "Obstrucción parcial · tos eficaz. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "Resuscitation Council UK · First Aid Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Paciente confuso · origen no confirmado",
+      "detail": "Paciente confuso · origen no confirmado. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "Resuscitation Council UK · First Aid Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Deshidratación con respuesta conservada",
+      "detail": "Deshidratación con respuesta conservada. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "NHS · Dehydration",
+          "url": "https://www.nhs.uk/conditions/dehydration/"
+        }
+      ]
+    },
+    {
+      "name": "Parada presenciada · DEA precoz",
+      "detail": "Parada presenciada · DEA precoz. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "Resuscitation Council UK · Adult basic life support Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/adult-basic-life-support-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Recuperación de pérdida breve de conciencia",
+      "detail": "Recuperación de pérdida breve de conciencia. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "NHS · Fainting",
+          "url": "https://www.nhs.uk/symptoms/fainting/"
+        }
+      ]
+    },
+    {
+      "name": "Hipoglucemia durante partido",
+      "detail": "Hipoglucemia durante partido. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "NHS · Low blood sugar (hypoglycaemia)",
+          "url": "https://www.nhs.uk/conditions/low-blood-sugar-hypoglycaemia/"
+        },
+        {
+          "label": "Resuscitation Council UK · First Aid Guidelines",
+          "url": "https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines"
+        }
+      ]
+    },
+    {
+      "name": "Agotamiento por calor",
+      "detail": "Agotamiento por calor. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "NHS · Heat exhaustion and heatstroke",
+          "url": "https://www.nhs.uk/conditions/heat-exhaustion-heatstroke/"
+        }
+      ]
+    },
+    {
+      "name": "Hipoxia con fatiga",
+      "detail": "Hipoxia con fatiga. Valorar, actuar dentro de competencias y solicitar relevo.",
+      "sources": [
+        {
+          "label": "NHS · Shortness of breath",
+          "url": "https://www.nhs.uk/symptoms/shortness-of-breath/"
         }
       ]
     }

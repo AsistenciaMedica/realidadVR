@@ -1,5 +1,13 @@
 # Plan de desarrollo
 
+## Alcance vigente — 2026-09-30
+
+La primera versión comercial queda limitada a **gimnasio, centro comercial y campo
+de fútbol, con cinco casos por escenario (15 total)**. El orden de cierre y las
+comprobaciones para Meta están en [LAUNCH_SCOPE.md](LAUNCH_SCOPE.md).
+El resto de este documento conserva el historial de fases de septiembre; sus
+restricciones y cuatro entornos originales no definen el lanzamiento actual.
+
 Actualización 2026-09-13: la nueva entrega añade una demo Windows, un portal
 preparado para Railway y cinco guiones médicos declarativos para revisión.
 Ver [distribución](CLIENT_DEMO.md) y [alcance vigente](MVP_SCOPE_AND_MEDICAL_REVIEW.md).

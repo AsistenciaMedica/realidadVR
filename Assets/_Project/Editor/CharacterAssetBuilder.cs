@@ -95,8 +95,8 @@ namespace EmergencyVR.Editor
                 var body = Lit(Appearances + "DanielBody.mat", Rocketbox + "Daniel/Textures/m026_body_color.png", Rocketbox + "Daniel/Textures/m026_body_normal.png");
                 var head = Lit(Appearances + "DanielHead.mat", Rocketbox + "Daniel/Textures/m026_head_color.png", Rocketbox + "Daniel/Textures/m026_head_normal.png");
                 appearance.materials = renderer.sharedMaterials.Select(m => m != null && m.name.ToLowerInvariant().Contains("head") ? head : body).ToArray();
-                Save(appearance, Appearances + "Daniel.asset");
-                Debug.Log("DANIEL_APPEARANCE vertices=" + mesh.vertexCount + " materials=" + string.Join(",", renderer.sharedMaterials.Select(m => m == null ? "null" : m.name)));
+                appearance = Save(appearance, Appearances + "Daniel.asset");
+                Debug.Log("DANIEL_APPEARANCE vertices=" + appearance.mesh.vertexCount + " materials=" + string.Join(",", renderer.sharedMaterials.Select(m => m == null ? "null" : m.name)));
             }
             finally { UnityEngine.Object.DestroyImmediate(instance); }
         }

@@ -24,6 +24,8 @@ namespace EmergencyVR.Editor
         }
         void OnPreprocessTexture()
         {
+            // The release roster has its own stricter texture budget and Android settings.
+            if (assetPath.StartsWith("Assets/ThirdParty/Rocketbox/Roster/", StringComparison.Ordinal)) return;
             if (!assetPath.StartsWith("Assets/ThirdParty/Rocketbox/", StringComparison.Ordinal) && !assetPath.StartsWith("Assets/_Project/Resources/Visual/Textures/", StringComparison.Ordinal)) return;
             var importer = (TextureImporter)assetImporter;
             importer.maxTextureSize = 2048;

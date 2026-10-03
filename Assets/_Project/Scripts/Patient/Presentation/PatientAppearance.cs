@@ -11,5 +11,7 @@ namespace EmergencyVR.Patient.Presentation
     {
         public Mesh mesh;
         public Material[] materials = Array.Empty<Material>();
+        public string patientId, sourceModel, sourceCommit;
+        public string[] boneNames = Array.Empty<string>();
     }
 }

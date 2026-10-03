@@ -201,6 +201,26 @@
       "id": "PA_THANKS",
       "speaker": "paramedic",
       "text": "Muy bien, gracias. Nos hacemos cargo a partir de aquí."
+    },
+    {
+      "id": "DANIEL_CLARIFY_01",
+      "speaker": "daniel",
+      "text": "¿Perdona? No te he entendido bien…"
+    },
+    {
+      "id": "DANIEL_CLARIFY_02",
+      "speaker": "daniel",
+      "text": "¿Cómo…? Repítemelo, por favor."
+    },
+    {
+      "id": "DANIEL_NAME",
+      "speaker": "daniel",
+      "text": "Daniel… me llamo Daniel."
+    },
+    {
+      "id": "DANIEL_PLACE",
+      "speaker": "daniel",
+      "text": "En el gimnasio… estaba en la cinta."
     }
   ]
 }

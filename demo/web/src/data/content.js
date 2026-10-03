@@ -5,44 +5,33 @@ export const navigation = [
   { label: 'Contacto', to: '/contact' },
 ];
 
-export const scenarioCards = [
-  {
-    id: 'dental',
-    name: 'Clínica dental',
-    tag: 'RCP',
-    tags: ['RCP', 'Respiratorio', 'Procedimiento'],
-    description: 'Ambiente clínico con paciente bajo evaluación en un entorno preparado para atención inmediata.',
-    image: '/training-room.png',
-    accent: 'cyan',
-  },
-  {
-    id: 'gym',
-    name: 'Gimnasio',
-    tag: 'Trauma',
-    tags: ['Trauma', 'RCP', 'Respiratorio'],
-    description: 'Entrenamiento de respuesta rápida en un sitio físico con acceso limitado y ruido ambiental.',
-    image: '/training-room.png',
-    accent: 'red',
-  },
-  {
-    id: 'mall',
-    name: 'Centro comercial',
-    tag: 'Conciencia',
-    tags: ['Conciencia', 'Glucosa', 'Observación'],
-    description: 'Situación de atención sanitaria en un espacio público con varios puntos de decisión.',
-    image: '/training-room.png',
-    accent: 'cyan',
-  },
-  {
-    id: 'football',
-    name: 'Campo de fútbol',
-    tag: 'Trauma',
-    tags: ['Trauma', 'RCP', 'Urgencia'],
-    description: 'Emergencia deportiva con coordinación, monitorización y toma de decisiones bajo presión.',
-    image: '/training-room.png',
-    accent: 'red',
-  },
-];
+const environmentPresentation = {
+  gym: { description: 'Valoración y respuesta a emergencias durante el entrenamiento físico.', accent: 'red' },
+  mall: { description: 'Atención inicial y toma de decisiones ante emergencias en un espacio público.', accent: 'cyan' },
+  football: { description: 'Respuesta ante emergencias deportivas en el campo de fútbol.', accent: 'red' },
+};
+
+export function getScenarioCards(catalog) {
+  return catalog.releaseScope.environments.map((environment) => {
+    const cases = environment.scenarioIds.map((id) => catalog.scenarios.find((scenario) => scenario.id === id));
+    return {
+      ...environmentPresentation[environment.id],
+      id: environment.id,
+      name: environment.name,
+      cases,
+      tags: [...new Set(cases.map((scenario) => scenario.category))],
+    };
+  });
+}
+
+export function getStats(catalog) {
+  const environments = catalog.releaseScope.environments;
+  return [
+    { value: String(environments.length).padStart(2, '0'), label: 'escenarios' },
+    { value: String(catalog.scenarios.length).padStart(2, '0'), label: 'casos' },
+    { value: String(environments[0].scenarioIds.length).padStart(2, '0'), label: 'casos por escenario' },
+  ];
+}
 
 export const procedureCards = [
   { name: 'Valoración inicial', icon: '✦', description: 'Identificación del paciente y primeras decisiones.', cta: 'Ver más' },
@@ -67,12 +56,6 @@ export const highlights = [
   { title: 'Escenarios repetibles', icon: '◌' },
   { title: 'Evaluación y debrief', icon: '△' },
   { title: 'Mayor preparación', icon: '◇' },
-];
-
-export const stats = [
-  { value: '04', label: 'ambientes' },
-  { value: '44', label: 'escenarios' },
-  { value: '03', label: 'rutas' },
 ];
 
 export const environmentList = [

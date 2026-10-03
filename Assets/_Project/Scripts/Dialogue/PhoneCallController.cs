@@ -47,6 +47,8 @@ namespace EmergencyVR.Dialogue
         double arrivalAt;
         bool pausedAudio;
         Transform handset, deskPhone;
+        TextMesh screen;
+        float callStarted;
 
         public PhoneCallStage Stage { get; private set; }
         public string Dialed { get; private set; } = "";
@@ -137,6 +139,9 @@ namespace EmergencyVR.Dialogue
                 pausedAudio = paused;
                 foreach (var source in new[] { line, tones, scene }) { if (paused) source.Pause(); else source.UnPause(); }
             }
+            if (screen != null && InCall)
+                screen.text = Stage == PhoneCallStage.Ringing ? "112" + System.Environment.NewLine + "Llamando…" :
+                    "112 · Emergencias" + System.Environment.NewLine + TimeSpan.FromSeconds(Time.time - callStarted).ToString(@"mm\:ss");
             if (!Ready) return;
             if (Stage == PhoneCallStage.Ringing)
             {
@@ -401,10 +406,21 @@ namespace EmergencyVR.Dialogue
             if (visible && handset == null)
             {
                 handset = EmergencyVR.Environment.Presentation.GymPropSet.Spawn("smartphone", .146f, transform);
-                if (handset != null) handset.name = "Learner phone";
+                if (handset != null)
+                {
+                    handset.name = "Learner phone";
+                    // Call screen on the face turned toward the learner (+Z of the held phone).
+                    screen = new GameObject("Call screen", typeof(TextMesh)).GetComponent<TextMesh>();
+                    screen.transform.SetParent(handset, false);
+                    screen.transform.localPosition = new Vector3(0, .085f, .0062f);
+                    screen.transform.localRotation = Quaternion.Euler(0, 180, 0);
+                    screen.fontSize = 64; screen.characterSize = .0021f; screen.anchor = TextAnchor.MiddleCenter;
+                    screen.alignment = TextAlignment.Center; screen.color = new Color(.92f, .97f, 1f);
+                }
             }
             if (handset != null) handset.gameObject.SetActive(visible);
             if (hands != null) hands.HeldProp = visible ? handset : null;
+            if (visible) callStarted = Time.time;
         }
 
         void OnDestroy()

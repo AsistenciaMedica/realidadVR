@@ -15,6 +15,7 @@ namespace EmergencyVR.Scenarios
     public sealed class ReviewCaseSession : MonoBehaviour
     {
         public ReviewCaseCatalog Catalog { get; private set; }
+        public ReleaseScope Scope { get; private set; }
         public int SelectedIndex { get; private set; }
         public ReviewCaseEntry Selected => Catalog.entries[SelectedIndex];
         public ScenarioManager Manager { get; private set; }
@@ -66,22 +67,24 @@ namespace EmergencyVR.Scenarios
             patient=FindFirstObjectByType<PatientController>();
             evaluation=FindFirstObjectByType<EvaluationManager>();
             runtimeScenario=Instantiate(manager.Scenario);
-            // Preserve the scene's initial technical case until the user deliberately selects another.
-            SelectedIndex=Math.Max(0,Array.FindIndex(catalog.entries,e=>e.definition==manager.Scenario.defaultCase));
             medicalLibrary=MedicalLibraryLoader.Load();
+            Scope=ReleaseScope.Load(medicalLibrary);
             Catalog=Instantiate(catalog); generated.Add(Catalog);
-            var entries=catalog.entries.ToList();
-            foreach(var medical in medicalLibrary.scenarios)
+            // The technical exercise remains reachable from Help; only release cases enter product selection.
+            var entries=catalog.entries.Where(e=>e.definition!=null&&e.definition.isTechnicalDemo).ToList();
+            foreach(var scenarioId in Scope.ScenarioIds)
             {
-                int index=entries.FindIndex(e=>e.definition.caseId==medical.id);
+                var medical=medicalLibrary.scenarios.Single(s=>s.id==scenarioId);
                 // Runtime adapters preserve legacy asset IDs without modifying the original authored pilots.
                 var legacy=ScriptableObject.CreateInstance<ClinicalCaseDefinition>(); generated.Add(legacy);
                 legacy.caseId=medical.id; legacy.displayName=medical.name; legacy.description=medical.description; legacy.isTechnicalDemo=false;
                 foreach(var id in medical.recommendedSequence) legacy.steps.Add(new CaseStepData {actionId=id,label=medicalLibrary.actions.First(a=>a.id==medical.actions.First(r=>r.id==id).action).label,fromState=legacy.initialState,toState=legacy.initialState,points=10});
                 var entry=new ReviewCaseEntry {definition=legacy,medical=medical,briefing=medical.description+"\n"+medical.incident,limitations="PENDING MEDICAL VALIDATION",sourceUrls=medicalLibrary.references.Where(r=>medical.references.Contains(r.id)).Select(r=>r.url).ToArray(),reviewedOn="2026-09-13"};
-                if(index>=0) entries[index]=entry; else entries.Add(entry);
+                entries.Add(entry);
             }
             Catalog.entries=entries.ToArray();
+            // Resolve after filtering: archived cases must never shift the initial technical selection.
+            SelectedIndex=Math.Max(0,Array.FindIndex(Catalog.entries,e=>e.definition==manager.Scenario.defaultCase));
             Procedures=EmergencyVR.Medical.Interaction.MedicalProcedureRig.Attach(this);
             var help=gameObject.AddComponent<EmergencyVR.Dialogue.ClinicalHelpController>();
             help.Initialize(Manager);
@@ -91,6 +94,8 @@ namespace EmergencyVR.Scenarios
             body.Initialize(this);
             var variations=gameObject.AddComponent<Case01VariationController>();
             variations.Initialize(this);
+            EmergencyVR.Patient.Presentation.PatientAppearanceController.Attach(this);
+            EmergencyVR.Patient.Presentation.PatientSceneStaging.Attach(this);
         }
 
         public bool Select(int index)

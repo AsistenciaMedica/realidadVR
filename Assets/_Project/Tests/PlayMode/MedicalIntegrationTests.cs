@@ -20,17 +20,21 @@ namespace EmergencyVR.Tests
             yield return EmergencyVR.Desktop.ProcedureValidation.Run(review);
             Assert.That(review.Manager.MedicalResult.procedures.shocks,Is.EqualTo(1));
         }
-        [UnityTest] public IEnumerator SharedSelectorPreservesTechnicalDemoAndSwitchesAllFourModules()
+        [UnityTest] public IEnumerator SharedSelectorPreservesTechnicalDemoAndSwitchesThreeReleaseEnvironments()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");yield return null;
             var review=Object.FindFirstObjectByType<ReviewCaseSession>();
-            Assert.That(review.Catalog.entries.Length,Is.EqualTo(46));
+            Assert.That(review.Catalog.entries.Length,Is.EqualTo(16));
             Assert.That(review.Catalog.entries.Count(e=>e.medical==null),Is.EqualTo(1),"The original technical demo remains available.");
-            Assert.That(review.Catalog.entries.Count(e=>e.medical!=null&&e.medical.id!="review-hypotension-v2"),Is.EqualTo(44),"All legacy medical cases remain available.");
-            Assert.That(review.Catalog.entries.Count(e=>e.medical?.id=="review-hypotension-v2"),Is.EqualTo(1),"CASE 01 is an additional version, never a replacement for v1.");
-            foreach(var env in new[]{"gym","mall","dental","football"})
+            Assert.That(review.Selected.definition,Is.SameAs(review.Manager.Scenario.defaultCase));
+            Assert.That(review.Selected.definition.isTechnicalDemo,Is.True);
+            Assert.That(review.Catalog.entries.Where(e=>e.medical!=null).Select(e=>e.medical.id),Is.EqualTo(review.Scope.ScenarioIds));
+            Assert.That(review.Catalog.entries.Any(e=>e.medical?.environment=="dental"),Is.False);
+            Assert.That(review.Catalog.entries.Count(e=>e.medical?.id=="review-hypotension-v2"),Is.EqualTo(1));
+            foreach(var env in review.Scope.environments.Select(e=>e.id))
             {
-                int i=System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==env);
+                Assert.That(review.Catalog.entries.Count(e=>e.medical?.environment==env),Is.EqualTo(5));
+                int i=System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==env&&e.medical.clinicalV2==null);
                 Assert.That(review.Select(i),Is.True);review.Manager.StartCase();Assert.That(review.Select(0),Is.False);
                 review.Submit("CheckSceneSafety");Assert.That(review.Manager.MedicalSession.Completed,Does.Contain("CheckSceneSafety"));
                 Assert.That(Object.FindFirstObjectByType<ScenarioEnvironmentPresenter>().CurrentEnvironment,Is.EqualTo(env));

@@ -1,5 +1,10 @@
 # Alcance MVP y revisión clínica — 2026-09-13
 
+> Registro histórico de los pilotos. Desde el 30 de septiembre de 2026, el alcance
+> de lanzamiento es [3 escenarios × 5 casos](LAUNCH_SCOPE.md): gimnasio, centro
+> comercial y campo de fútbol. La matriz siguiente refleja el estado de la fecha
+> original, no el estado de implementación actual.
+
 La petición vigente autoriza avanzar hacia demo Windows + portal Railway y
 consultar fuentes médicas para crear pilotos revisables. Este documento sustituye
 las restricciones históricas de fase 1 descritas en DEVELOPMENT_PLAN, sin declarar

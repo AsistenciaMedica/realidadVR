@@ -47,11 +47,12 @@ namespace EmergencyVR.Tests
             Assert.That(JsonUtility.ToJson(a.Patient),Is.EqualTo(JsonUtility.ToJson(b.Patient)));
             var other=new MedicalScenarioRuntime(d,l,43);Assert.That(JsonUtility.ToJson(other.Patient),Is.Not.EqualTo(JsonUtility.ToJson(new MedicalScenarioRuntime(d,l,42).Patient)));
         }
-        [Test] public void DeteriorationIsConfigurableAndPreventable()
+        [Test] public void ObservationDoesNotPreventRespiratoryDeterioration()
         {
             var a=Runtime("hypoxia",out var d);a.Tick(200);Assert.That(a.Patient.consciousness,Is.EqualTo("Drowsy"));
             var b=Runtime("hypoxia",out _);b.Submit("CheckSceneSafety",1);b.Submit("CheckResponsiveness",2);b.Submit("CheckBreathing",3);b.Submit("Monitor",4);b.Tick(200);
-            Assert.That(b.Patient.consciousness,Is.EqualTo("Conscious"));
+            Assert.That(b.Patient.consciousness,Is.EqualTo("Drowsy"));
+            Assert.That(b.Patient.spo2,Is.EqualTo(a.Patient.spo2));
         }
         [Test] public void OralGlucoseWithoutSwallowingIsCriticalAndCannotChangeGlucose()
         {

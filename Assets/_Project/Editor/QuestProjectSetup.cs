@@ -20,6 +20,8 @@ namespace EmergencyVR.Editor
         const string Loader = "UnityEngine.XR.OpenXR.OpenXRLoader";
         const string MetaFeature = "com.unity.openxr.feature.metaquest";
         const string TouchFeature = "com.unity.openxr.feature.input.oculustouch";
+        // Meta locks the package name on first upload; do not change it afterwards.
+        const string PackageId = "com.vitalvr.training";
 
         [MenuItem("Emergency VR/3 - Configure Android OpenXR")]
         public static void ConfigureAndroid()
@@ -29,7 +31,7 @@ namespace EmergencyVR.Editor
             PlayerSettings.companyName = "EmergencyVR";
             PlayerSettings.productName = "VITAL VR";
             PlayerSettings.bundleVersion = "0.1.0";
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.emergencyvr.trainingdemo");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageId);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
@@ -162,6 +164,51 @@ namespace EmergencyVR.Editor
             if (report.summary.result != BuildResult.Succeeded)
                 throw new BuildFailedException("APK build failed: " + report.summary.result);
             Debug.Log("APK built: " + report.summary.outputPath + ". Install and test on Quest 3; build success alone is not device validation.");
+        }
+
+        // Batch entry point for Meta release channels. Signing data comes from the environment
+        // (VITAL_KEYSTORE_PATH, VITAL_KEYSTORE_PASS, VITAL_KEY_ALIAS, VITAL_KEY_PASS) so no secret
+        // is stored in the project. VITAL_VERSION_CODE must increase with every upload.
+        public static void BuildReleaseApk()
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+                throw new InvalidOperationException("File > Build Profiles > Android > Switch Platform first; wait for compilation.");
+            ValidateMenu();
+            var keystore = System.Environment.GetEnvironmentVariable("VITAL_KEYSTORE_PATH");
+            var keystorePass = System.Environment.GetEnvironmentVariable("VITAL_KEYSTORE_PASS");
+            var alias = System.Environment.GetEnvironmentVariable("VITAL_KEY_ALIAS");
+            var aliasPass = System.Environment.GetEnvironmentVariable("VITAL_KEY_PASS");
+            if (string.IsNullOrEmpty(keystore) || !File.Exists(keystore) || string.IsNullOrEmpty(keystorePass) ||
+                string.IsNullOrEmpty(alias) || string.IsNullOrEmpty(aliasPass))
+                throw new InvalidOperationException("Release signing requires VITAL_KEYSTORE_PATH, VITAL_KEYSTORE_PASS, VITAL_KEY_ALIAS and VITAL_KEY_PASS.");
+            var versionCode = 1;
+            var requestedCode = System.Environment.GetEnvironmentVariable("VITAL_VERSION_CODE");
+            if (!string.IsNullOrEmpty(requestedCode) && (!int.TryParse(requestedCode, out versionCode) || versionCode < 1))
+                throw new InvalidOperationException("VITAL_VERSION_CODE must be a positive integer.");
+
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageId);
+            PlayerSettings.Android.bundleVersionCode = versionCode;
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)34;
+            // Required by the Meta upload validator.
+            PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = keystore;
+            PlayerSettings.Android.keystorePass = keystorePass;
+            PlayerSettings.Android.keyaliasName = alias;
+            PlayerSettings.Android.keyaliasPass = aliasPass;
+            Directory.CreateDirectory("Builds/Android");
+            EditorUserBuildSettings.buildAppBundle = false;
+            EditorUserBuildSettings.development = false;
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
+                scenes = new[] { DemoProjectBuilder.BootstrapPath, DemoProjectBuilder.TrainingPath },
+                locationPathName = "Builds/Android/VITAL-VR-" + PlayerSettings.bundleVersion + "-" + versionCode + ".apk",
+                target = BuildTarget.Android,
+                options = BuildOptions.None
+            });
+            if (report.summary.result != BuildResult.Succeeded)
+                throw new BuildFailedException("Release APK build failed: " + report.summary.result);
+            Debug.Log("Release APK built: " + report.summary.outputPath + ". Not validated on a headset.");
         }
     }
 }

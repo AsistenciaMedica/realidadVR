@@ -41,7 +41,10 @@ namespace EmergencyVR.Tests
         public void ComposedLibraryPreservesEveryLegacyDefinitionAndAddsExactlyOneVersion()
         {
             var original = JsonUtility.FromJson<MedicalLibrary>(File.ReadAllText("Assets/_Project/Resources/MedicalScenarios.json"));
-            var composed = Library();
+            // This contract covers V2 registration before the explicit release identity overlay.
+            // PatientRosterTests separately verifies that overlay and preservation of archived cases.
+            var composed = JsonUtility.FromJson<MedicalLibrary>(JsonUtility.ToJson(original));
+            EmergencyVR.Scenarios.ClinicalScenarioV2Catalog.LoadInto(composed);
             original.Validate(); composed.Validate();
             Assert.That(original.scenarios.Length, Is.EqualTo(44));
             Assert.That(composed.scenarios.Length, Is.EqualTo(45));

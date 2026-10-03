@@ -72,17 +72,25 @@ namespace EmergencyVR.Desktop
             yield return Capture("02-overview-guided", true);
             View(new Vector3(-.35f, 1.62f, -.45f), body.HeadPosition);
             yield return Wait(.5f); yield return Capture("03-daniel", false);
+            yield return Wait(12); yield return Capture("03b-gesture", false);
+            manager.Dialogue.AskSpoken(SpokenIntentParser.Parse("¿Te duele el pecho o te falta el aire?"));
+            yield return Wait(.7f); yield return Capture("03c-speaking", true);
+            yield return Wait(4);
             View(new Vector3(.05f, 1.5f, .05f), body.HeadPosition);
             manager.Dialogue.Ask(DialogueIntent.GREETING);
             manager.TrySubmitAction("AssessResponsiveness");
             yield return Wait(.6f); yield return Capture("04-touch-shoulder", false);
+            yield return Wait(2.5f);
             manager.TrySubmitAction("ObserveBreathing");
+            yield return Wait(1); yield return Capture("04b-watch", false);
+            yield return Wait(4);
             foreach (var intent in new[] { DialogueIntent.MAIN_SYMPTOM, DialogueIntent.ONSET, DialogueIntent.LOSS_OF_CONSCIOUSNESS, DialogueIntent.CHEST_PAIN, DialogueIntent.BREATHING_DIFFICULTY })
                 manager.Dialogue.Ask(intent);
             yield return Wait(.5f); yield return Capture("05-guided-step", true);
 
             foreach (var key in "112") phone.Press(key);
             phone.Dial(); yield return Wait(1); yield return Capture("06-dialing-handset", true);
+            yield return Capture("06b-handset-screen", false);
             float deadline = Time.realtimeSinceStartup + 20;
             while (phone.Stage == PhoneCallStage.Ringing && Time.realtimeSinceStartup < deadline) yield return null;
             yield return Wait(.5f); yield return Capture("07-operator", true);

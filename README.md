@@ -1,10 +1,16 @@
 # VITAL VR
 
 **Simulación y entrenamiento clínico inmersivo.** Proyecto Unity 6000.3.23f1 con demo Windows,
-44 variantes médicas declarativas, cuatro ambientes procedurales, RCP virtual,
-DEA manipulable y portal comercial con administración. Los casos siguen
+alcance de lanzamiento de **3 escenarios y 5 casos por escenario (15 casos)**:
+gimnasio, centro comercial y campo de fútbol. Incluye RCP virtual, DEA manipulable
+y portal comercial con administración. Los casos siguen
 `CLIENT_REVIEW`. La nueva experiencia incluye bienvenida, catálogo por entorno,
 preparación, monitor clínico, pausa real y revisión de resultados.
+
+Alcance vigente: [lanzamiento 3 × 5 y pendientes para Meta](docs/LAUNCH_SCOPE.md).
+La clínica dental y los demás casos se conservan para futuras ampliaciones.
+Los quince casos tienen [pacientes distintos, contexto y conversación propios](docs/PATIENT_ROSTER.md),
+orientados a primeros intervinientes y brigadistas.
 
 Para continuar desde este repositorio: **Emergency VR → Demo → Play with keyboard
 and mouse**. Ver [experiencia de entrenamiento](docs/TRAINING_EXPERIENCE.md), [demo Windows](docs/CLIENT_DEMO.md),
@@ -47,7 +53,7 @@ prefabs, materiales y casos existentes; vuelve a asignar URP y el orden de escen
 Al abrir la aplicación aparece la bienvenida **VITAL VR** sobre un fondo neutro.
 La escena base se prepara en segundo plano y se revela al iniciar el ejercicio.
 
-1. Elegir uno de los cuatro entornos y un entrenamiento del catálogo.
+1. Elegir uno de los tres escenarios y uno de sus cinco casos.
 2. Leer la preparación y elegir práctica guiada o evaluación.
 3. Pulsar **Iniciar entrenamiento** para activar el caso y su reloj.
 4. Usar equipo y acciones; consultar monitor y ficha independientemente del menú.
@@ -73,7 +79,9 @@ Unity. Pruebas y límites: [TESTING](docs/TESTING.md) y [VALIDATION_REPORT](docs
 
 - [Nueva experiencia de entrenamiento y verificación](docs/TRAINING_EXPERIENCE.md).
 - [Demo Windows y portal Railway](docs/CLIENT_DEMO.md).
-- [Alcance actual y fuentes de los cinco pilotos médicos](docs/MVP_SCOPE_AND_MEDICAL_REVIEW.md).
+- [Alcance de lanzamiento: 3 escenarios × 5 casos](docs/LAUNCH_SCOPE.md).
+- [Catálogo seleccionado e IDs](docs/SCENARIO_LIBRARY.md).
+- [Antecedentes y fuentes de los cinco pilotos médicos](docs/MVP_SCOPE_AND_MEDICAL_REVIEW.md).
 - [Arquitectura y extensión de casos](docs/ARCHITECTURE.md).
 - [Plan por fases](docs/DEVELOPMENT_PLAN.md).
 - [Instalación, OpenXR y Quest](docs/QUEST_SETUP.md).
@@ -85,7 +93,8 @@ Versionar `Assets` y sus `.meta`, `Packages`
 (incluido `packages-lock.json` cuando Unity lo genere), `ProjectSettings` y docs.
 `Library`, `Temp`, `Logs`, `Builds`, cachés y resultados locales están ignorados.
 
-El catálogo incluye 44 variantes en revisión clínica. RCP, DEA y adquisiciones
+El catálogo de lanzamiento incluye 15 casos en revisión clínica. La biblioteca de
+autoría conserva los 44 guiones originales y el caso de Daniel V2. RCP, DEA y adquisiciones
 son interacciones virtuales; las métricas no acreditan una técnica clínica real.
 El seguimiento de manos sin mandos y la validación física en Quest requieren
 trabajo y comprobaciones específicos.

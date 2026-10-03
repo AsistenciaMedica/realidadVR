@@ -1,13 +1,13 @@
 async page => {
-  await page.goto('http://localhost:4310');
+  await page.goto('http://127.0.0.1:4311/index.html');
   await page.locator('.progress-row').first().waitFor();
-  if (await page.locator('.progress-row').count() !== 14) throw Error('Missing progress rows');
+  if (await page.locator('.progress-row').count() !== 13) throw Error('Missing progress rows');
   await page.getByRole('button', {name:'Escenarios', exact:true}).click();
-  if (await page.locator('.progress-row').count() !== 5) throw Error('Scenario filter failed');
+  if (await page.locator('.progress-row').count() !== 3) throw Error('Scenario filter failed');
   await page.getByRole('tab', {name:'Meta Quest 3', exact:true}).click();
   if (!(await page.locator('#mode-quest').isVisible())) throw Error('Quest tab failed');
   await page.getByRole('tab', {name:'Sin gafas · Windows', exact:true}).click();
-  await page.getByRole('button', {name:'Ampliar captura real de TrainingRoom'}).click();
+  await page.getByRole('button', {name:'Ampliar captura del gimnasio'}).click();
   if (!(await page.locator('dialog').isVisible())) throw Error('Image dialog failed');
   await page.keyboard.press('Escape');
   await page.setViewportSize({width:1440,height:1000});

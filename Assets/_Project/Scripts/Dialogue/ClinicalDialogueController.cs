@@ -19,11 +19,45 @@ namespace EmergencyVR.Dialogue
         public event Action<DialogueResponseDefinition> ResponsePresented;
         public bool HasVoiceForLastResponse { get; private set; }
         public bool IsSpeaking => voice != null && voice.isPlaying;
+        /// <summary>The patient's voice source, for lip movement driven by the actual audio.</summary>
+        public AudioSource Voice => voice;
+        readonly System.Collections.Generic.Queue<System.Action> pending = new System.Collections.Generic.Queue<System.Action>();
+        float nextLineAt;
+        int clarifications;
+
+        /// <summary>
+        /// Answers what the learner said aloud: each recognised question in spoken order, one after the other;
+        /// small talk and unclear speech get a natural presentational line that is not a clinical observation.
+        /// </summary>
+        public void AskSpoken(SpokenRequest request)
+        {
+            if(manager==null||!manager.AcceptsInput||request==null) return;
+            if(!request.Understood)
+            {
+                bool first=clarifications++%2==0;
+                pending.Enqueue(()=>Say(first?"DANIEL_CLARIFY_01":"DANIEL_CLARIFY_02",first?"¿Perdona? No te he entendido bien…":"¿Cómo…? Repítemelo, por favor."));
+                return;
+            }
+            if(request.SmallTalk=="name") pending.Enqueue(()=>Say("DANIEL_NAME","Daniel… me llamo Daniel."));
+            if(request.SmallTalk=="place") pending.Enqueue(()=>Say("DANIEL_PLACE","En el gimnasio… estaba en la cinta."));
+            foreach(var intent in request.Intents) { var asked=intent; pending.Enqueue(()=>Ask(asked)); }
+        }
+
+        // A presentational line: subtitle and voice only, never recorded as clinical information.
+        void Say(string id,string text)
+        {
+            if(attempt?.ClinicalState!=null&&!attempt.ClinicalState.CanSpeak) return;
+            var line=new DialogueResponseDefinition{id=id,text=text,intent=DialogueIntent.MAIN_SYMPTOM,marksObservation=false};
+            lastResponse=line;
+            PlayVoice(line);
+            ResponsePresented?.Invoke(line.Copy());
+        }
         public DialogueResponseDefinition LastResponse => attempt==manager?.MedicalSession && attemptId==attempt?.ClinicalState?.AttemptId ? lastResponse?.Copy() : null;
         public void Initialize(ScenarioManager owner) { manager=owner; }
         public void ResetForAttempt()
         {
             attempt=manager?.MedicalSession; attemptId=attempt?.ClinicalState?.AttemptId; lastResponse=null;
+            pending.Clear(); clarifications=0;
             if(voice!=null) voice.Stop(); HasVoiceForLastResponse=false;
             assets=attempt?.ClinicalState==null?null:ClinicalScenarioV2Catalog.FindPresentationAssets(attempt.ClinicalState.ScenarioId) as Case01HypotensionAssets;
         }
@@ -62,6 +96,11 @@ namespace EmergencyVR.Dialogue
         }
         void Update()
         {
+            if(pending.Count>0&&!IsSpeaking&&Time.time>=nextLineAt&&manager!=null&&manager.AcceptsInput)
+            {
+                pending.Dequeue()();
+                nextLineAt=Time.time+.45f;
+            }
             if(attempt!=manager?.MedicalSession || attemptId!=manager?.MedicalSession?.ClinicalState?.AttemptId) ResetForAttempt();
             if(manager!=null&&!manager.IsRunning&&voice!=null&&voice.isPlaying) voice.Stop();
         }

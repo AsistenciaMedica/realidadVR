@@ -29,7 +29,23 @@ namespace EmergencyVR.Tests
             if (flow != null && flow.Review.Manager != null) { flow.Review.Manager.SetPaused(false); if (flow.Review.Manager.IsRunning) flow.Review.Manager.FinishCase(); }
             Time.timeScale = 1; yield return null;
         }
-        int MedicalIndex => Array.FindIndex(flow.Review.Catalog.entries, e => e.medical != null);
+        int MedicalIndex => Array.FindIndex(flow.Review.Catalog.entries, e => e.medical != null && e.medical.clinicalV2 == null);
+
+        [UnityTest] public IEnumerator ProductSelectorShowsOnlyThreeEnvironmentsWithFiveCasesEach()
+        {
+            var welcomeCards = flow.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Environment ")).Select(b => b.name);
+            Assert.That(welcomeCards, Is.EquivalentTo(new[] { "Environment gym", "Environment mall", "Environment football" }));
+            foreach (var environment in flow.Review.Scope.environments)
+            {
+                flow.Browse(environment.id); yield return null;
+                var cards = flow.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Case ")).Select(b => b.name);
+                Assert.That(cards, Is.EqualTo(environment.scenarioIds.Select(id => "Case " + id)));
+                Assert.That(flow.Review.Manager.IsRunning, Is.False);
+            }
+            var selected = flow.SelectedEnvironment;
+            flow.Browse("dental"); yield return null;
+            Assert.That(flow.SelectedEnvironment, Is.EqualTo(selected), "An archived environment must not reopen through navigation.");
+        }
 
         [UnityTest] public IEnumerator WelcomeCatalogAndBriefingDoNotStartOrChangeTheClinicalWorld()
         {
@@ -101,10 +117,10 @@ namespace EmergencyVR.Tests
 
         [UnityTest] public IEnumerator ProductFlowPreservesScoringAndDebriefAcrossAllEnvironments()
         {
-            foreach (var environment in new[] { "gym", "mall", "dental", "football" })
+            foreach (var environment in flow.Review.Scope.environments.Select(e => e.id))
             {
                 flow.Browse(environment);
-                flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.environment == environment));
+                flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.environment == environment && e.medical.clinicalV2 == null));
                 flow.BeginTraining(); yield return null;
                 foreach (var id in flow.Review.Selected.medical.recommendedSequence)
                 {

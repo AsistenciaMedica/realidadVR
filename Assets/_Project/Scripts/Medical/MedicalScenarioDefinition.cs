@@ -27,6 +27,7 @@ namespace EmergencyVR.Medical
     }
     [Serializable] public sealed class PatientSnapshot
     {
+        public string patientId="", patientName="";
         public string consciousness="Conscious", respiration="normal", circulation="normal", sex="female", appearance="", dialogue="", position="supine";
         public int age=40;
         public double heartRate=78, systolic=120, diastolic=80, spo2=97, glucose=5, respiratoryRate=16, temperature=37, pain;
@@ -117,9 +118,11 @@ namespace EmergencyVR.Medical
         // Composed from the separately serialized clinical JSON registry. Unity's inline
         // serializer otherwise materializes this omitted reference for every legacy case.
         [NonSerialized] public ClinicalScenarioV2Definition clinicalV2;
+        [NonSerialized] public PatientIdentity patientIdentity;
         public MedicalScenarioDefinition Copy()
         {
             var x=(MedicalScenarioDefinition)MemberwiseClone(); x.initialState=initialState.Copy(); x.variation=variation.Copy();
+            x.patientIdentity=patientIdentity==null?null:patientIdentity.Copy();
             x.symptoms=(string[])symptoms.Clone(); x.visibleSigns=(string[])visibleSigns.Clone(); x.recommendedSequence=(string[])recommendedSequence.Clone(); x.references=(string[])references.Clone(); x.debrief=(string[])debrief.Clone();
             x.actions=actions.Select(a=>a.Copy()).ToArray(); x.timeline=timeline.Select(e=>e.Copy()).ToArray(); x.outcomes=outcomes.Select(o=>o.Copy()).ToArray(); x.clinicalV2=clinicalV2==null?null:clinicalV2.Copy(); return x;
         }
@@ -128,6 +131,15 @@ namespace EmergencyVR.Medical
             if(string.IsNullOrWhiteSpace(id)||string.IsNullOrWhiteSpace(name)||actions==null||actions.Length==0||outcomes==null||outcomes.Length==0||timeline==null) throw new ArgumentException("Incomplete scenario.");
             if(!new[]{"DRAFT","REFERENCE_REVIEWED","CLIENT_REVIEW","APPROVED","CLINICAL_REVIEW_REQUIRED"}.Contains(medicalValidationStatus) || !new[]{"gym","mall","dental","football"}.Contains(environment)) throw new ArgumentException("Invalid validation/environment.");
             if(clinicalV2!=null) clinicalV2.Validate(id);
+            if(patientIdentity!=null)
+            {
+                patientIdentity.Validate(id);
+                if(initialState.patientId!=patientIdentity.id || initialState.patientName!=patientIdentity.displayName ||
+                    initialState.age!=patientIdentity.age || initialState.sex!=patientIdentity.sex ||
+                    variation.minAge!=patientIdentity.age || variation.maxAge!=patientIdentity.age ||
+                    variation.sexes.Length!=1 || variation.sexes[0]!=patientIdentity.sex)
+                    throw new ArgumentException("Patient identity, presentation and variation must agree.");
+            }
             initialState.Validate();
             if(errorPenalty<0||criticalScoreCap<0||criticalScoreCap>100||references.Length==0||references.Any(r=>!library.references.Any(x=>x.id==r))) throw new ArgumentException("Invalid scoring or references.");
             var ids=actions.Select(a=>a.id).ToArray();

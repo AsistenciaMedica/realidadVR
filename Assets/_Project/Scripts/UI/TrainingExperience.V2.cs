@@ -37,7 +37,7 @@ namespace EmergencyVR.UI
             Box(content, "Session bar", 22, 20, 1396, 78, Background, true, true);
             Label(content, "Training brand", "VITAL <color=#ED1939>VR</color>", 43, 44, 196, 38, 28, Ink, true);
             var status = Label(content, "Session status", "", 258, 46, 525, 34, 18, Soft);
-            Bind(status, () => "ENTRENAMIENTO · " + (Review.Procedures.TrainingMode ? "PRÁCTICA GUIADA" : "EVALUACIÓN"));
+            Bind(status, () => (Review.Selected.medical?.patientIdentity?.displayName ?? "Paciente") + " · " + (Review.Procedures.TrainingMode ? "PRÁCTICA GUIADA" : "EVALUACIÓN"));
             var clock = Label(content, "Session clock", "", 799, 41, 130, 43, 29, Accent, true);
             Bind(clock, () => TimeLabel(Review.Manager.ElapsedSeconds));
             Button(content, "Technical help", "Controles", 949, 32, 139, 54, () => { ReleaseAssistance(); OpenUtility(ExperiencePage.Help); });
@@ -225,7 +225,7 @@ namespace EmergencyVR.UI
         {
             if (!Review.HasResult) { Navigate(ExperiencePage.Welcome); return; }
             var runtime = Review.Manager.MedicalSession;
-            PageTitle("Revisión del entrenamiento", "Tu práctica, paso a paso", "Objetivos formativos · " + TimeLabel(runtime.Elapsed));
+            PageTitle("Revisión del entrenamiento", "Tu práctica, paso a paso", Review.Selected.medical.name + " · " + TimeLabel(runtime.Elapsed));
             var tabs = new[] { "Objetivos", "Cronología", "Información obtenida", "Próximo intento" };
             resultTab = Mathf.Clamp(resultTab, 0, tabs.Length - 1);
             for (int i = 0; i < tabs.Length; i++) { int tab = i; Button(content, "Results tab " + i, tabs[i], 48 + i * 340, 307, 324, 54, () => { resultTab = tab; redraw = true; }, resultTab == i); }

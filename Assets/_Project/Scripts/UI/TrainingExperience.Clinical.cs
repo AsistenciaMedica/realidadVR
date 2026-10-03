@@ -55,14 +55,14 @@ namespace EmergencyVR.UI
             Box(content, "Session bar", 22, 20, 1396, 78, Background, true, true);
             Label(content, "Training brand", "VITAL <color=#ED1939>VR</color>", 43, 45, 188, 36, 28, Ink, true);
             Box(content, "Bar divider", 242, 39, 1, 40, Border, false);
-            Label(content, "Current case", CleanCopy(Review.Selected.definition.displayName), 264, 34, 640, 57, 22, Ink, true);
+            Label(content, "Current case", CleanCopy(Review.Selected.medical == null ? Review.Selected.definition.displayName : LearnerTitle(Review.Selected.medical)), 264, 34, 640, 57, 22, Ink, true);
             var clock = Label(content, "Session clock", "", 920, 44, 147, 39, 29, Accent, true);
             Bind(clock, () => TimeLabel(Review.Manager.ElapsedSeconds));
             Button(content, "Pause training", "Pausa", 1103, 32, 148, 54, () => Navigate(ExperiencePage.Pause));
             Button(content, "Finish training", "Finalizar", 1264, 32, 139, 54, () => Navigate(ExperiencePage.Finish));
 
             Button(content, "Open actions", actionDrawer ? "Cerrar acciones" : "Acciones", 26, 121, 244, 55, () => { actionDrawer = !actionDrawer; patientDrawer = false; redraw = true; });
-            Button(content, "Open patient", patientDrawer ? "Cerrar ficha" : "Ficha del paciente", 284, 121, 251, 55, () => { patientDrawer = !patientDrawer; actionDrawer = false; redraw = true; });
+            Button(content, "Open patient", patientDrawer ? "Cerrar conversación" : "Hablar y escuchar", 284, 121, 251, 55, () => { patientDrawer = !patientDrawer; actionDrawer = false; redraw = true; });
             if (actionDrawer) DrawActions();
             if (patientDrawer) DrawPatient();
 
@@ -111,6 +111,13 @@ namespace EmergencyVR.UI
         {
             Box(content, "Patient drawer", 26, 191, 509, 543, Background, true, true);
             Label(content, "Patient heading", "Ficha del paciente", 46, 212, 470, 43, 27, Ink, true);
+            if (Review.Selected.medical?.patientIdentity != null)
+            {
+                var identity = Label(content, "Patient details", "", 47, 271, 467, 63, 22, Soft);
+                Bind(identity, PatientDetails);
+                DrawLegacyConversation();
+                return;
+            }
             var details = Label(content, "Patient details", "", 47, 277, 467, 425, 22, Soft);
             Bind(details, () =>
             {
@@ -157,6 +164,11 @@ namespace EmergencyVR.UI
             }
             else if (resultTab == 0)
             {
+                if (Review.Selected.medical?.patientIdentity != null)
+                {
+                    line("Paciente de este intento", true);
+                    line(LearnerTitle(Review.Selected.medical) + " · " + result.initialPatient.age + " años", false);
+                }
                 line("Qué ocurrió", true);
                 line($"{result.correctActions.Length} acciones correctas · {result.incorrectActions.Length} incorrectas · {result.omittedActions.Length} omitidas", false);
                 line("Errores críticos", true);

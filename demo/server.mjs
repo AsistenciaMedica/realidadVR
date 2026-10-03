@@ -24,7 +24,7 @@ export function createDemoServer({ root = directory, windowsUrl = process.env.EM
       if(await api(req,res,pathname)) return;
       if (!['GET', 'HEAD'].includes(req.method)) { res.setHeader('Allow', 'GET, HEAD'); return json(405, { error: 'Method not allowed' }); }
       if (pathname === '/health') return json(200, { status: 'ok' });
-      if(pathname.startsWith('/scenarios/') && !api.hasScenario(pathname.slice(11)))return json(404,{error:'Escenario no encontrado.'});
+      if(pathname.startsWith('/scenarios/') && !api.hasScenario(pathname.slice(11)) && !api.hasEnvironment(pathname.slice(11)))return json(404,{error:'Escenario no encontrado.'});
       else if(['/admin','/admin/clients','/admin/licenses','/admin/activations','/admin/scenarios'].includes(pathname))pathname='/admin.html';
       const local = await stat(zip).then(s => s.isFile() ? s : null).catch(() => null);
       if (pathname === '/api/releases') {

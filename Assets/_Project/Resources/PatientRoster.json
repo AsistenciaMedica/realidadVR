@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "scenarioId": "review-hypotension-v2", "id": "Daniel", "displayName": "Daniel", "age": 40, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Daniel", "role": "Usuario del gimnasio",
+      "context": "Un compañero te llama desde la zona de cardio. Daniel ha parado de hacer ejercicio y permanece junto al banco.",
+      "presentingComplaint": "Malestar al terminar el ejercicio", "patientOpeningLine": "Me encuentro mareado... necesito sentarme.",
+      "historyReply": "Acabo de parar la cinta. Antes de entrenar me encontraba bien.",
+      "witnessLines": ["Estaba haciendo ejercicio. Se detuvo y me dijo que se encontraba mal.", "Estoy con él desde que paró la cinta. No le he visto caerse ni golpearse."],
+      "clothingDescription": "Camiseta y pantalón deportivos de Daniel."
+    },
+    {
+      "scenarioId": "gym-faint", "id": "Lucia", "displayName": "Lucía", "age": 28, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Lucia", "role": "Visitante que llega al gimnasio",
+      "context": "Te avisan desde el acceso al gimnasio. Lucía está en el suelo y su acompañante permanece a su lado.",
+      "presentingComplaint": "Se ha encontrado mal al llegar", "patientOpeningLine": "Ya te escucho... todavía me da vueltas todo.",
+      "historyReply": "Había subido las escaleras. Me sentí mareada y después estaba aquí, en el suelo.",
+      "witnessLines": ["Llegábamos al gimnasio y dijo que se mareaba. La ayudé a bajar al suelo; no se golpeó.", "Dejó de contestarme un momento. Ahora vuelve a escucharme, pero aún se encuentra débil."],
+      "clothingDescription": "Sudadera negra y verde, pantalón corto de denim y calzado informal."
+    },
+    {
+      "scenarioId": "glucose-moderate", "id": "Mateo", "displayName": "Mateo", "age": 32, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Mateo", "role": "Usuario del gimnasio",
+      "context": "El monitor solicita ayuda porque Mateo acaba de llegar y está teniendo dificultades para seguir la conversación.",
+      "presentingComplaint": "Temblor y dificultad para concentrarse", "patientOpeningLine": "Me tiemblan las manos... no consigo pensar bien.",
+      "historyReply": "Tengo diabetes... todavía no he comido. Acababa de llegar para entrenar.",
+      "witnessLines": ["Acaba de llegar para entrenar. Me ha dicho que tiene diabetes y que aún no ha comido.", "Antes hablaba con normalidad. Ahora le cuesta concentrarse cuando le pregunto qué necesita."],
+      "clothingDescription": "Sudadera marrón, vaqueros y zapatillas antes de cambiarse."
+    },
+    {
+      "scenarioId": "chest-pain", "id": "Ricardo", "displayName": "Ricardo", "age": 54, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Ricardo", "role": "Visitante del gimnasio",
+      "context": "Ricardo ha llegado al gimnasio y se ha sentado junto a la entrada. Un trabajador te pide que te acerques.",
+      "presentingComplaint": "Molestia en el pecho al llegar", "patientOpeningLine": "Me aprieta aquí... y me cuesta respirar.",
+      "historyReply": "Empezó al subir las escaleras. He parado, pero sigue la molestia.",
+      "witnessLines": ["Dejó lo que estaba haciendo y se sentó. Dice que la molestia no se le pasa.", "No lo he visto caerse. Yo estaba cerca cuando empezó a pedir ayuda."],
+      "clothingDescription": "Chaleco beige sobre camiseta verde y pantalón marrón."
+    },
+    {
+      "scenarioId": "asthma", "id": "Sara", "displayName": "Sara", "age": 26, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Sara", "role": "Deportista del gimnasio",
+      "context": "Sara ha salido de la clase y se ha sentado. Su compañera te llama porque le cuesta recuperar el aliento.",
+      "presentingComplaint": "Dificultad para respirar después del ejercicio", "patientOpeningLine": "Me falta... el aire.",
+      "historyReply": "Tengo asma... mi inhalador está en mi bolsa.",
+      "witnessLines": ["Estábamos en la clase. Salió porque le costaba respirar y se sentó aquí.", "Esa es su bolsa. Me dijo que lleva allí su inhalador; no sé qué medicación usa."],
+      "clothingDescription": "Camiseta gris de tirantes y pantalón deportivo oscuro."
+    },
+    {
+      "scenarioId": "review-unconscious-breathing-v1", "id": "Rosa", "displayName": "Rosa", "age": 32, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Rosa", "role": "Visitante del centro comercial",
+      "context": "Una acompañante solicita ayuda junto al pasillo de tiendas. Rosa está tendida en el suelo y no contesta cuando la llaman.",
+      "presentingComplaint": "Persona tendida que no responde", "patientOpeningLine": "", "historyReply": "",
+      "witnessLines": ["Se llama Rosa. Estaba conmigo, se encontró mal y la ayudé a bajar. No se golpeó.", "La estoy llamando y no me contesta. No sé qué le ocurre."],
+      "clothingDescription": "Chaqueta rosa, blusa azul y vaqueros."
+    },
+    {
+      "scenarioId": "review-abnormal-breathing-v1", "id": "Javier", "displayName": "Javier", "age": 36, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Javier", "role": "Visitante del centro comercial",
+      "context": "Seguridad solicita ayuda urgente cerca de los locales. Javier está en el suelo y su acompañante intenta llamar su atención.",
+      "presentingComplaint": "Colapso en el pasillo comercial", "patientOpeningLine": "", "historyReply": "",
+      "witnessLines": ["Es Javier, venía conmigo. Se desplomó hace un momento y no me contesta.", "Hay personal de seguridad cerca. Puedo avisarles para que traigan el DEA."],
+      "clothingDescription": "Gorra, sudadera azul y blanca y vaqueros."
+    },
+    {
+      "scenarioId": "choking-partial", "id": "Camila", "displayName": "Camila", "age": 31, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Camila", "role": "Clienta de la zona de comidas",
+      "context": "Un cliente te llama desde la zona de comidas. Camila ha dejado de comer y está tosiendo.",
+      "presentingComplaint": "Tos repentina mientras comía", "patientOpeningLine": "Se me fue... por otro lado. Puedo toser.",
+      "historyReply": "Estaba comiendo... y empecé a toser.",
+      "witnessLines": ["Estábamos comiendo y empezó a toser de repente. Todavía puede decir algunas palabras.", "No le hemos metido nada en la boca. Acaba de ocurrir y me he quedado a su lado."],
+      "clothingDescription": "Camisa rosa y vaqueros."
+    },
+    {
+      "scenarioId": "confusion", "id": "Beatriz", "displayName": "Beatriz", "age": 44, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Beatriz", "role": "Visitante acompañada",
+      "context": "Una familiar te pide ayuda. Beatriz se ha detenido cerca de un banco y está repitiendo las mismas preguntas.",
+      "presentingComplaint": "Cambio en la forma de responder", "patientOpeningLine": "¿Dónde estábamos...? ¿Qué estaba buscando?",
+      "historyReply": "No lo recuerdo... quería encontrar algo.",
+      "witnessLines": ["Soy su familiar. Hace unos minutos hablaba conmigo como siempre; este cambio no es habitual.", "Se llama Beatriz. Me repite la misma pregunta y no entiendo qué le pasa."],
+      "clothingDescription": "Cárdigan de color topo, blusa blanca y pantalón negro."
+    },
+    {
+      "scenarioId": "dehydration", "id": "Luis", "displayName": "Luis", "age": 45, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Luis", "role": "Visitante del centro comercial",
+      "context": "Luis se encuentra tumbado con ayuda después de recorrer el centro comercial. Un trabajador te avisa porque dice sentirse débil.",
+      "presentingComplaint": "Debilidad y sed durante una visita", "patientOpeningLine": "Tengo mucha sed y estoy algo mareado.",
+      "historyReply": "Llevo bastante rato caminando y apenas he bebido hoy. Me ayudaron a tumbarme al notar el mareo.",
+      "witnessLines": ["Dijo que se encontraba débil y lo ayudamos a tumbarse. No se cayó ni se golpeó.", "Ha estado caminando por el centro. No lo conozco y no sé si toma alguna medicación."],
+      "clothingDescription": "Suéter beige y pantalón oscuro."
+    },
+    {
+      "scenarioId": "arrest-witnessed", "id": "Andres", "displayName": "Andrés", "age": 38, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Andres", "role": "Jugador de fútbol",
+      "context": "El partido se ha detenido. Andrés está tendido en el campo y un compañero solicita ayuda urgente.",
+      "presentingComplaint": "Colapso durante el partido", "patientOpeningLine": "", "historyReply": "",
+      "witnessLines": ["Es Andrés. Se ha desplomado mientras jugábamos, sin chocar con nadie.", "Puedo ir a buscar el DEA de las instalaciones. Hay alguien que puede llamar a emergencias."],
+      "clothingDescription": "Equipación deportiva de Andrés."
+    },
+    {
+      "scenarioId": "football-faint", "id": "Pablo", "displayName": "Pablo", "age": 24, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Pablo", "role": "Jugador de fútbol",
+      "context": "Pablo está en el suelo junto a la banda. Su compañero te llama después de que haya interrumpido el juego.",
+      "presentingComplaint": "Malestar después de detenerse", "patientOpeningLine": "Ya te oigo... sigo un poco mareado.",
+      "historyReply": "Me había parado en la banda. Empecé a ver borroso y ahora estoy aquí.",
+      "witnessLines": ["Había parado de jugar. Dijo que se mareaba y lo ayudamos a bajar; no hubo un choque.", "Dejó de contestar un momento. Ahora vuelve a responder, pero aún no se encuentra bien."],
+      "clothingDescription": "Equipación deportiva de Pablo."
+    },
+    {
+      "scenarioId": "football-glucose", "id": "Elena", "displayName": "Elena", "age": 34, "sex": "female",
+      "appearanceResource": "Visual/Appearances/Elena", "role": "Espectadora del partido",
+      "context": "Una espectadora solicita ayuda cerca de la banda. Elena ha dejado de seguir el partido y dice que le tiemblan las manos.",
+      "presentingComplaint": "Temblor y hambre durante el partido", "patientOpeningLine": "Me tiemblan las manos y tengo mucha hambre.",
+      "historyReply": "Tengo diabetes. Se ha alargado el partido y he retrasado la comida.",
+      "witnessLines": ["Estamos viendo el partido. Me ha dicho que tiene diabetes y que no ha comido todavía.", "Estaba hablando conmigo. Ahora dice que le tiemblan las manos y necesita ayuda."],
+      "clothingDescription": "Blusa morada y pantalón negro."
+    },
+    {
+      "scenarioId": "heat-exhaustion", "id": "Sergio", "displayName": "Sergio", "age": 32, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Sergio", "role": "Organizador junto al campo",
+      "context": "Un miembro del equipo te avisa desde la banda. Sergio está tumbado en una zona de sombra después de permanecer bastante tiempo al sol.",
+      "presentingComplaint": "Debilidad y calambres en un día caluroso", "patientOpeningLine": "Estoy agotado... y me dan calambres.",
+      "historyReply": "Llevo mucho tiempo aquí al sol. He sudado bastante y necesito parar.",
+      "witnessLines": ["Ha estado ayudando al equipo desde antes de empezar. Hoy hace mucho calor.", "Lo ayudamos a tumbarse a la sombra porque no se encontraba bien. Sigue escuchando y respondiendo cuando le hablamos."],
+      "clothingDescription": "Camisa azul remangada y pantalón oscuro."
+    },
+    {
+      "scenarioId": "hypoxia", "id": "Miguel", "displayName": "Miguel", "age": 42, "sex": "male",
+      "appearanceResource": "Visual/Appearances/Miguel", "role": "Espectador del partido",
+      "context": "Miguel se encuentra junto a la zona de espectadores. Una persona te pide ayuda porque le cuesta respirar y parece agotado.",
+      "presentingComplaint": "Dificultad respiratoria que persiste", "patientOpeningLine": "Me cuesta... respirar.",
+      "historyReply": "No se me pasa... aunque haya parado.",
+      "witnessLines": ["Estaba viendo el partido. Se apartó porque no podía recuperar el aliento.", "No lo conozco. Me acerqué cuando vi que necesitaba ayuda y me he quedado con él."],
+      "clothingDescription": "Chaqueta de denim, camiseta blanca y vaqueros."
+    }
+  ]
+}

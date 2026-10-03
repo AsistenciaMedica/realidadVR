@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6bc5eff0d3ad4428afb52585e926a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EmergencyVR.Runtime::EmergencyVR.Patient.Presentation.PatientAppearance
+  mesh: {fileID: 4300000, guid: 92713d0fe8bda8447b641de555fb533d, type: 2}
+  materials:
+  - {fileID: 2100000, guid: b9f8ef9d059348e42b3cf7ec84e6d210, type: 2}
+  - {fileID: 2100000, guid: 1ce613f34c2227746a337a948cbfe656, type: 2}
+  - {fileID: 2100000, guid: 5a1e5d41477a63f4788b4f4040f00895, type: 2}
+  patientId: Ricardo
+  sourceModel: Male_Adult_05
+  sourceCommit: 0943055db6ec570bcef9f2c8b41c9e5467c808f9
+  boneNames:
+  - Bip01 Spine1
+  - Bip01 Spine2
+  - Bip01 R Clavicle
+  - Bip01 Neck
+  - Bip01 Head
+  - Bip01 Spine
+  - Bip01 R UpperArm
+  - Bip01 Pelvis
+  - Bip01 R Thigh
+  - Bip01 R Calf
+  - Bip01 R Foot
+  - Bip01 R Toe0
+  - Bip01 R Forearm
+  - Bip01 R Hand
+  - Bip01 R Finger2
+  - Bip01 R Finger4
+  - Bip01 R Finger1
+  - Bip01 R Finger12
+  - Bip01 R Finger11
+  - Bip01 R Finger3
+  - Bip01 R Finger21
+  - Bip01 R Finger22
+  - Bip01 R Finger31
+  - Bip01 R Finger32
+  - Bip01 R Finger42
+  - Bip01 R Finger41
+  - Bip01 R Finger02
+  - Bip01 R Finger01
+  - Bip01 R Finger0
+  - Bip01 L Thigh
+  - Bip01 L Clavicle
+  - Bip01 L UpperArm
+  - Bip01 L Calf
+  - Bip01 L Foot
+  - Bip01 L Toe0
+  - Bip01 L Forearm
+  - Bip01 L Hand
+  - Bip01 L Finger2
+  - Bip01 L Finger4
+  - Bip01 L Finger1
+  - Bip01 L Finger12
+  - Bip01 L Finger11
+  - Bip01 L Finger3
+  - Bip01 L Finger21
+  - Bip01 L Finger22
+  - Bip01 L Finger31
+  - Bip01 L Finger32
+  - Bip01 L Finger42
+  - Bip01 L Finger41
+  - Bip01 L Finger02
+  - Bip01 L Finger01
+  - Bip01 L Finger0
+  - Bip01 MJaw
+  - Bip01 RMouthBottom
+  - Bip01 RCaninus
+  - Bip01 RMouthCorner
+  - Bip01 MNose
+  - Bip01 ROuterEyebrow
+  - Bip01 RCheek
+  - Bip01 MBottomLip
+  - Bip01 RMasseter
+  - Bip01 MUpperLip
+  - Bip01 RUpperlip
+  - Bip01 RInnerEyebrow
+  - Bip01 MMiddleEyebrow
+  - Bip01 REyeBlinkBottom
+  - Bip01 REye
+  - Bip01 REyeBlinkTop
+  - Bip01 MTongue
+  - Bip01 LMouthBottom
+  - Bip01 LMouthCorner
+  - Bip01 LCaninus
+  - Bip01 LOuterEyebrow
+  - Bip01 LCheek
+  - Bip01 LMasseter
+  - Bip01 LUpperlip
+  - Bip01 LInnerEyebrow
+  - Bip01 LEyeBlinkBottom
+  - Bip01 LEye
+  - Bip01 LEyeBlinkTop

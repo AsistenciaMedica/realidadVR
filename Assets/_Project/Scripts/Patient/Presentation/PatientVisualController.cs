@@ -26,6 +26,7 @@ namespace EmergencyVR.Patient.Presentation
         AnimatorControllerParameter[] animatorParameters;
 #endif
         float[] originalFaceWeights;
+        Mesh originalFaceMesh;
         public PatientRigAdapter Rig => rig;
         // Optional per-case choreography owns body/head bones; shared clinical breathing and face remain available.
         public bool ExternalBodyPresentation { get; set; }
@@ -105,8 +106,7 @@ namespace EmergencyVR.Patient.Presentation
             if(rig.controlledRagdoll!=null && rig.controlledRagdoll.rig==null) rig.controlledRagdoll.rig=rig;
             originalSkinProperties.Clear();
             foreach(var renderer in rig.skinRenderers)if(renderer!=null) {var block=new MaterialPropertyBlock();renderer.GetPropertyBlock(block);originalSkinProperties[renderer]=block;}
-            originalFaceWeights=rig.HasFacialBlendShapes?new float[rig.face.sharedMesh.blendShapeCount]:System.Array.Empty<float>();
-            for(int i=0;i<originalFaceWeights.Length;i++)originalFaceWeights[i]=rig.face.GetBlendShapeWeight(i);
+            CaptureFaceBaseline();
             if(rig.chestMotion!=null) chestRest=rig.chestMotion.localPosition;
             if(rig.abdomenMotion!=null) abdomenRest=rig.abdomenMotion.localPosition;
             if(rig.head!=null) { headRest=rig.head.localRotation;headRestPosition=rig.head.localPosition; }
@@ -118,6 +118,23 @@ namespace EmergencyVR.Patient.Presentation
             animatorParameters=rig.animator!=null && rig.animator.runtimeAnimatorController!=null ? rig.animator.parameters : System.Array.Empty<AnimatorControllerParameter>();
 #endif
             compression=0;excursion=0;
+        }
+        // A skin swap preserves the physical rig and its authored body/pose baselines.
+        // Do not bind the whole rig again after a case has already positioned its bones.
+        public void RefreshAppearance()
+        {
+            if(rig==null)return;
+            foreach(var pair in originalSkinProperties)if(pair.Key!=null)pair.Key.SetPropertyBlock(pair.Value);
+            if(skinProperties!=null)skinProperties.Clear();
+            displayedSkin=rig.skinColor;
+            eyeClosure=painWeight=fearWeight=distressWeight=0;
+            CaptureFaceBaseline();
+        }
+        void CaptureFaceBaseline()
+        {
+            originalFaceMesh=rig.face==null?null:rig.face.sharedMesh;
+            originalFaceWeights=rig.HasFacialBlendShapes?new float[originalFaceMesh.blendShapeCount]:System.Array.Empty<float>();
+            for(int i=0;i<originalFaceWeights.Length;i++)originalFaceWeights[i]=rig.face.GetBlendShapeWeight(i);
         }
         public void SetLookTarget(Transform target) { lookTarget=target; }
         public void SetStartingPose(PatientPosture posture) { startingPose=posture;ApplyAnimatorState(); }
@@ -291,7 +308,8 @@ namespace EmergencyVR.Patient.Presentation
             if(rig.provisionalAsset && rig.leftLid!=null) {rig.leftLid.localPosition=leftLidRest;rig.leftLid.localScale=Vector3.one;}
             if(rig.provisionalAsset && rig.rightLid!=null) {rig.rightLid.localPosition=rightLidRest;rig.rightLid.localScale=Vector3.one;}
             foreach(var pair in originalSkinProperties)if(pair.Key!=null)pair.Key.SetPropertyBlock(pair.Value);
-            if(rig.HasFacialBlendShapes && originalFaceWeights!=null)for(int i=0;i<originalFaceWeights.Length;i++)rig.face.SetBlendShapeWeight(i,originalFaceWeights[i]);
+            if(rig.HasFacialBlendShapes && rig.face.sharedMesh==originalFaceMesh && originalFaceWeights!=null)
+                for(int i=0;i<Mathf.Min(originalFaceWeights.Length,rig.face.sharedMesh.blendShapeCount);i++)rig.face.SetBlendShapeWeight(i,originalFaceWeights[i]);
             compression=0;excursion=0;airwayTilt=0;
         }
         void OnDisable() { RestorePresentation(); }

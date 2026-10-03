@@ -2,6 +2,17 @@
 
 Identidad: **VITAL VR**. Portada: **Simulación y entrenamiento clínico inmersivo**.
 
+Actualización 2026-09-30: [alcance de lanzamiento 3 × 5](LAUNCH_SCOPE.md).
+`ReviewCaseSession` conserva la práctica de controles y selecciona quince casos
+desde `ReleaseScope.json`, incluida la versión V2 de Daniel. La biblioteca completa
+permanece disponible para autoría. Las referencias al catálogo anterior más abajo
+describen la arquitectura previa al recorte.
+
+Actualización 2026-10-01: [quince pacientes distintos](PATIENT_ROSTER.md), títulos
+basados en personas y contexto, conversación textual sensible al estado clínico
+en los casos legacy y conservación del diálogo V2 de Daniel. Las mediciones siguen
+separadas de la conversación; pausa y repetición limpian el intento correspondiente.
+
 ## Arquitectura revisada antes de la implementación
 
 El arranque existente carga Bootstrap y TrainingRoom. `ReviewCaseSession` ensambla
@@ -44,7 +55,7 @@ desenlaces ni puntos. El nombre de producto de Unity pasa a VITAL VR.
 ## Recorrido
 
 1. Bienvenida con acceso al catálogo y familiarización.
-2. Cuatro entornos con ilustraciones esquemáticas, identificadas como tales en el
+2. Tres entornos de lanzamiento con ilustraciones esquemáticas, identificadas como tales en el
    código: no son renders ni promesas de un nuevo ambiente 3D.
 3. Casos paginados, con filtros por área/dificultad; búsqueda de texto en Desktop.
 4. Contexto y elección de práctica guiada o evaluación antes de empezar.

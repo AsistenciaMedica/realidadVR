@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createDemoServer } from '../server.mjs';
@@ -10,6 +10,9 @@ async function fixture(t, options = {}) {
   const root = await mkdtemp(join(tmpdir(), 'emergencyvr-demo-'));
   await mkdir(join(root, 'public')); await mkdir(join(root, 'releases'));
   await writeFile(join(root, 'public', 'index.html'), '<h1>Emergency VR</h1>');
+  await mkdir(join(root, 'web', 'dist'), { recursive: true });
+  await writeFile(join(root, 'web', 'dist', 'index.html'), '<h1>Emergency VR</h1>');
+  await writeFile(join(root, 'public', 'scenarios.json'), await readFile(new URL('../public/scenarios.json', import.meta.url)));
   const server = createDemoServer({ root, ...options }); server.listen(0, '127.0.0.1'); await once(server, 'listening');
   t.after(async () => { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); await rm(root, { recursive: true, force: true }); });
   return { root, url: `http://127.0.0.1:${server.address().port}` };
@@ -23,6 +26,24 @@ test('serves landing page and Railway health endpoint', async t => {
 test('does not advertise a missing build', async t => {
   const { url } = await fixture(t); assert.equal((await (await fetch(url + '/api/releases')).json()).windows.available, false);
   assert.equal((await fetch(url + '/downloads/windows')).status, 404);
+});
+
+test('release environment and case deep links reload, excluded content returns 404', async t => {
+  const { url } = await fixture(t);
+  const catalog = await (await fetch(url + '/api/catalog')).json();
+  assert.equal(catalog.scenarios.length, 15);
+  assert.deepEqual(catalog.releaseScope.environments.map(environment => environment.id), ['gym', 'mall', 'football']);
+  for (const environment of catalog.releaseScope.environments) {
+    assert.equal(environment.scenarioIds.length, 5);
+    assert.equal(catalog.scenarios.filter(scenario => scenario.environment === environment.id).length, 5);
+    const page = await fetch(url + '/scenarios/' + environment.id);
+    assert.equal(page.status, 200, environment.id);
+    assert.match(await page.text(), /Emergency VR/);
+    for (const id of environment.scenarioIds) assert.equal((await fetch(url + '/scenarios/' + id)).status, 200, id);
+  }
+  for (const id of ['dental', 'dental-arrest', 'review-hypotension-v1', 'not-a-scenario']) {
+    assert.equal((await fetch(url + '/scenarios/' + id)).status, 404, id);
+  }
 });
 test('serves real download, HEAD and resumable ranges', async t => {
   const { root, url } = await fixture(t); await writeFile(join(root, 'releases', 'EmergencyVR-Windows.zip'), '0123456789');

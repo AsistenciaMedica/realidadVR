@@ -213,7 +213,7 @@ namespace EmergencyVR.Desktop
                     Directory.CreateDirectory(args[flag+1]);
                     if(experience!=null) experience.InterfaceCanvas.enabled=false;
                     View.cullingMask=~0;
-                    foreach(var environment in new[]{"gym","mall","dental","football"})
+                    foreach(var environment in Review.Scope.environments.Select(e=>e.id))
                     {
                         var index=Array.FindIndex(Review.Catalog.entries,e=>e.medical?.environment==environment);
                         Review.Select(index); ResetPosition();

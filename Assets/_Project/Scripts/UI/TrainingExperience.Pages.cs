@@ -7,7 +7,7 @@ namespace EmergencyVR.UI
 {
     public sealed partial class TrainingExperience
     {
-        readonly string[] environments = { "gym", "football", "mall", "dental" };
+        string[] environments => Review.Scope.environments.Select(e => e.id).ToArray();
         bool showHints = true;
 
         void DrawWelcome()
@@ -20,9 +20,9 @@ namespace EmergencyVR.UI
             Button(content, "Learn controls", "Conocer los controles", 64, 706, 405, 57, () => OpenUtility(ExperiencePage.Help));
             Box(content, "Welcome collection", 739, 149, 637, 629, CardColor);
             Label(content, "Collection title", "TU PRÓXIMO ENTRENAMIENTO", 767, 178, 570, 32, 19, Accent, true);
-            Label(content, "Collection subtitle", "Cuatro entornos. Una experiencia clínica.", 767, 218, 570, 48, 25, Ink, true);
+            Label(content, "Collection subtitle", environments.Length + " entornos · " + Review.Scope.ScenarioIds.Length + " entrenamientos", 767, 218, 570, 48, 25, Ink, true);
             for (int i = 0; i < environments.Length; i++)
-                EnvironmentCard(content, environments[i], 765 + i % 2 * 294, 286 + i / 2 * 224, 280, 208, true);
+                EnvironmentCard(content, environments[i], 765 + (i == 2 ? 147 : i % 2 * 294), 286 + i / 2 * 224, 280, 208, true);
         }
         void EnvironmentCard(Transform parent, string id, float x, float y, float width, float height, bool compact)
         {
@@ -69,7 +69,7 @@ namespace EmergencyVR.UI
         void DrawEnvironments()
         {
             PageTitle("01 / Entorno", "¿Dónde quieres entrenar?", "Elige un ambiente para explorar sus situaciones clínicas y preparar tu práctica.");
-            for (int i = 0; i < environments.Length; i++) EnvironmentCard(content, environments[i], 48 + i * 340, 317, 322, 399, false);
+            for (int i = 0; i < environments.Length; i++) EnvironmentCard(content, environments[i], 48 + i * 452, 317, 436, 399, false);
             Button(content, "Back home", "← Inicio", 48, 758, 178, 52, () => Navigate(ExperiencePage.Welcome));
             Button(content, "All scenarios", "Ver todos los entrenamientos", 970, 758, 422, 52, () => Browse(""));
         }
@@ -80,16 +80,15 @@ namespace EmergencyVR.UI
                 var m = Review.Catalog.entries[i].medical;
                 return m != null && (SelectedEnvironment == "" || m.environment == SelectedEnvironment) &&
                     (category == "Todas" || m.category == category) && (difficulty == "Todas" || m.difficulty == difficulty) &&
-                    (string.IsNullOrWhiteSpace(search) || (m.name + " " + m.description).IndexOf(search.Trim(), StringComparison.OrdinalIgnoreCase) >= 0);
+                    (string.IsNullOrWhiteSpace(search) || (LearnerTitle(m) + " " + LearnerContext(m, m.description)).IndexOf(search.Trim(), StringComparison.OrdinalIgnoreCase) >= 0);
             }).ToArray();
         }
         void DrawCatalog()
         {
             PageTitle("02 / Entrenamiento", EnvironmentName(SelectedEnvironment), "Selecciona una situación clínica. Podrás revisar la preparación antes de empezar.");
             var candidates = Review.Catalog.entries.Where(e => e.medical != null && (SelectedEnvironment == "" || e.medical.environment == SelectedEnvironment)).ToArray();
-            var categories = new[] { "Todas" }.Concat(candidates.Select(e => e.medical.category).Distinct()).ToArray();
             var difficulties = new[] { "Todas" }.Concat(candidates.Select(e => e.medical.difficulty).Distinct()).ToArray();
-            Button(content, "Category filter", "Área: " + Friendly(category), 48, 305, 470, 50, () => { category = categories[(Array.IndexOf(categories, category) + 1) % categories.Length]; catalogPage = 0; redraw = true; });
+            Button(content, "Choose environment", "Entorno: " + EnvironmentName(SelectedEnvironment), 48, 305, 470, 50, () => Navigate(ExperiencePage.Environments));
             Button(content, "Difficulty filter", "Dificultad: " + Friendly(difficulty), 534, 305, 380, 50, () => { difficulty = difficulties[(Array.IndexOf(difficulties, difficulty) + 1) % difficulties.Length]; catalogPage = 0; redraw = true; });
             if (IsDesktop)
             {
@@ -110,8 +109,8 @@ namespace EmergencyVR.UI
                 float x = 48 + slot % 3 * 452, y = 379 + slot / 3 * 180;
                 var card = Button(content, "Case " + m.id, "", x, y, 436, 163, () => Prepare(index));
                 card.interactable = m.availability == "AVAILABLE";
-                Label(card.transform, "Category", Friendly(m.category).ToUpperInvariant(), 20, 16, 396, 27, 15, Accent, true);
-                Label(card.transform, "Case name", CleanCopy(m.name), 20, 52, 396, 67, 23, Ink, true);
+                Label(card.transform, "Category", EnvironmentName(m.environment).ToUpperInvariant(), 20, 16, 396, 27, 15, Accent, true);
+                Label(card.transform, "Case name", CleanCopy(LearnerTitle(m)), 20, 52, 396, 67, 23, Ink, true);
                 Label(card.transform, "Case details", Friendly(m.difficulty) + "  ·  " + (card.interactable ? "Preparar →" : "No disponible"), 20, 124, 396, 26, 17, Soft);
             }
             Button(content, "Back environments", "← Entornos", 48, 760, 205, 52, () => Navigate(ExperiencePage.Environments));
@@ -124,11 +123,11 @@ namespace EmergencyVR.UI
             if (PendingCaseIndex < 0) { Navigate(ExperiencePage.Catalog); return; }
             var entry = Review.Catalog.entries[PendingCaseIndex]; var m = entry.medical;
             bool showCaseVariation = EmergencyVR.Scenarios.Case01VariationController.Supports(m) && Review.Procedures.TrainingMode;
-            PageTitle("03 / Preparación", entry.definition.displayName, m == null ? "Familiarización con la interacción del simulador." : EnvironmentName(m.environment) + "  /  " + Friendly(m.category) + "  /  " + Friendly(m.difficulty));
+            PageTitle("03 / Preparación", m == null ? entry.definition.displayName : LearnerTitle(m), m == null ? "Familiarización con la interacción del simulador." : EnvironmentName(m.environment) + "  /  " + Friendly(m.difficulty));
             Box(content, "Briefing card", 48, 306, 832, 411, CardColor);
             Label(content, "Briefing heading", "La situación", 73, 328, 770, 43, 28, Ink, true);
             var body = ScrollArea(73, 384, 780, showCaseVariation ? 168 : 301, 560);
-            var text = Label(body, "Briefing context", CleanCopy(entry.briefing) + "\n\n<b>Tu práctica</b>\nObserva la situación, utiliza el equipo disponible y registra tus decisiones. Al finalizar podrás revisar las acciones, los tiempos y las oportunidades de mejora.\n\nEl caso comienza al pulsar Iniciar entrenamiento.", 0, 0, 742, 560, 23, Soft);
+            var text = Label(body, "Briefing context", CleanCopy(LearnerContext(m, entry.briefing)) + "\n\n<b>Tu práctica</b>\nObserva la situación, habla con la persona o con quien la acompaña y utiliza el equipo disponible. Al finalizar podrás revisar tus decisiones y las oportunidades de mejora.\n\nEl caso comienza al pulsar Iniciar entrenamiento.", 0, 0, 742, 560, 23, Soft);
             var height = text.preferredHeight + 20; text.rectTransform.sizeDelta = new Vector2(742, height); ((RectTransform)body).sizeDelta = new Vector2(762, Mathf.Max(301, height));
             if (showCaseVariation) DrawCase01VariationOptions();
             Box(content, "Mode card", 902, 306, 490, 411, CardColor);
@@ -197,7 +196,7 @@ namespace EmergencyVR.UI
             PageTitle("Sesión", finish ? "¿Finalizar el entrenamiento?" : restart ? "¿Preparar un nuevo intento?" : exit ? "¿Salir de VITAL VR?" : "Entrenamiento en pausa",
                 "El tiempo, la evolución del paciente y los procedimientos están detenidos.");
             Box(content, "Pause card", 250, 325, 940, 365, CardColor);
-            Label(content, "Pause case", CleanCopy(Review.Selected.definition.displayName), 288, 362, 864, 93, 33, Ink, true);
+            Label(content, "Pause case", CleanCopy(Review.Selected.medical == null ? Review.Selected.definition.displayName : LearnerTitle(Review.Selected.medical)), 288, 362, 864, 93, 33, Ink, true);
             Label(content, "Pause detail", finish || restart || exit ? "El intento actual se cerrará con las acciones realizadas y las omisiones pendientes. Puedes revisar y guardar su resultado." : "Tómate el tiempo que necesites. Al continuar volverás al mismo punto del ejercicio.", 290, 474, 853, 113, 25, Soft);
             if (finish || restart || exit)
             {

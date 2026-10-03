@@ -116,7 +116,7 @@ namespace EmergencyVR.Medical
             var a=definition.actions.FirstOrDefault(x=>x.id==id);
             string disposition, message;
             if(a==null) { disposition="Unknown"; message="Acción ajena a este caso."; penalties+=definition.errorPenalty; }
-            else if(accepted.ContainsKey(id)) { disposition="Duplicate"; message="Acción ya registrada; no suma puntos."; penalties+=definition.errorPenalty; }
+            else if(accepted.ContainsKey(id) && a.repeatPolicy==ActionRepeatPolicy.LegacySingleUse) { disposition="Duplicate"; message="Acción ya registrada; no suma puntos."; penalties+=definition.errorPenalty; }
             else if(a.kind=="dangerous"||a.kind=="incorrect")
             {
                 disposition=a.kind=="dangerous"?"Dangerous":"Incorrect"; message=a.feedback;
@@ -130,6 +130,12 @@ namespace EmergencyVR.Medical
             else if(a.prerequisites.Any(x=>!accepted.ContainsKey(x)) || time<EarliestTime(id))
             {
                 disposition="OutOfOrder"; message="Faltan requisitos o aún no se cumple la espera configurada."; penalties+=definition.errorPenalty;
+            }
+            else if(accepted.ContainsKey(id))
+            {
+                // Observe the current state again, after Tick and the original safety/time checks.
+                // Keep first completion/credit and never replay a treatment effect or reset an anchored event.
+                disposition="Accepted"; message=a.feedback+" Nueva observación registrada; sin puntos adicionales.";
             }
             else
             {

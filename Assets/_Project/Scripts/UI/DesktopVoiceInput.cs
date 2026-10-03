@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using EmergencyVR.Medical;
+using EmergencyVR.Dialogue;
 using EmergencyVR.Scenarios;
 using UnityEngine;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
@@ -9,78 +8,119 @@ using UnityEngine.Windows.Speech;
 namespace EmergencyVR.UI
 {
     /// <summary>
-    /// Push-to-talk questions for the patient using the offline Windows speech recogniser. Recognised phrases map to
-    /// the same dialogue intents as the buttons; nothing is sent over the network. Unsupported systems keep the menu.
+    /// Push-to-talk speech for the patient (hold M). Windows free dictation is preferred so the learner can phrase
+    /// questions naturally; the transcript is mapped to clinical intents by SpokenIntentParser. When dictation is
+    /// unavailable (for example Windows online speech recognition is off) a fixed Spanish keyword grammar is used.
     /// </summary>
     public sealed class DesktopVoiceInput : MonoBehaviour
     {
-        static readonly Dictionary<string, DialogueIntent> Phrases = new Dictionary<string, DialogueIntent>
+        // Fallback grammar: common phrasings, each still interpreted by the same parser.
+        static readonly string[] Grammar =
         {
-            ["hola"] = DialogueIntent.GREETING, ["hola soy"] = DialogueIntent.GREETING, ["vengo a ayudarte"] = DialogueIntent.GREETING,
-            ["estoy aquí para ayudarte"] = DialogueIntent.GREETING, ["me escuchas"] = DialogueIntent.GREETING,
-            ["qué te pasa"] = DialogueIntent.MAIN_SYMPTOM, ["qué te ocurre"] = DialogueIntent.MAIN_SYMPTOM, ["qué sientes"] = DialogueIntent.MAIN_SYMPTOM,
-            ["cómo es el mareo"] = DialogueIntent.SYMPTOM_DESCRIPTION, ["cómo te sientes mareado"] = DialogueIntent.SYMPTOM_DESCRIPTION, ["descríbeme el mareo"] = DialogueIntent.SYMPTOM_DESCRIPTION,
-            ["cuándo empezó"] = DialogueIntent.ONSET, ["desde cuándo"] = DialogueIntent.ONSET, ["cuándo comenzó"] = DialogueIntent.ONSET,
-            ["te has desmayado"] = DialogueIntent.LOSS_OF_CONSCIOUSNESS, ["has perdido el conocimiento"] = DialogueIntent.LOSS_OF_CONSCIOUSNESS, ["te has caído"] = DialogueIntent.LOSS_OF_CONSCIOUSNESS,
-            ["te duele el pecho"] = DialogueIntent.CHEST_PAIN, ["tienes dolor en el pecho"] = DialogueIntent.CHEST_PAIN,
-            ["te falta el aire"] = DialogueIntent.BREATHING_DIFFICULTY, ["te cuesta respirar"] = DialogueIntent.BREATHING_DIFFICULTY, ["puedes respirar bien"] = DialogueIntent.BREATHING_DIFFICULTY,
-            ["notas palpitaciones"] = DialogueIntent.PALPITATIONS, ["se te acelera el corazón"] = DialogueIntent.PALPITATIONS,
-            ["tienes problemas del corazón"] = DialogueIntent.CARDIAC_HISTORY, ["tienes alguna enfermedad"] = DialogueIntent.CARDIAC_HISTORY,
-            ["tomas medicación"] = DialogueIntent.MEDICATION, ["tomas algún medicamento"] = DialogueIntent.MEDICATION, ["tomas pastillas"] = DialogueIntent.MEDICATION,
-            ["has comido"] = DialogueIntent.FOOD_DRINK, ["has bebido agua"] = DialogueIntent.FOOD_DRINK, ["has comido algo hoy"] = DialogueIntent.FOOD_DRINK,
-            ["puedo ayudarte"] = DialogueIntent.CONSENT_HELP, ["te ayudo a tumbarte"] = DialogueIntent.CONSENT_HELP, ["me dejas ayudarte"] = DialogueIntent.CONSENT_HELP,
-            ["cómo te encuentras"] = DialogueIntent.CURRENT_STATUS, ["cómo estás ahora"] = DialogueIntent.CURRENT_STATUS, ["te sientes mejor"] = DialogueIntent.CURRENT_STATUS,
+            "hola", "hola vengo a ayudarte", "me escuchas", "qué te pasa", "qué te ocurre", "cómo es el mareo", "cuándo empezó",
+            "te has desmayado", "has perdido el conocimiento", "te duele el pecho", "te falta el aire", "te cuesta respirar",
+            "notas palpitaciones", "tienes problemas del corazón", "tomas medicación", "has comido", "has bebido agua",
+            "puedo ayudarte", "te ayudo a tumbarte", "cómo te encuentras", "cómo estás ahora", "cómo te llamas", "sabes dónde estás",
         };
 
         ScenarioManager manager;
         bool listening;
+        float lastHeard;
         public string Status { get; private set; } = "";
+
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        KeywordRecognizer recognizer;
-        bool failed;
+        DictationRecognizer dictation;
+        KeywordRecognizer keywords;
+        bool dictationFailed, keywordsFailed;
 #endif
 
         public void Configure(ScenarioManager owner, bool pushToTalk)
         {
             manager = owner;
+            if (!pushToTalk && !listening && Status.Length > 0 && Time.unscaledTime - lastHeard > 5) Status = "";
             if (pushToTalk == listening) return;
             listening = pushToTalk;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-            if (listening && recognizer == null && !failed)
-            {
-                try
-                {
-                    if (!PhraseRecognitionSystem.isSupported) throw new System.NotSupportedException();
-                    recognizer = new KeywordRecognizer(new List<string>(Phrases.Keys).ToArray(), ConfidenceLevel.Low);
-                    recognizer.OnPhraseRecognized += Recognized;
-                }
-                catch (System.Exception error)
-                {
-                    failed = true; recognizer = null;
-                    Debug.LogWarning("Voice input unavailable: " + error.Message);
-                }
-            }
-            if (failed) { Status = listening ? "Voz no disponible en este equipo: usa «Hablar con el paciente»." : ""; return; }
-            if (listening) { recognizer.Start(); Status = "● Escuchando… di tu pregunta"; }
-            else if (recognizer != null && recognizer.IsRunning) { recognizer.Stop(); if (Status.StartsWith("●")) Status = ""; }
+            if (listening) StartListening(); else StopListening();
 #else
             Status = listening ? "La voz solo está disponible en Windows." : "";
 #endif
         }
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        void Recognized(PhraseRecognizedEventArgs args)
+        void StartListening()
         {
-            if (!Phrases.TryGetValue(args.text, out var intent) || manager == null) return;
-            Status = "Has dicho: «" + args.text + "»";
-            manager.Dialogue.Ask(intent);
+            if (!dictationFailed)
+            {
+                try
+                {
+                    if (dictation == null)
+                    {
+                        dictation = new DictationRecognizer(ConfidenceLevel.Low, DictationTopicConstraint.Dictation);
+                        dictation.InitialSilenceTimeoutSeconds = 8; dictation.AutoSilenceTimeoutSeconds = 3;
+                        dictation.DictationHypothesis += text => Status = "● " + text + "…";
+                        dictation.DictationResult += (text, confidence) => Heard(text);
+                        dictation.DictationError += (error, code) => FallBack("Dictado no disponible (" + error + ").");
+                        dictation.DictationComplete += cause =>
+                        {
+                            if (cause != DictationCompletionCause.Complete && cause != DictationCompletionCause.TimeoutExceeded &&
+                                cause != DictationCompletionCause.PauseLimitExceeded && cause != DictationCompletionCause.Canceled) FallBack("Dictado detenido: " + cause + ".");
+                        };
+                    }
+                    if (dictation.Status != SpeechSystemStatus.Running) dictation.Start();
+                    Status = "● Escuchando… habla con naturalidad";
+                    return;
+                }
+                catch (System.Exception error) { FallBack(error.Message); }
+            }
+            if (keywordsFailed) { Status = "Voz no disponible en este equipo: usa «Hablar con el paciente»."; return; }
+            try
+            {
+                if (keywords == null)
+                {
+                    keywords = new KeywordRecognizer(Grammar, ConfidenceLevel.Low);
+                    keywords.OnPhraseRecognized += args => Heard(args.text);
+                }
+                if (!keywords.IsRunning) keywords.Start();
+                Status = "● Escuchando (frases básicas)… activa el reconocimiento de voz en línea de Windows para hablar libremente";
+            }
+            catch (System.Exception error)
+            {
+                keywordsFailed = true; Status = "Voz no disponible en este equipo: usa «Hablar con el paciente».";
+                Debug.LogWarning("Keyword voice input unavailable: " + error.Message);
+            }
+        }
+
+        void StopListening()
+        {
+            // Dictation delivers the final phrase after Stop(); keep the transcript visible briefly.
+            if (dictation != null && dictation.Status == SpeechSystemStatus.Running) dictation.Stop();
+            if (keywords != null && keywords.IsRunning) keywords.Stop();
+            if (Status.StartsWith("● Escuchando")) Status = "";
+        }
+
+        void FallBack(string reason)
+        {
+            if (dictationFailed) return;
+            dictationFailed = true;
+            Debug.LogWarning("Free dictation unavailable, using keyword grammar: " + reason);
+            if (dictation != null) { try { if (dictation.Status == SpeechSystemStatus.Running) dictation.Stop(); dictation.Dispose(); } catch { } dictation = null; }
+            if (listening) StartListening();
+        }
+
+        void Heard(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text) || manager == null) return;
+            lastHeard = Time.unscaledTime;
+            var request = SpokenIntentParser.Parse(text);
+            Status = request.Understood ? "Has dicho: «" + text + "»" : "Has dicho: «" + text + "» · Daniel no te ha entendido";
+            manager.Dialogue.AskSpoken(request);
         }
 
         void OnDestroy()
         {
-            if (recognizer == null) return;
-            if (recognizer.IsRunning) recognizer.Stop();
-            recognizer.Dispose();
+            if (dictation != null) { if (dictation.Status == SpeechSystemStatus.Running) dictation.Stop(); dictation.Dispose(); }
+            if (keywords != null) { if (keywords.IsRunning) keywords.Stop(); keywords.Dispose(); }
         }
 #endif
     }

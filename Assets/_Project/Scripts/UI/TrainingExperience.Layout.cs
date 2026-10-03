@@ -156,9 +156,9 @@ namespace EmergencyVR.UI
         {
             var t = TimeSpan.FromSeconds(Math.Max(0, seconds)); return $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
         }
-        static string EnvironmentName(string id)
+        string EnvironmentName(string id)
         {
-            switch (id) { case "gym": return "Gimnasio"; case "football": return "Campo de fútbol"; case "mall": return "Centro comercial"; case "dental": return "Clínica dental"; default: return "Todos los entornos"; }
+            return Array.Find(Review.Scope.environments, e => e.id == id)?.name ?? "Todos los entornos";
         }
         static string Friendly(string value)
         {

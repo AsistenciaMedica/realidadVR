@@ -1036,26 +1036,31 @@
       "category": "Conciencia",
       "difficulty": "Inicial",
       "environment": "mall",
-      "description": "Inconsciente con respiración · piloto migrado. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Rosa no responde en una zona común del centro comercial, pero conserva respiración normal. Distingue este hallazgo de una parada y organiza vigilancia, ayuda y relevo.",
+      "history": "Una acompañante refiere un desvanecimiento y dice haber sujetado a Rosa antes de que llegara al suelo. No conoce sus antecedentes; la causa permanece sin confirmar.",
+      "incident": "Centro comercial, junto al área de descanso. Rosa está tumbada, no contesta y presenta movimientos respiratorios regulares; la acompañante permanece a su lado.",
       "severity": "moderada",
-      "initialDialogue": "No hay respuesta; respiración normal.",
+      "initialDialogue": "Rosa no responde a la voz. La información inicial procede de la acompañante; comprobar directamente la respiración.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Inconsciente con respiración · piloto migrado"
+        "La paciente no puede referir síntomas",
+        "Pérdida de respuesta comunicada por la acompañante"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Ojos cerrados y ausencia de respuesta verbal",
+        "Elevación torácica regular, sin jadeos aislados",
+        "No realiza movimientos intencionales ante la conversación"
       ],
       "references": [
         "bls",
         "firstaid"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Comprobar respuesta y respiración por separado; no usar el relato del testigo como sustituto de la valoración.",
+        "La posición lateral corresponde a la rama con respiración normal y sin sospecha de trauma; seguir vigilando.",
+        "Si la respiración deja de ser normal, reconocer el cambio y solicitar instrucciones de emergencias."
       ],
       "initialState": {
         "consciousness": "Unresponsive",
@@ -1063,8 +1068,8 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Ojos cerrados y ausencia de respuesta verbal; Elevación torácica regular, sin jadeos aislados; No realiza movimientos intencionales ante la conversación.",
+        "dialogue": "Rosa no responde a la voz. La información inicial procede de la acompañante; comprobar directamente la respiración.",
         "position": "supine",
         "heartRate": 78,
         "systolic": 120,
@@ -1090,8 +1095,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Rosa dijo que se encontraba mal y dejó de contestar. La sujetó para que no se golpeara».",
+          "Acompañante: «Veo que respira, pero no me responde. No conozco su medicación; puedo avisar y guiar a la ayuda»."
         ],
         "positions": [
           "supine"
@@ -1323,7 +1328,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -1354,7 +1359,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -1468,7 +1474,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Rosa continúa sin respuesta verbal y conserva movimientos respiratorios regulares. Vuelve a comprobar la respiración mientras llega la ayuda.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -2889,26 +2895,30 @@
       "category": "Cardiorrespiratorio",
       "difficulty": "Inicial",
       "environment": "mall",
-      "description": "Sin respiración normal · piloto migrado. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Javier ha colapsado en el centro comercial y no presenta respuesta ni respiración normal. Prioriza ayuda, RCP y las indicaciones de un DEA que no recomienda descarga en esta rama.",
+      "history": "Un visitante presenció el colapso sin poder identificar la causa. No dispone de antecedentes ni de medicación. La ausencia de respiración normal determina la prioridad del caso.",
+      "incident": "Centro comercial, pasillo despejado junto a información. Javier está tumbado e inmóvil; un visitante puede llamar y localizar el DEA mientras comienzas la asistencia.",
       "severity": "moderada",
-      "initialDialogue": "No responde. No hay respiración normal. SpO2 y TA no tienen lectura fiable sin perfusión.",
+      "initialDialogue": "Javier no emite palabras ni responde. No se observa respiración normal; el testigo aporta el relato del colapso.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Sin respiración normal · piloto migrado"
+        "La persona no puede comunicar síntomas",
+        "Colapso súbito referido por el testigo"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Ausencia de respuesta y de movimiento intencional",
+        "Sin elevación torácica respiratoria regular",
+        "No hay lectura fiable de TA o SpO₂ en esta rama sin perfusión"
       ],
       "references": [
         "bls"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento.",
-        "Seguir el DEA, despejar contacto y minimizar interrupciones. No se exige comprobar pulso al reanimador lego. La recuperación depende del guion y no está garantizada."
+        "No retrasar la respuesta a una persona inconsciente que no respira normalmente para obtener constantes.",
+        "Seguir las indicaciones del DEA: descarga no indicada no significa que la persona se haya recuperado.",
+        "Continuar la asistencia y comunicar tiempos y acciones hasta el relevo; no se garantiza recuperación."
       ],
       "initialState": {
         "consciousness": "Unresponsive",
@@ -2916,8 +2926,8 @@
         "circulation": "pulseless",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Ausencia de respuesta y de movimiento intencional; Sin elevación torácica respiratoria regular; No hay lectura fiable de TA o SpO₂ en esta rama sin perfusión.",
+        "dialogue": "Javier no emite palabras ni responde. No se observa respiración normal; el testigo aporta el relato del colapso.",
         "position": "supine",
         "heartRate": 0,
         "systolic": 0,
@@ -2930,7 +2940,8 @@
         "canSwallow": false,
         "shockAdvised": false,
         "flags": [
-          "hypoxia"
+          "hypoxia",
+          "pallor"
         ]
       },
       "variation": {
@@ -2945,8 +2956,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Visitante: «Iba caminando y se desplomó. No me contesta y no veo que respire normalmente».",
+          "Visitante: «Puedo llamar y pedir a seguridad que traiga el DEA. No sé nada de sus antecedentes»."
         ],
         "positions": [
           "supine"
@@ -3677,26 +3688,30 @@
       "category": "Cardiorrespiratorio",
       "difficulty": "Inicial",
       "environment": "football",
-      "description": "Parada presenciada · DEA precoz. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Andrés colapsa de forma súbita durante un partido. Coordina al compañero que pide ayuda y trae el DEA mientras priorizas la respuesta a la ausencia de respiración normal.",
+      "history": "Un compañero presencia el colapso durante el juego y no refiere un choque previo. Los antecedentes son desconocidos. El guion representa una rama en la que el DEA indica descarga.",
+      "incident": "Campo de fútbol, junto a la línea lateral. El partido se detiene; Andrés está inmóvil sobre el césped y un compañero conoce dónde se guarda el DEA.",
       "severity": "moderada",
-      "initialDialogue": "No responde. No hay respiración normal. SpO2 y TA no tienen lectura fiable sin perfusión.",
+      "initialDialogue": "Andrés no responde ni habla. No presenta respiración normal; su compañero describe lo ocurrido.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Parada presenciada · DEA precoz"
+        "La persona no puede referir síntomas",
+        "Colapso inesperado durante el juego comunicado por un compañero"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Sin respuesta a la voz ni movimientos intencionales",
+        "Ausencia de respiración regular",
+        "TA y SpO₂ sin lectura fiable en la rama sin perfusión"
       ],
       "references": [
         "bls"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento.",
-        "Seguir el DEA, despejar contacto y minimizar interrupciones. No se exige comprobar pulso al reanimador lego. La recuperación depende del guion y no está garantizada."
+        "El colapso durante ejercicio con ausencia de respuesta exige ayuda inmediata y valoración de la respiración.",
+        "Coordinar a los testigos permite traer el DEA sin abandonar la asistencia; seguir sus instrucciones.",
+        "El desenlace favorable programado es una rama educativa, no una probabilidad real de recuperación ni una acreditación de RCP física."
       ],
       "initialState": {
         "consciousness": "Unresponsive",
@@ -3704,8 +3719,8 @@
         "circulation": "pulseless",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Sin respuesta a la voz ni movimientos intencionales; Ausencia de respiración regular; TA y SpO₂ sin lectura fiable en la rama sin perfusión.",
+        "dialogue": "Andrés no responde ni habla. No presenta respiración normal; su compañero describe lo ocurrido.",
         "position": "supine",
         "heartRate": 0,
         "systolic": 0,
@@ -3718,7 +3733,8 @@
         "canSwallow": false,
         "shockAdvised": true,
         "flags": [
-          "hypoxia"
+          "hypoxia",
+          "pallor"
         ]
       },
       "variation": {
@@ -3733,8 +3749,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Compañero: «Andrés iba corriendo y cayó sin chocar con nadie. No me contesta».",
+          "Compañero: «El DEA está junto a la entrada. Puedo avisar y traerlo mientras te quedas con él»."
         ],
         "positions": [
           "supine"
@@ -6946,25 +6962,31 @@
       "category": "Cardiorrespiratorio",
       "difficulty": "Inicial",
       "environment": "gym",
-      "description": "Dolor opresivo y disnea durante ejercicio. Activar emergencias sin esperar mediciones.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Ricardo llega al gimnasio con presión en el pecho y dificultad para respirar tras subir las escaleras. Practica el reconocimiento de alarma, la petición temprana de ayuda y el acompañamiento en una posición cómoda.",
+      "history": "Ricardo refiere presión persistente en el centro del pecho iniciada al subir las escaleras de acceso. Sus antecedentes no están confirmados. El brigadista comunica lo observado sin establecer un diagnóstico.",
+      "incident": "Gimnasio, cerca del acceso y de la zona de cardio. Ricardo ha pedido sentarse al llegar; lleva ropa de calle, interrumpe las frases para respirar y pide que no lo dejen solo.",
       "severity": "moderada",
-      "initialDialogue": "Me cuesta respirar.",
+      "initialDialogue": "Me aprieta aquí, en el pecho… no se me pasa al parar. Me cuesta respirar. Quédate conmigo.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Dolor torácico con disnea"
+        "Presión persistente en el pecho",
+        "Falta de aire referida",
+        "Sudor y preocupación por el malestar"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Se lleva una mano al pecho",
+        "Respira con esfuerzo y habla en frases cortas",
+        "Palidez y expresión de dolor; permanece consciente"
       ],
       "references": [
         "dyspnea"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "La presión torácica acompañada de disnea exige ayuda temprana; no esperar una lectura del equipo para solicitarla.",
+        "Acompañar y facilitar una posición tolerada, sin imponer esfuerzo ni hacer caminar al paciente.",
+        "Comunicar comienzo, síntomas, respuesta y cambios; el caso no autoriza diagnósticos ni medicación nueva."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -6972,9 +6994,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Se lleva una mano al pecho; Respira con esfuerzo y habla en frases cortas; Palidez y expresión de dolor; permanece consciente.",
+        "dialogue": "Me aprieta aquí, en el pecho… no se me pasa al parar. Me cuesta respirar. Quédate conmigo.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -6986,7 +7008,11 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "hypoxia"
+          "hypoxia",
+          "pallor",
+          "pain",
+          "distress",
+          "labored breathing"
         ]
       },
       "variation": {
@@ -7001,11 +7027,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Usuario cercano: «Ricardo llegó por las escaleras y pidió sentarse sujetándose el pecho. He dejado libre el paso».",
+          "Usuario cercano: «El dolor no se le ha pasado al descansar. Puedo buscar ayuda y dejar libre el acceso»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -7233,7 +7259,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -7264,7 +7290,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -7413,7 +7440,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Ricardo mantiene la presión torácica y continúa hablando entre respiraciones. El reposo y la vigilancia no descartan una urgencia.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -7532,29 +7559,35 @@
     },
     {
       "id": "gym-faint",
-      "name": "Síncope después de ejercicio",
+      "name": "Pérdida breve de respuesta en el gimnasio",
       "category": "Síncope",
       "difficulty": "Inicial",
       "environment": "gym",
-      "description": "Síncope después de ejercicio. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Lucía ha recuperado la respuesta tras un desvanecimiento breve al llegar al gimnasio. Diferencia la mejoría aparente de una valoración completa y organiza ayuda sin hacerla caminar mientras sigue mareada.",
+      "history": "Lucía refiere calor y visión borrosa después de subir las escaleras de acceso. Una usuaria la acompañó hasta el suelo y no observó un golpe. Los antecedentes y la causa del episodio no están confirmados.",
+      "incident": "Gimnasio, cerca de la entrada a la zona de entrenamiento. Una usuaria ha despejado el espacio; Lucía permanece tumbada y vuelve a contestar. Todavía no había empezado a entrenar.",
       "severity": "moderada",
-      "initialDialogue": "Me mareo; ya respondo y respiro normalmente.",
+      "initialDialogue": "Ya te escucho… al llegar se me nubló la vista. Sigo mareada, no quiero levantarme todavía.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Síncope después de ejercicio"
+        "Mareo después de subir las escaleras",
+        "Debilidad tras una pérdida breve de conciencia",
+        "Sensación de calor y visión borrosa referidas"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Responde a preguntas breves después del episodio",
+        "Respiración regular, sin jadeos aislados",
+        "Palidez y movimientos cautelosos mientras permanece tumbada"
       ],
       "references": [
         "faint"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Distinguir el desvanecimiento referido por la testigo de la respuesta y respiración observadas ahora.",
+        "La recuperación de la conversación no confirma una causa benigna ni justifica hacerla caminar mientras sigue mareada.",
+        "Reevaluar síntomas y respuesta; comunicar el episodio, la evolución y los antecedentes aún desconocidos."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -7562,8 +7595,8 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Responde a preguntas breves después del episodio; Respiración regular, sin jadeos aislados; Palidez y movimientos cautelosos mientras permanece tumbada.",
+        "dialogue": "Ya te escucho… al llegar se me nubló la vista. Sigo mareada, no quiero levantarme todavía.",
         "position": "supine",
         "heartRate": 78,
         "systolic": 120,
@@ -7575,7 +7608,9 @@
         "pain": 0,
         "canSwallow": true,
         "shockAdvised": false,
-        "flags": []
+        "flags": [
+          "pallor"
+        ]
       },
       "variation": {
         "minAge": 24,
@@ -7589,8 +7624,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Usuaria: «Lucía acababa de llegar y dijo que se mareaba. La acompañó hasta el suelo; estuvo sin contestar unos instantes y ahora responde».",
+          "Usuaria: «No he visto un golpe. He dejado libre el espacio y puedo avisar a emergencias mientras te quedas con Lucía»."
         ],
         "positions": [
           "supine"
@@ -7821,7 +7856,7 @@
           "id": "Reassess",
           "action": "Reassess",
           "kind": "required",
-          "feedback": "Reevaluar respuesta y respiración. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -7852,7 +7887,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -8001,7 +8037,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Lucía sigue respondiendo, pero refiere debilidad. Comprueba de nuevo cómo se encuentra y comunica si reaparece el mareo.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -8159,25 +8195,30 @@
       "category": "Síncope",
       "difficulty": "Inicial",
       "environment": "football",
-      "description": "Recuperación de pérdida breve de conciencia. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Pablo vuelve a responder tras una pérdida breve de conciencia al detener el juego. Contrasta el relato del compañero con su estado actual y evita que regrese al partido solo porque se encuentre algo mejor.",
+      "history": "Pablo refiere visión borrosa antes del episodio. Un compañero lo sostuvo al caer y no describe choque ni golpe. La causa sigue sin confirmar aunque haya recuperado la conversación.",
+      "incident": "Campo de fútbol, banda junto al banquillo. Pablo permanece tumbado; el partido está detenido y un compañero espera instrucciones para pedir ayuda.",
       "severity": "moderada",
-      "initialDialogue": "Me mareo; ya respondo y respiro normalmente.",
+      "initialDialogue": "Ya os oigo… al parar se me fue la vista. Sigo flojo; prefiero quedarme aquí.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Recuperación de pérdida breve de conciencia"
+        "Visión borrosa previa referida",
+        "Debilidad y mareo después del episodio"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Recupera conversación breve y coherente",
+        "Respiración regular mientras permanece tumbado",
+        "Palidez y cautela al mover la cabeza"
       ],
       "references": [
         "faint"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "La recuperación de la respuesta no elimina la necesidad de valorar un desvanecimiento relacionado con ejercicio.",
+        "Confirmar con el testigo si hubo traumatismo antes de considerar cambios de posición.",
+        "Comunicar el episodio completo y volver a comprobar respuesta y respiración, sin premiar solo una lista de acciones."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -8185,8 +8226,8 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Recupera conversación breve y coherente; Respiración regular mientras permanece tumbado; Palidez y cautela al mover la cabeza.",
+        "dialogue": "Ya os oigo… al parar se me fue la vista. Sigo flojo; prefiero quedarme aquí.",
         "position": "supine",
         "heartRate": 78,
         "systolic": 120,
@@ -8198,7 +8239,9 @@
         "pain": 0,
         "canSwallow": true,
         "shockAdvised": false,
-        "flags": []
+        "flags": [
+          "pallor"
+        ]
       },
       "variation": {
         "minAge": 24,
@@ -8212,8 +8255,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Compañero: «Pablo acababa de parar y dejó de responder unos instantes. Lo sujetó; no hubo choque».",
+          "Compañero: «Ahora contesta, pero sigue pálido. No lo voy a dejar volver al campo; puedo avisar»."
         ],
         "positions": [
           "supine"
@@ -8444,7 +8487,7 @@
           "id": "Reassess",
           "action": "Reassess",
           "kind": "required",
-          "feedback": "Reevaluar respuesta y respiración. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -8475,7 +8518,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -8624,7 +8668,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Pablo sigue respondiendo, pero refiere debilidad. Comprueba si el mareo persiste y mantén la asistencia hasta el relevo.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -8782,25 +8826,31 @@
       "category": "Temperatura / entorno",
       "difficulty": "Inicial",
       "environment": "mall",
-      "description": "Deshidratación con respuesta conservada. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Luis pide ayuda tras varias horas recorriendo el centro comercial con poca ingesta de líquidos. Valora su respuesta, acompáñalo mientras descansa y comprueba si persisten el mareo y la debilidad.",
+      "history": "Luis refiere sed, boca seca y haber bebido poco durante el recorrido. Dice que el mareo persiste al intentar ponerse de pie. Estos datos orientan el guion, pero no confirman por sí solos la causa.",
+      "incident": "Centro comercial, área de descanso. Luis se ha tumbado con ayuda por el mareo; responde con claridad y pide permanecer acompañado.",
       "severity": "moderada",
-      "initialDialogue": "Me mareo; ya respondo y respiro normalmente.",
+      "initialDialogue": "Tengo mucha sed y la boca seca. Hoy casi no he bebido… cuando intento levantarme me mareo.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Deshidratación con respuesta conservada"
+        "Sed y boca seca referidas",
+        "Mareo al intentar incorporarse",
+        "Cansancio y debilidad"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Mantiene conversación coherente y respuesta conservada",
+        "Movimientos lentos y cautelosos por el mareo",
+        "Respiración regular; confirmar deglución antes de ofrecer agua"
       ],
       "references": [
         "water"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "No atribuir todo mareo a deshidratación: registrar síntomas persistentes y comunicar la evolución.",
+        "Ofrecer agua solo con respuesta y deglución seguras, sin hacer caminar a quien sigue mareado.",
+        "La ingesta no garantiza mejoría inmediata; reevaluar y solicitar relevo según los hallazgos."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -8808,8 +8858,8 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Mantiene conversación coherente y respuesta conservada; Movimientos lentos y cautelosos por el mareo; Respiración regular; confirmar deglución antes de ofrecer agua.",
+        "dialogue": "Tengo mucha sed y la boca seca. Hoy casi no he bebido… cuando intento levantarme me mareo.",
         "position": "supine",
         "heartRate": 78,
         "systolic": 120,
@@ -8835,8 +8885,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Llevamos varias horas aquí y Luis apenas ha bebido. Al levantarse ha dicho que se mareaba».",
+          "Acompañante: «Lo ayudó a tumbarse; sigue contestando. Puedo pedir asistencia y mantener despejada la zona»."
         ],
         "positions": [
           "supine"
@@ -9067,7 +9117,7 @@
           "id": "Reassess",
           "action": "Reassess",
           "kind": "required",
-          "feedback": "Reevaluar respuesta y respiración. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -9098,7 +9148,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -9247,7 +9298,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Luis continúa con sed y debilidad mientras descansa. Reevalúa la respuesta y el mareo; no supongas una recuperación inmediata tras ofrecer agua.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -9370,25 +9421,30 @@
       "category": "Conciencia",
       "difficulty": "Inicial",
       "environment": "mall",
-      "description": "Paciente confuso · origen no confirmado. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Beatriz cambia bruscamente su forma de responder durante una visita al centro comercial. Obtén del acompañante el estado habitual y el comienzo del cambio, solicita ayuda y comunica hechos sin etiquetar la causa.",
+      "history": "El acompañante refiere que Beatriz conversaba con normalidad poco antes. Ahora repite preguntas y parece desorientada; los antecedentes y la causa del cambio no están confirmados.",
+      "incident": "Centro comercial, área de descanso. Beatriz está sentada junto al acompañante; no se ha referido caída ni golpe. El entorno se mantiene tranquilo.",
       "severity": "moderada",
-      "initialDialogue": "Habla confusa; inicio súbito referido.",
+      "initialDialogue": "¿Dónde íbamos?… No recuerdo por qué estamos aquí. ¿Me lo puedes repetir?",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Paciente confuso · origen no confirmado"
+        "Dificultad reciente para orientarse y mantener la conversación",
+        "Sensación de desconcierto expresada por la paciente"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Repite preguntas que acaba de realizar",
+        "Responde, pero pierde el hilo de la conversación",
+        "Respiración regular; no asumir que puede tragar con seguridad"
       ],
       "references": [
         "firstaid"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "El inicio brusco es un dato de alarma; averiguar y comunicar la última vez que estaba como de costumbre.",
+        "Una glucemia simulada normal no descarta otras causas y no debe retrasar la ayuda.",
+        "Usar frases sencillas, acompañar y evitar ingesta oral mientras la deglución no sea segura."
       ],
       "initialState": {
         "consciousness": "Confused",
@@ -9396,9 +9452,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Repite preguntas que acaba de realizar; Responde, pero pierde el hilo de la conversación; Respiración regular; no asumir que puede tragar con seguridad.",
+        "dialogue": "¿Dónde íbamos?… No recuerdo por qué estamos aquí. ¿Me lo puedes repetir?",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -9409,7 +9465,9 @@
         "pain": 0,
         "canSwallow": false,
         "shockAdvised": false,
-        "flags": []
+        "flags": [
+          "distress"
+        ]
       },
       "variation": {
         "minAge": 24,
@@ -9423,11 +9481,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Hace unos minutos hablaba como siempre. Ahora me pregunta varias veces dónde estamos».",
+          "Acompañante: «Este cambio no es habitual en Beatriz. No he visto ningún golpe; puedo explicar cuándo empezó»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -9618,7 +9676,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -9649,7 +9707,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -9798,7 +9857,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Beatriz vuelve a preguntar dónde está. Registra si cambia su respuesta y conserva el relato del acompañante para el relevo.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -9919,26 +9978,32 @@
       "category": "Glucosa",
       "difficulty": "Inicial",
       "environment": "gym",
-      "description": "Hipoglucemia con confusión y deglución segura. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Diabetes conocida; ingesta insuficiente referida.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Mateo presenta temblor, sudor y dificultad para concentrarse mientras se prepara para entrenar. Reconoce el cambio de conducta, confirma una ingesta segura y vigila la evolución sin retrasar la ayuda.",
+      "history": "Mateo refiere diabetes y haber retrasado su comida antes de acudir al gimnasio. Aún no ha comenzado a entrenar. Su compañero confirma un cambio reciente de conducta. El guion permite ingesta oral solo mientras conserva la capacidad de tragar con seguridad.",
+      "incident": "Gimnasio, banco junto a la zona de entrenamiento. Mateo todavía lleva su ropa de llegada y está sentado con apoyo; el compañero ha despejado el espacio y permanece disponible para pedir ayuda.",
       "severity": "moderada",
-      "initialDialogue": "Tengo temblor y sudor frío; puedo tragar.",
+      "initialDialogue": "Me tiemblan las manos… tengo diabetes. Hoy comí poco y me cuesta concentrarme. Te escucho; ayúdame, por favor.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Hipoglucemia con confusión y deglución segura"
+        "Temblor y sudor frío referidos",
+        "Hambre y debilidad antes de comenzar a entrenar",
+        "Dificultad reciente para concentrarse"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Responde lentamente y necesita preguntas sencillas",
+        "Temblor fino de las manos y palidez",
+        "Conserva respuesta y cooperación; valorar la deglución antes de ofrecer algo por boca"
       ],
       "references": [
         "glucose",
         "firstaid"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "El cambio de conducta requiere valoración y ayuda; no atribuirlo a falta de voluntad o embriaguez.",
+        "La vía oral exige respuesta y deglución segura; suspenderla si deja de ser segura.",
+        "La reevaluación tras el intervalo del guion comprueba evolución, sin prometer recuperación por una sola acción."
       ],
       "initialState": {
         "consciousness": "Confused",
@@ -9946,9 +10011,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Responde lentamente y necesita preguntas sencillas; Temblor fino de las manos y palidez; Conserva respuesta y cooperación; valorar la deglución antes de ofrecer algo por boca.",
+        "dialogue": "Me tiemblan las manos… tengo diabetes. Hoy comí poco y me cuesta concentrarme. Te escucho; ayúdame, por favor.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -9960,7 +10025,9 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "hypoglycemia"
+          "hypoglycemia",
+          "pallor",
+          "distress"
         ]
       },
       "variation": {
@@ -9975,11 +10042,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Compañero: «Mateo acababa de llegar; todavía no habíamos empezado. Ahora repite lo que le pregunto y le tiemblan las manos».",
+          "Compañero: «Mateo me dijo que tiene diabetes y que había retrasado la comida. Puedo pedir ayuda; no sé qué medicación usa»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -10244,7 +10311,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -10275,7 +10342,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -12438,25 +12506,31 @@
       "category": "Respiratorio",
       "difficulty": "Inicial",
       "environment": "gym",
-      "description": "Crisis asmática · inhalador propio. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Sara presenta dificultad respiratoria al interrumpir una rutina. Identifica sus síntomas y su inhalador de rescate propio, ayuda dentro de tu formación y reconoce la fatiga aunque estás vigilándola.",
+      "history": "Sara refiere asma y señala su propio inhalador de rescate en la bolsa. No se ha confirmado un plan individual ni una pauta; la asistencia del guion no prescribe dosis ni garantiza respuesta.",
+      "incident": "Gimnasio, zona de ejercicio despejada. Sara permanece sentada con apoyo y hace pausas al hablar; su compañera acerca la bolsa sin administrar medicación.",
       "severity": "moderada",
-      "initialDialogue": "Me cuesta respirar.",
+      "initialDialogue": "Tengo asma… me cuesta sacar el aire. Mi inhalador está en la bolsa. Ayúdame, por favor.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Crisis asmática · inhalador propio"
+        "Opresión y dificultad para respirar",
+        "Tos y sensación de falta de aire",
+        "Fatiga al intentar hablar"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Respiración rápida con esfuerzo",
+        "Habla en frases cortas e interrumpe la conversación para respirar",
+        "Sibilancia referida y tos; observar si disminuye la capacidad de responder"
       ],
       "references": [
         "asthma"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Ayudar con el inhalador propio dentro de la formación recibida; no improvisar medicamentos ni dosis.",
+        "Vigilar no trata la dificultad respiratoria: la fatiga o la somnolencia obligan a comunicar deterioro.",
+        "Una respuesta breve no equivale a respiración normal; reevaluar continuamente hasta el relevo."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -12464,9 +12538,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Respiración rápida con esfuerzo; Habla en frases cortas e interrumpe la conversación para respirar; Sibilancia referida y tos; observar si disminuye la capacidad de responder.",
+        "dialogue": "Tengo asma… me cuesta sacar el aire. Mi inhalador está en la bolsa. Ayúdame, por favor.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -12478,7 +12552,9 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "hypoxia"
+          "hypoxia",
+          "distress",
+          "labored breathing"
         ]
       },
       "variation": {
@@ -12493,11 +12569,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Compañera: «Sara ha parado porque le faltaba el aire. Me ha señalado la bolsa donde guarda su inhalador».",
+          "Compañera: «Tiene asma, según me ha dicho. Yo puedo llamar; tú comprueba si sigue respondiendo y respirando»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -12762,7 +12838,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -12793,7 +12869,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -12942,13 +13019,11 @@
         {
           "id": "respiratory-fatigue",
           "kind": "deterioration",
-          "message": "Aumenta la fatiga en este guion; comunicar deterioro.",
+          "message": "Aumenta la fatiga y disminuye la respuesta en esta rama. Haber registrado vigilancia no impide el deterioro: comunicar el cambio y reevaluar.",
           "anchorAction": "",
           "afterSeconds": 150,
           "requiresActions": [],
-          "unlessActions": [
-            "Monitor"
-          ],
+          "unlessActions": [],
           "effect": {
             "consciousness": "Drowsy",
             "respiration": "",
@@ -13659,25 +13734,31 @@
       "category": "Respiratorio",
       "difficulty": "Intermedio",
       "environment": "football",
-      "description": "Hipoxia con fatiga. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Miguel, espectador, presenta falta de aire persistente en la banda del campo. Reconoce el esfuerzo respiratorio y la fatiga, pide ayuda y comunica los cambios sin asumir una causa.",
+      "history": "Miguel refiere que la dificultad respiratoria no cede al descansar. No se han confirmado antecedentes ni una causa. La lectura simulada, si se obtiene, complementa la valoración y no debe retrasar la ayuda.",
+      "incident": "Campo de fútbol, zona de espectadores. Miguel está sentado con apoyo y hace pausas frecuentes al hablar; su acompañante permanece cerca y puede guiar a emergencias.",
       "severity": "moderada",
-      "initialDialogue": "Me cuesta respirar.",
+      "initialDialogue": "No estaba jugando… estaba mirando. Me falta el aire incluso quieto. Me cuesta hablar; quédate conmigo.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Hipoxia con fatiga"
+        "Falta de aire en reposo",
+        "Cansancio creciente al hablar",
+        "Preocupación por no poder respirar con comodidad"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Respiración rápida y trabajosa",
+        "Frases muy cortas con pausas para respirar",
+        "Fatiga evidente; observar si disminuye la respuesta"
       ],
       "references": [
         "dyspnea"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Valorar el esfuerzo y la capacidad de responder, no solo una lectura numérica.",
+        "La vigilancia no corrige la falta de oxígeno: comunicar somnolencia y dificultad creciente aunque ya hayas pedido ayuda.",
+        "Mantener el alcance de primer interviniente; no atribuir la causa ni añadir tratamientos para los que no se está formado."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -13685,9 +13766,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Respiración rápida y trabajosa; Frases muy cortas con pausas para respirar; Fatiga evidente; observar si disminuye la respuesta.",
+        "dialogue": "No estaba jugando… estaba mirando. Me falta el aire incluso quieto. Me cuesta hablar; quédate conmigo.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -13699,7 +13780,9 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "hypoxia"
+          "hypoxia",
+          "distress",
+          "labored breathing"
         ]
       },
       "variation": {
@@ -13714,11 +13797,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Miguel estaba viendo el partido. Se sentó porque le faltaba el aire, pero no se le pasa».",
+          "Acompañante: «Cada vez le cuesta más terminar una frase. No conozco la causa; puedo llamar y guiar la ayuda»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -13946,7 +14029,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -13977,7 +14060,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -14126,13 +14210,11 @@
         {
           "id": "respiratory-fatigue",
           "kind": "deterioration",
-          "message": "Aumenta la fatiga en este guion; comunicar deterioro.",
+          "message": "Aumenta la fatiga y disminuye la respuesta en esta rama. Haber registrado vigilancia no impide el deterioro: comunicar el cambio y reevaluar.",
           "anchorAction": "",
           "afterSeconds": 150,
           "requiresActions": [],
-          "unlessActions": [
-            "Monitor"
-          ],
+          "unlessActions": [],
           "effect": {
             "consciousness": "Drowsy",
             "respiration": "",
@@ -14839,25 +14921,30 @@
       "category": "Respiratorio",
       "difficulty": "Inicial",
       "environment": "mall",
-      "description": "Obstrucción parcial · tos eficaz. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Camila comienza a toser mientras come en el centro comercial. Distingue tos eficaz de una obstrucción que empeora y acompáñala reevaluando sin forzar maniobras innecesarias.",
+      "history": "Camila estaba comiendo cuando comenzó a toser. Puede emitir palabras entre accesos de tos. No se presume que el objeto haya salido por haberla animado a toser.",
+      "incident": "Centro comercial, zona de comidas. Camila está sentada e inclinada ligeramente hacia delante; su acompañante aparta la bandeja y deja espacio.",
       "severity": "moderada",
-      "initialDialogue": "Toso con fuerza; puedo hablar.",
+      "initialDialogue": "Se me ha ido un bocado… puedo toser. Quédate aquí conmigo.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Obstrucción parcial · tos eficaz"
+        "Sensación de atragantamiento durante la comida",
+        "Molestia y miedo mientras tose"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Tos audible y enérgica",
+        "Puede hablar entre accesos y mantiene la respuesta",
+        "La tos persiste; vigilar si deja de ser eficaz o si ya no puede hablar"
       ],
       "references": [
         "firstaid"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Diferenciar una tos eficaz de la incapacidad para toser o hablar; la reevaluación guía la escalada.",
+        "Animar a toser no prueba que la obstrucción se haya resuelto; no darla por curada al pulsar una acción.",
+        "Evitar el barrido digital a ciegas y comunicar cualquier pérdida de respuesta o cambio respiratorio."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -14865,9 +14952,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Tos audible y enérgica; Puede hablar entre accesos y mantiene la respuesta; La tos persiste; vigilar si deja de ser eficaz o si ya no puede hablar.",
+        "dialogue": "Se me ha ido un bocado… puedo toser. Quédate aquí conmigo.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -14879,7 +14966,8 @@
         "canSwallow": false,
         "shockAdvised": false,
         "flags": [
-          "airway obstruction"
+          "airway obstruction",
+          "distress"
         ]
       },
       "variation": {
@@ -14894,11 +14982,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Estaba comiendo y empezó a toser. Camila todavía puede decirme qué le pasa».",
+          "Acompañante: «He apartado la comida y puedo pedir ayuda. No he visto que haya expulsado nada»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -15089,7 +15177,7 @@
           "id": "Reassess",
           "action": "Reassess",
           "kind": "required",
-          "feedback": "Reevaluar respuesta y respiración. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "EncourageCough",
           "prerequisites": [
@@ -15120,13 +15208,14 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -15157,7 +15246,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -15304,9 +15394,9 @@
       ],
       "timeline": [
         {
-          "id": "obstruction-relieved",
-          "kind": "recovery",
-          "message": "Obstrucción resuelta en esta rama simulada.",
+          "id": "cough-reassessment",
+          "kind": "observation",
+          "message": "Camila continúa tosiendo con fuerza y puede hablar entre accesos. Comprueba si la tos sigue siendo eficaz; no se ha confirmado la expulsión del objeto.",
           "anchorAction": "EncourageCough",
           "afterSeconds": 5,
           "requiresActions": [
@@ -15315,20 +15405,18 @@
           "unlessActions": [],
           "effect": {
             "consciousness": "",
-            "respiration": "normal",
+            "respiration": "",
             "circulation": "",
-            "dialogue": "Vuelve a hablar. Requiere revisión.",
+            "dialogue": "",
             "position": "",
             "addFlags": [],
-            "removeFlags": [
-              "airway obstruction"
-            ],
+            "removeFlags": [],
             "spo2Delta": 0,
             "heartRateDelta": 0,
             "glucoseDelta": 0,
             "systolicDelta": 0,
             "diastolicDelta": 0,
-            "respiratoryRateDelta": -14,
+            "respiratoryRateDelta": 0,
             "temperatureDelta": 0,
             "painDelta": 0,
             "setSwallow": false,
@@ -25126,25 +25214,31 @@
       "category": "Temperatura / entorno",
       "difficulty": "Inicial",
       "environment": "football",
-      "description": "Agotamiento por calor. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Antecedentes no confirmados; consultar al testigo y al paciente.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Sergio, organizador del partido, se encuentra mal tras permanecer al sol en la banda. Reconoce el contexto de calor, inicia medidas de enfriamiento dentro de tu formación y vigila signos de deterioro.",
+      "history": "Sergio refiere sed intensa, cefalea y calambres tras una exposición prolongada al calor. Conserva la conversación; cualquier cambio de respuesta o coordinación requiere nueva valoración urgente.",
+      "incident": "Campo de fútbol, junto al banquillo. Sergio ha dejado sus tareas de organización y está tumbado en la zona de sombra; un colaborador puede traer agua y solicitar asistencia.",
       "severity": "moderada",
-      "initialDialogue": "Malestar tras exposición a temperatura extrema.",
+      "initialDialogue": "Llevo toda la jornada al sol… me duele la cabeza y tengo mucha sed. Me dan calambres, estoy agotado.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Agotamiento por calor"
+        "Sed intensa y cefalea",
+        "Cansancio, mareo y calambres",
+        "Malestar después de exposición prolongada al calor"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Sudoración abundante referida y palidez",
+        "Respiración más rápida, con respuesta conservada",
+        "Permanece tumbado y coopera; vigilar confusión o pérdida de coordinación"
       ],
       "references": [
         "heat"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "El contexto y los signos orientan la valoración; una cifra aislada de temperatura no resume la gravedad.",
+        "Enfriar y acompañar, con agua solo si puede beber de forma segura.",
+        "Comunicar confusión, falta de coordinación o empeoramiento; la vigilancia por sí sola no enfría al paciente."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -25152,8 +25246,8 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
+        "appearance": "Sudoración abundante referida y palidez; Respiración más rápida, con respuesta conservada; Permanece tumbado y coopera; vigilar confusión o pérdida de coordinación.",
+        "dialogue": "Llevo toda la jornada al sol… me duele la cabeza y tengo mucha sed. Me dan calambres, estoy agotado.",
         "position": "supine",
         "heartRate": 78,
         "systolic": 120,
@@ -25166,7 +25260,8 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "heat"
+          "heat",
+          "pallor"
         ]
       },
       "variation": {
@@ -25181,8 +25276,8 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Colaborador: «Sergio lleva toda la jornada organizando el partido desde la banda, al sol. Se quejó de dolor de cabeza y calambres».",
+          "Colaborador: «He pedido que otro se encargue del acceso y buscado sombra. Puedo avisar y traer agua; Sergio sigue respondiendo»."
         ],
         "positions": [
           "supine"
@@ -25450,7 +25545,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -25481,7 +25576,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
@@ -25595,7 +25691,7 @@
         {
           "id": "ongoing-observation",
           "kind": "observation",
-          "message": "El guion sigue activo: reevaluar y comunicar cambios.",
+          "message": "Sergio permanece cansado y sediento. Comprueba su respuesta mientras continúan las medidas de enfriamiento y comunica cualquier empeoramiento.",
           "anchorAction": "",
           "afterSeconds": 60,
           "requiresActions": [],
@@ -27611,30 +27707,35 @@
     },
     {
       "id": "football-glucose",
-      "name": "Hipoglucemia durante partido",
+      "name": "Hipoglucemia entre el público del campo",
       "category": "Glucosa",
       "difficulty": "Inicial",
       "environment": "football",
-      "description": "Hipoglucemia durante partido. Valorar, actuar dentro de competencias y solicitar relevo.",
-      "history": "Diabetes conocida; ingesta insuficiente referida.",
-      "incident": "Incidente durante actividad cotidiana. Persona adulta; guion de formación inicial.",
+      "description": "Elena, espectadora del partido, presenta temblor y sudor durante la espera. Relaciona el relato de diabetes con lo que observas y comprueba respuesta y deglución antes de asistirla.",
+      "history": "Elena refiere diabetes y haber retrasado su comida mientras veía el partido. Está despierta y coopera en esta rama; su acompañante confirma que el temblor es reciente.",
+      "incident": "Campo de fútbol, zona de espectadores junto a la banda. Elena está sentada con apoyo; su acompañante aparta las bolsas y puede pedir ayuda.",
       "severity": "moderada",
-      "initialDialogue": "Tengo temblor y sudor frío; puedo tragar.",
+      "initialDialogue": "Me tiemblan las manos y tengo mucha hambre. Tengo diabetes y he retrasado la comida por el partido. Te entiendo, ayúdame.",
       "medicalValidationStatus": "CLIENT_REVIEW",
       "version": "1",
       "timingBasis": "Tiempos y variación de deterioro son parámetros educativos de autoría, no ventanas fisiológicas demostradas. Revisión médica pendiente.",
       "symptoms": [
-        "Hipoglucemia durante partido"
+        "Hambre y temblor de aparición reciente",
+        "Sudor frío y debilidad referidos"
       ],
       "visibleSigns": [
-        "Los signos se describen en el panel, sin modelo anatómico."
+        "Mantiene conversación y cooperación",
+        "Temblor fino de manos y palidez",
+        "Respiración regular; verificar que puede tragar con seguridad"
       ],
       "references": [
         "glucose",
         "firstaid"
       ],
       "debrief": [
-        "Priorizar amenazas vitales y comunicar cambios. Adaptar a protocolos locales y nivel de entrenamiento."
+        "Los síntomas y el antecedente referido orientan la valoración sin sustituir la comprobación de respuesta.",
+        "Asistir por vía oral únicamente si la deglución es segura; no improvisar cambios de medicación.",
+        "Reevaluar tras el intervalo del guion y comunicar si no mejora; una acción no garantiza recuperación."
       ],
       "initialState": {
         "consciousness": "Conscious",
@@ -27642,9 +27743,9 @@
         "circulation": "normal",
         "sex": "female",
         "age": 40,
-        "appearance": "Paciente adulto placeholder; observar los signos descritos en el panel.",
-        "dialogue": "Me encuentro mal.",
-        "position": "supine",
+        "appearance": "Mantiene conversación y cooperación; Temblor fino de manos y palidez; Respiración regular; verificar que puede tragar con seguridad.",
+        "dialogue": "Me tiemblan las manos y tengo mucha hambre. Tengo diabetes y he retrasado la comida por el partido. Te entiendo, ayúdame.",
+        "position": "seated",
         "heartRate": 78,
         "systolic": 120,
         "diastolic": 80,
@@ -27656,7 +27757,8 @@
         "canSwallow": true,
         "shockAdvised": false,
         "flags": [
-          "hypoglycemia"
+          "hypoglycemia",
+          "pallor"
         ]
       },
       "variation": {
@@ -27671,11 +27773,11 @@
           "male"
         ],
         "witnessStatements": [
-          "Lo vi encontrarse mal hace unos momentos.",
-          "No conozco sus antecedentes; puedo colaborar llamando a emergencias."
+          "Acompañante: «Elena está viendo el partido conmigo, no estaba jugando. Me dijo que había retrasado la comida».",
+          "Acompañante: «Hace poco empezó a sudar y le tiemblan las manos. Sigue contestando; puedo avisar si lo necesitas»."
         ],
         "positions": [
-          "supine"
+          "seated"
         ]
       },
       "actions": [
@@ -27940,7 +28042,7 @@
           "id": "Monitor",
           "action": "Monitor",
           "kind": "required",
-          "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",
+          "feedback": "Comprobar de nuevo respuesta, respiración y cambios; comunicar los hallazgos. La observación no produce mejoría por sí sola.",
           "guard": "",
           "anchorAction": "",
           "prerequisites": [
@@ -27971,7 +28073,8 @@
             "canSwallow": false,
             "setShockAdvised": false,
             "shockAdvised": false
-          }
+          },
+          "repeatPolicy": 1
         },
         {
           "id": "Handover",
