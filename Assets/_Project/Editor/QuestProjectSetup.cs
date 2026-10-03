@@ -20,8 +20,11 @@ namespace EmergencyVR.Editor
         const string Loader = "UnityEngine.XR.OpenXR.OpenXRLoader";
         const string MetaFeature = "com.unity.openxr.feature.metaquest";
         const string TouchFeature = "com.unity.openxr.feature.input.oculustouch";
+        const string FoveationFeature = "com.unity.openxr.feature.foveatedrendering";
         // Meta locks the package name on first upload; do not change it afterwards.
         const string PackageId = "com.vitalvr.training";
+        // Update only after a successful Meta upload. Building is not uploading.
+        public const int LastUploadedVersionCode = 1;
 
         [MenuItem("Emergency VR/3 - Configure Android OpenXR")]
         public static void ConfigureAndroid()
@@ -30,13 +33,12 @@ namespace EmergencyVR.Editor
             DemoProjectBuilder.EnsureFolders();
             PlayerSettings.companyName = "EmergencyVR";
             PlayerSettings.productName = "VITAL VR";
-            PlayerSettings.bundleVersion = "0.1.0";
+            if (string.IsNullOrWhiteSpace(PlayerSettings.bundleVersion)) PlayerSettings.bundleVersion = "0.1.0";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageId);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
-            PlayerSettings.Android.bundleVersionCode = 1;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan });
             PlayerSettings.colorSpace = ColorSpace.Linear;
@@ -76,9 +78,15 @@ namespace EmergencyVR.Editor
             FeatureHelpers.RefreshFeatures(BuildTargetGroup.Android);
             EnableFeature(MetaFeature);
             EnableFeature(TouchFeature);
+            EnableFeature(FoveationFeature);
             var openxr = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
             if (openxr == null) throw new InvalidOperationException("Android OpenXR settings missing.");
             openxr.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+            openxr.foveatedRenderingApi = OpenXRSettings.BackendFovationApi.SRPFoveation;
+            // Keep Meta's migrated copy consistent; it can restore this on feature activation.
+            var metaSettings = new SerializedObject(FeatureHelpers.GetFeatureWithIdForBuildTarget(BuildTargetGroup.Android, MetaFeature));
+            var metaFoveation = metaSettings.FindProperty("m_foveatedRenderingApi");
+            if (metaFoveation != null) { metaFoveation.intValue = (int)OpenXRSettings.BackendFovationApi.SRPFoveation; metaSettings.ApplyModifiedPropertiesWithoutUndo(); }
             EditorUtility.SetDirty(openxr);
             EditorUtility.SetDirty(general);
             EditorUtility.SetDirty(general.Manager);
@@ -127,7 +135,7 @@ namespace EmergencyVR.Editor
             if (general == null || !general.InitManagerOnStart || general.Manager == null ||
                 !general.Manager.activeLoaders.Any(l => l != null && l.GetType().FullName == Loader))
                 issues.Add("OpenXR loader must be enabled and initialized on startup for Android.");
-            foreach (var id in new[] { MetaFeature, TouchFeature })
+            foreach (var id in new[] { MetaFeature, TouchFeature, FoveationFeature })
             {
                 var feature = FeatureHelpers.GetFeatureWithIdForBuildTarget(BuildTargetGroup.Android, id);
                 if (feature == null || !feature.enabled) issues.Add("Enable OpenXR feature: " + id);
@@ -135,6 +143,8 @@ namespace EmergencyVR.Editor
             var openxr = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
             if (openxr == null || openxr.renderMode != OpenXRSettings.RenderMode.SinglePassInstanced)
                 issues.Add("Android OpenXR Render Mode must be Single Pass Instanced.");
+            if (openxr == null || openxr.foveatedRenderingApi != OpenXRSettings.BackendFovationApi.SRPFoveation)
+                issues.Add("Android OpenXR Foveated Rendering API must be SRP Foveation.");
             var playerAssets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
             if (playerAssets.Length > 0)
             {
@@ -171,6 +181,7 @@ namespace EmergencyVR.Editor
         // is stored in the project. VITAL_VERSION_CODE must increase with every upload.
         public static void BuildReleaseApk()
         {
+            var versionCode = ValidateReleaseVersionCode(System.Environment.GetEnvironmentVariable("VITAL_VERSION_CODE"));
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
                 throw new InvalidOperationException("File > Build Profiles > Android > Switch Platform first; wait for compilation.");
             ValidateMenu();
@@ -181,10 +192,11 @@ namespace EmergencyVR.Editor
             if (string.IsNullOrEmpty(keystore) || !File.Exists(keystore) || string.IsNullOrEmpty(keystorePass) ||
                 string.IsNullOrEmpty(alias) || string.IsNullOrEmpty(aliasPass))
                 throw new InvalidOperationException("Release signing requires VITAL_KEYSTORE_PATH, VITAL_KEYSTORE_PASS, VITAL_KEY_ALIAS and VITAL_KEY_PASS.");
-            var versionCode = 1;
-            var requestedCode = System.Environment.GetEnvironmentVariable("VITAL_VERSION_CODE");
-            if (!string.IsNullOrEmpty(requestedCode) && (!int.TryParse(requestedCode, out versionCode) || versionCode < 1))
-                throw new InvalidOperationException("VITAL_VERSION_CODE must be a positive integer.");
+
+            VisualMaterialsSetup.Ensure();
+            CharacterAssetBuilder.Build();
+            PatientRosterAssetBuilder.Build();
+            EmergencyVR.Editor.Environment.EnvironmentLightingBaker.EnsureBaked();
 
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageId);
             PlayerSettings.Android.bundleVersionCode = versionCode;
@@ -201,7 +213,8 @@ namespace EmergencyVR.Editor
             EditorUserBuildSettings.buildAppBundle = false;
             EditorUserBuildSettings.development = false;
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-                scenes = new[] { DemoProjectBuilder.BootstrapPath, DemoProjectBuilder.TrainingPath },
+                scenes = new[] { DemoProjectBuilder.BootstrapPath, DemoProjectBuilder.TrainingPath }
+                    .Concat(EmergencyVR.Editor.Environment.EnvironmentLightingBaker.BakeScenePaths).ToArray(),
                 locationPathName = "Builds/Android/VITAL-VR-" + PlayerSettings.bundleVersion + "-" + versionCode + ".apk",
                 target = BuildTarget.Android,
                 options = BuildOptions.None
@@ -209,6 +222,14 @@ namespace EmergencyVR.Editor
             if (report.summary.result != BuildResult.Succeeded)
                 throw new BuildFailedException("Release APK build failed: " + report.summary.result);
             Debug.Log("Release APK built: " + report.summary.outputPath + ". Not validated on a headset.");
+        }
+
+        public static int ValidateReleaseVersionCode(string requestedCode)
+        {
+            if (string.IsNullOrWhiteSpace(requestedCode) ||
+                !int.TryParse(requestedCode, out var versionCode) || versionCode <= LastUploadedVersionCode)
+                throw new InvalidOperationException("VITAL_VERSION_CODE is required and must be an integer greater than the last uploaded Meta version code (" + LastUploadedVersionCode + ").");
+            return versionCode;
         }
     }
 }

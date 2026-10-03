@@ -85,7 +85,7 @@ namespace EmergencyVR.Desktop
         public void FocusPatient(Vector3 chest)
         {
             Release(); Body.enabled=false;
-            transform.position=new Vector3(chest.x+.9f,.05f,chest.z-1.15f);
+            transform.position=new Vector3(chest.x-.9f,.05f,chest.z-1.15f);
             Body.enabled=true;
             var facing=Quaternion.LookRotation(chest-View.transform.position,Vector3.up).eulerAngles;
             transform.rotation=Quaternion.Euler(0,facing.y,0);

@@ -96,6 +96,10 @@ namespace EmergencyVR.Scenarios
             variations.Initialize(this);
             EmergencyVR.Patient.Presentation.PatientAppearanceController.Attach(this);
             EmergencyVR.Patient.Presentation.PatientSceneStaging.Attach(this);
+            EmergencyVR.Patient.Presentation.CharacterContactShadow.Attach(Procedures.Visuals.gameObject, Procedures.Visuals.Rig.face);
+            var supportingCast = EmergencyVR.Patient.Presentation.ScenarioSupportingCast.Attach(this);
+            EmergencyVR.Dialogue.RosterConversationAudio.Attach(this, supportingCast);
+            EmergencyVR.Audio.ScenarioAmbience.Attach(this);
         }
 
         public bool Select(int index)

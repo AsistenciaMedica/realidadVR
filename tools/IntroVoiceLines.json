@@ -1,0 +1,11 @@
+{
+  "note": "Synthetic Spanish orientation generated locally with Windows speech. No clinical instructions or recorded actor are implied.",
+  "voice": "Microsoft Sabina",
+  "lines": [
+    { "id": "WELCOME", "text": "Bienvenido a Vital V R. Puedes elegir la demo recomendada o practicar los controles en treinta segundos. Esta es una voz sintética de orientación." },
+    { "id": "POINT", "text": "Apunta con un mando al botón y pulsa el gatillo." },
+    { "id": "GRAB", "text": "Coge el cubo verde con Grip, el botón lateral del mando. Después suéltalo." },
+    { "id": "TELEPORT", "text": "Empuja el stick hacia delante, apunta al cuadrado verde del suelo y suelta el stick para viajar." },
+    { "id": "RECENTER", "text": "Pulsa B o Y para traer el menú delante de ti. Puedes usar cualquiera de los dos mandos." }
+  ]
+}

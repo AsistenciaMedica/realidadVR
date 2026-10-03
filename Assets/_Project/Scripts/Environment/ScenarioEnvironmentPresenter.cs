@@ -13,6 +13,7 @@ namespace EmergencyVR.Environment
         readonly Dictionary<GameObject, bool> hidden = new Dictionary<GameObject, bool>();
         readonly Dictionary<Renderer, bool> hiddenTechnicalRenderers = new Dictionary<Renderer, bool>();
         readonly Dictionary<Camera, Color> cameraBackgrounds = new Dictionary<Camera, Color>();
+        readonly Dictionary<Camera, CameraClearFlags> cameraClearFlags = new Dictionary<Camera, CameraClearFlags>();
         readonly List<Mesh> meshes = new List<Mesh>();
         GeneratedEnvironment original;
         PatientController patient;
@@ -30,10 +31,22 @@ namespace EmergencyVR.Environment
         SphericalHarmonicsL2 originalAmbientProbe;
         bool initialized;
         bool ownsLight;
+        bool originalLightEnabled;
+        LightmapData[] originalLightmaps;
+        LightmapsMode originalLightmapsMode;
+        LightProbes originalLightProbes;
+        Material originalSkybox;
+        DefaultReflectionMode originalReflectionMode;
+        Texture originalReflection;
+        bool originalFog;
+        FogMode originalFogMode;
+        Color originalFogColor;
+        float originalFogDensity, originalFogStart, originalFogEnd;
 
         public string CurrentEnvironment { get; private set; }
         public Transform PortableEquipmentAnchor { get; private set; }
         public int CachedEnvironmentCount => modules.Count;
+        public BakedEnvironmentLighting ActiveBakedLighting { get; private set; }
 
         public static void Apply(string environment, PatientController patient)
         {
@@ -73,7 +86,10 @@ namespace EmergencyVR.Environment
                     hidden[source.gameObject] = source.gameObject.activeSelf;
             }
             foreach (var camera in FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
                 cameraBackgrounds[camera] = camera.backgroundColor;
+                cameraClearFlags[camera] = camera.clearFlags;
+            }
             // Reuse the directional already lighting TrainingRoom; no light per cached module.
             foreach (var source in FindObjectsByType<Light>(FindObjectsSortMode.None))
             {
@@ -97,11 +113,21 @@ namespace EmergencyVR.Environment
             originalLightColor = roomLight.color;
             originalLightRotation = roomLight.transform.rotation;
             originalShadows = roomLight.shadows;
+            originalLightEnabled = roomLight.enabled;
             originalAmbientMode = RenderSettings.ambientMode;
             originalAmbientSky = RenderSettings.ambientSkyColor;
             originalAmbientEquator = RenderSettings.ambientEquatorColor;
             originalAmbientGround = RenderSettings.ambientGroundColor;
             originalAmbientProbe = RenderSettings.ambientProbe;
+            originalLightmaps = LightmapSettings.lightmaps;
+            originalLightmapsMode = LightmapSettings.lightmapsMode;
+            originalLightProbes = LightmapSettings.lightProbes;
+            originalSkybox = RenderSettings.skybox;
+            originalReflectionMode = RenderSettings.defaultReflectionMode;
+            originalReflection = RenderSettings.customReflectionTexture;
+            originalFog = RenderSettings.fog; originalFogMode = RenderSettings.fogMode;
+            originalFogColor = RenderSettings.fogColor; originalFogDensity = RenderSettings.fogDensity;
+            originalFogStart = RenderSettings.fogStartDistance; originalFogEnd = RenderSettings.fogEndDistance;
             initialized = true;
         }
 
@@ -121,6 +147,7 @@ namespace EmergencyVR.Environment
                 if (pair.Key != null) pair.Key.enabled = string.IsNullOrEmpty(id) && pair.Value;
             patient.transform.position = originalPatientPosition;
             PortableEquipmentAnchor = null;
+            ActiveBakedLighting = null;
             if (string.IsNullOrEmpty(id)) { RestoreLighting(); return; }
             if (!modules.TryGetValue(id, out var root))
             {
@@ -131,13 +158,39 @@ namespace EmergencyVR.Environment
             PortableEquipmentAnchor = root.transform.Find("PortableEquipmentAnchor");
             if (id != "dental")
                 patient.transform.position = originalPatientPosition + Vector3.up * (.16f - originalTorsoHeight);
-            ApplyLighting(id);
+            ActiveBakedLighting = root.GetComponent<BakedEnvironmentLighting>();
+            if (ActiveBakedLighting != null)
+            {
+                ActiveBakedLighting.Apply();
+                roomLight.enabled = false; // Full baked direct + indirect lighting also reaches moving characters via probes.
+                foreach (var pair in cameraClearFlags)
+                    if (pair.Key != null) pair.Key.clearFlags = ActiveBakedLighting.skybox != null ? CameraClearFlags.Skybox : pair.Value;
+            }
+            else
+            {
+                RestoreBakedSettings();
+                ApplyLighting(id);
+            }
             // Capture reflections once the module and its equipment are visible.
-            foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>()) probe.RenderProbe();
+            foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>())
+                if (probe.mode == ReflectionProbeMode.Realtime) probe.RenderProbe();
         }
 
         GameObject Build(string id)
         {
+            var baked = Resources.Load<GameObject>("BakedEnvironments/" + id + "/Environment");
+            if (baked != null)
+            {
+                var instance = Instantiate(baked, transform, false);
+                instance.name = "Environment_" + id;
+                var lighting = instance.GetComponent<BakedEnvironmentLighting>();
+                if (lighting == null || !lighting.HasVerifiedData(out _))
+                {
+                    Destroy(instance);
+                    throw new System.InvalidOperationException("Invalid baked environment: " + id + ". Regenerate its lighting before building.");
+                }
+                return instance;
+            }
             var root = new GameObject("Environment_" + id);
             root.transform.SetParent(transform, false);
             var builder = new EnvironmentModuleBuilder(root.transform, palette, meshes);
@@ -151,13 +204,13 @@ namespace EmergencyVR.Environment
 
         void ReuseEquipment(Transform root, string id)
         {
+            if (id != "dental") return;
             if (original == null && prefabLibrary == null) return;
             var reused = new GameObject("Reused medical equipment").transform;
             reused.SetParent(root, false);
             // Carry the support furniture with every supported object; the old modules floated the defibrillator/packs.
             Copy("Furniture/MedicalCart", new Vector3(-1.8f, 0, 3.75f));
             Copy("MedicalEquipment/DefibrillatorPlaceholder", new Vector3(-1.8f, .955f, 3.75f));
-            if (id != "dental") return;
             Copy("Furniture/MedicalCabinet", new Vector3(-2.65f, 0, 4.67f));
             Copy("Furniture/Stool", new Vector3(2.85f, 0, 3.8f));
             Copy("Furniture/SideTable", new Vector3(2.8f, 0, 1.4f));
@@ -182,6 +235,7 @@ namespace EmergencyVR.Environment
         void ApplyLighting(string id)
         {
             var outdoor = id == "football";
+            BakedEnvironmentLighting.ApplyDistanceFog(outdoor);
             if (ownsLight) roomLight.gameObject.SetActive(true);
             // Restrained hemispherical fill provides depth without extra realtime lights or transparent surfaces.
             RenderSettings.ambientMode = AmbientMode.Trilight;
@@ -206,6 +260,8 @@ namespace EmergencyVR.Environment
 
         void RestoreLighting()
         {
+            ActiveBakedLighting = null;
+            RestoreBakedSettings();
             if (roomLight != null)
             {
                 roomLight.intensity = originalIntensity;
@@ -220,6 +276,21 @@ namespace EmergencyVR.Environment
             RenderSettings.ambientGroundColor = originalAmbientGround;
             RenderSettings.ambientProbe = originalAmbientProbe;
             foreach (var pair in cameraBackgrounds) if (pair.Key != null) pair.Key.backgroundColor = pair.Value;
+        }
+
+        void RestoreBakedSettings()
+        {
+            LightmapSettings.lightmaps = originalLightmaps;
+            LightmapSettings.lightmapsMode = originalLightmapsMode;
+            LightmapSettings.lightProbes = originalLightProbes;
+            RenderSettings.skybox = originalSkybox;
+            RenderSettings.defaultReflectionMode = originalReflectionMode;
+            RenderSettings.customReflectionTexture = originalReflection;
+            RenderSettings.fog = originalFog; RenderSettings.fogMode = originalFogMode;
+            RenderSettings.fogColor = originalFogColor; RenderSettings.fogDensity = originalFogDensity;
+            RenderSettings.fogStartDistance = originalFogStart; RenderSettings.fogEndDistance = originalFogEnd;
+            if (roomLight != null) roomLight.enabled = originalLightEnabled;
+            foreach (var pair in cameraClearFlags) if (pair.Key != null) pair.Key.clearFlags = pair.Value;
         }
 
         public static void GetCaptureView(string id, out Vector3 position, out Vector3 lookAt)

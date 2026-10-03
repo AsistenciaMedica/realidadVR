@@ -14,6 +14,9 @@ namespace EmergencyVR.Environment.Presentation
             Add("plaster", new Color(.77f, .81f, .80f));
             Add("white", new Color(.88f, .91f, .90f));
             Add("stone", new Color(.49f, .53f, .51f), smooth: .18f);
+            Add("footballStand", new Color(.77f, .78f, .75f), smooth: .12f,
+                map: "concrete_floor_02", tiling: Vector2.one, saved: "FootballStand");
+            Add("shopInterior", Color.white, smooth: .1f, saved: "MallShopInterior");
             Add("navy", new Color(.055f, .10f, .14f), smooth: .13f);
             Add("blue", new Color(.19f, .34f, .39f), smooth: .22f);
             Add("rubber", new Color(.065f, .071f, .073f), smooth: .05f);
@@ -21,8 +24,19 @@ namespace EmergencyVR.Environment.Presentation
             Add("wood", new Color(.42f, .30f, .19f), smooth: .18f);
             Add("glass", new Color(.23f, .37f, .42f), metallic: .15f, smooth: .48f);
             Add("green", new Color(.14f, .28f, .12f), smooth: .04f);
-            Add("grass", new Color(.22f, .34f, .15f), smooth: .02f);
+            Add("grass", new Color(.54f, .95f, .55f), smooth: .03f,
+                map: "aerial_grass_rock", tiling: new Vector2(18, 26), saved: "FootballGrass");
+            Add("grassStripe", new Color(.54f, .95f, .55f), smooth: .03f,
+                map: "aerial_grass_rock", tiling: new Vector2(15.5f, 2), saved: "FootballGrass");
+            // Both the 36x52m pitch and its 31x4m cut strips repeat every two metres.
+            // Keep the UV origin continuous where the two surfaces meet.
+            materials["grassStripe"].SetTextureScale("_BaseMap", new Vector2(15.5f, 2));
+            materials["grassStripe"].SetTextureOffset("_BaseMap", new Vector2(.25f, 0));
+            materials["grassStripe"].SetColor("_BaseColor", new Color(.45f, .80f, .46f));
+            Add("mallFloor", Color.white, smooth: .55f,
+                map: "terrazzo_tiles", tiling: new Vector2(7, 8), saved: "MallFloor");
             Add("accent", new Color(.60f, .15f, .13f), smooth: .17f);
+            Add("safetyGreen", new Color(.025f, .38f, .13f), smooth: .15f);
             Add("lamp", new Color(.82f, .88f, .86f), emission: new Color(.32f, .36f, .34f));
             // Corporate signage has its own token; clinical furniture and surfaces retain their existing palette.
             Add("brandNavy", EmergencyVR.UI.VitalBrand.Navy);

@@ -13,6 +13,7 @@ namespace EmergencyVR.Environment.Presentation
         readonly List<Mesh> ownedMeshes;
         readonly Dictionary<string, List<CombineInstance>> batches = new Dictionary<string, List<CombineInstance>>();
         readonly Dictionary<string, Mesh> primitives = new Dictionary<string, Mesh>();
+        readonly List<Mesh> mappedPrimitives = new List<Mesh>();
         string cluster = "Architecture";
         public EnvironmentGeometry(Transform root, EnvironmentPalette palette, List<Mesh> ownedMeshes)
         {
@@ -31,7 +32,21 @@ namespace EmergencyVR.Environment.Presentation
             if (Quaternion.Dot(rotation, rotation) < .000001f) rotation = Quaternion.identity;
             string key = cluster + "/" + material;
             if (!batches.TryGetValue(key, out var instances)) { instances = new List<CombineInstance>(); batches.Add(key, instances); }
-            instances.Add(new CombineInstance { mesh = primitives[shape], transform = Matrix4x4.TRS(position, rotation, size) });
+            var primitive = primitives[shape];
+            if (material == "footballStand")
+            {
+                // One concrete tile per metre on every face, including the narrow step risers.
+                primitive = Object.Instantiate(primitive);
+                var vertices = primitive.vertices; var normals = primitive.normals; var uv = new Vector2[vertices.Length];
+                for (int i = 0; i < uv.Length; i++)
+                {
+                    var p = Vector3.Scale(vertices[i], size); var n = normals[i];
+                    uv[i] = Mathf.Abs(n.y) > .5f ? new Vector2(p.x, p.z) :
+                        Mathf.Abs(n.x) > .5f ? new Vector2(p.z, p.y) : new Vector2(p.x, p.y);
+                }
+                primitive.uv = uv; primitive.RecalculateTangents(); mappedPrimitives.Add(primitive);
+            }
+            instances.Add(new CombineInstance { mesh = primitive, transform = Matrix4x4.TRS(position, rotation, size) });
         }
         public void Tube(Vector3 from, Vector3 to, float radius, string material)
         {
@@ -52,7 +67,7 @@ namespace EmergencyVR.Environment.Presentation
         public void Surface(string name, Vector3 center, Quaternion rotation, Vector2 size, string material)
         {
             var item = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            Object.Destroy(item.GetComponent<Collider>());
+            Dispose(item.GetComponent<Collider>());
             item.name = name;
             item.transform.SetParent(root, false);
             item.transform.localPosition = center;
@@ -107,13 +122,22 @@ namespace EmergencyVR.Environment.Presentation
                 renderer.receiveShadows = true;
                 ownedMeshes.Add(mesh);
             }
-            foreach (var primitive in primitives.Values) Object.Destroy(primitive);
+            foreach (var primitive in primitives.Values) Dispose(primitive);
+            foreach (var primitive in mappedPrimitives) Dispose(primitive);
+            mappedPrimitives.Clear();
             batches.Clear(); primitives.Clear();
+        }
+
+        static void Dispose(Object value)
+        {
+            if (Application.isPlaying) Object.Destroy(value);
+            else Object.DestroyImmediate(value);
         }
 
         static Mesh Box(float radius)
         {
             var vertices = new List<Vector3>(); var normals = new List<Vector3>(); var triangles = new List<int>();
+            var uv = new List<Vector2>();
             var directions = new[] { Vector3.right, Vector3.left, Vector3.up, Vector3.down, Vector3.forward, Vector3.back };
             float[] grid = radius == 0 ? new[] { -.5f, .5f } : new[] { -.5f, -.5f + radius, .5f - radius, .5f };
             foreach (var normal in directions)
@@ -127,6 +151,7 @@ namespace EmergencyVR.Environment.Presentation
                     var inner = new Vector3(Mathf.Clamp(point.x, -.5f + radius, .5f - radius), Mathf.Clamp(point.y, -.5f + radius, .5f - radius), Mathf.Clamp(point.z, -.5f + radius, .5f - radius));
                     var n = radius == 0 ? normal : (point - inner).normalized;
                     vertices.Add(radius == 0 ? point : inner + n * radius); normals.Add(n);
+                    uv.Add(new Vector2(x + .5f, y + .5f));
                 }
                 for (int y = 0; y < grid.Length - 1; y++) for (int x = 0; x < grid.Length - 1; x++)
                 {
@@ -134,13 +159,15 @@ namespace EmergencyVR.Environment.Presentation
                     triangles.AddRange(new[] { a, b, c, b, d, c });
                 }
             }
-            var mesh = new Mesh(); mesh.SetVertices(vertices); mesh.SetNormals(normals); mesh.SetTriangles(triangles, 0); mesh.RecalculateBounds(); return mesh;
+            var mesh = new Mesh(); mesh.SetVertices(vertices); mesh.SetNormals(normals); mesh.SetUVs(0, uv);
+            mesh.SetTriangles(triangles, 0); mesh.RecalculateTangents(); mesh.RecalculateBounds(); return mesh;
         }
 
         static Mesh Round(float topRadius)
         {
             const int segments = 12;
             var v = new List<Vector3>(); var n = new List<Vector3>(); var t = new List<int>();
+            var uv = new List<Vector2>(); var tangents = new List<Vector4>();
             for (int i = 0; i <= segments; i++)
             {
                 float angle = i * Mathf.PI * 2 / segments;
@@ -148,38 +175,49 @@ namespace EmergencyVR.Environment.Presentation
                 var normal = (radial + Vector3.up * ((1 - topRadius) * .5f)).normalized;
                 v.Add(radial * .5f - Vector3.up * .5f); n.Add(normal);
                 v.Add(radial * (.5f * topRadius) + Vector3.up * .5f); n.Add(normal);
+                uv.Add(new Vector2((float)i / segments, 0)); uv.Add(new Vector2((float)i / segments, 1));
+                var tangent = new Vector4(-Mathf.Sin(angle), 0, Mathf.Cos(angle), -1);
+                tangents.Add(tangent); tangents.Add(tangent);
                 if (i < segments) { int a = i * 2; t.AddRange(new[] { a, a + 1, a + 2, a + 1, a + 3, a + 2 }); }
             }
             for (int cap = 0; cap < 2; cap++)
             {
                 float y = cap == 0 ? -.5f : .5f, radius = cap == 0 ? .5f : topRadius * .5f;
                 int center = v.Count; v.Add(Vector3.up * y); n.Add(cap == 0 ? Vector3.down : Vector3.up);
+                uv.Add(new Vector2(.5f, .5f)); tangents.Add(new Vector4(1, 0, 0, cap == 0 ? 1 : -1));
                 for (int i = 0; i <= segments; i++)
                 {
                     float angle = i * Mathf.PI * 2 / segments;
                     v.Add(new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius)); n.Add(cap == 0 ? Vector3.down : Vector3.up);
+                    uv.Add(new Vector2(.5f + Mathf.Cos(angle) * radius, .5f + Mathf.Sin(angle) * radius));
+                    tangents.Add(new Vector4(1, 0, 0, cap == 0 ? 1 : -1));
                     if (i < segments) t.AddRange(cap == 0 ? new[] { center, center + i + 1, center + i + 2 } : new[] { center, center + i + 2, center + i + 1 });
                 }
             }
-            var mesh = new Mesh(); mesh.SetVertices(v); mesh.SetNormals(n); mesh.SetTriangles(t, 0); mesh.RecalculateBounds(); return mesh;
+            var mesh = new Mesh(); mesh.SetVertices(v); mesh.SetNormals(n); mesh.SetUVs(0, uv); mesh.SetTangents(tangents);
+            mesh.SetTriangles(t, 0); mesh.RecalculateBounds(); return mesh;
         }
 
         static Mesh Sphere()
         {
             const int rings = 8, slices = 12;
             var v = new List<Vector3>(); var n = new List<Vector3>(); var t = new List<int>();
+            var uv = new List<Vector2>(); var tangents = new List<Vector4>();
             for (int r = 0; r <= rings; r++) for (int s = 0; s <= slices; s++)
             {
                 float phi = r * Mathf.PI / rings, theta = s * Mathf.PI * 2 / slices;
                 var point = new Vector3(Mathf.Sin(phi) * Mathf.Cos(theta), Mathf.Cos(phi), Mathf.Sin(phi) * Mathf.Sin(theta));
                 v.Add(point * .5f); n.Add(point);
+                uv.Add(new Vector2((float)s / slices, (float)r / rings));
+                tangents.Add(new Vector4(-Mathf.Sin(theta), 0, Mathf.Cos(theta), -1));
                 if (r < rings && s < slices)
                 {
                     int a = r * (slices + 1) + s, b = a + 1, c = a + slices + 1;
                     t.AddRange(new[] { a, b, c, b, c + 1, c });
                 }
             }
-            var mesh = new Mesh(); mesh.SetVertices(v); mesh.SetNormals(n); mesh.SetTriangles(t, 0); mesh.RecalculateBounds(); return mesh;
+            var mesh = new Mesh(); mesh.SetVertices(v); mesh.SetNormals(n); mesh.SetUVs(0, uv); mesh.SetTangents(tangents);
+            mesh.SetTriangles(t, 0); mesh.RecalculateBounds(); return mesh;
         }
     }
 }

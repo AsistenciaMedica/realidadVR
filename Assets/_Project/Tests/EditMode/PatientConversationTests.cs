@@ -87,6 +87,21 @@ namespace EmergencyVR.Tests
             Assert.That(conversation.Ask(PatientQuestion.WhatHappened).Text, Does.EndWith("…"));
         }
 
+        [Test] public void ThreeQuestionsToUnresponsivePatientKeepOneObservationAndWitnessAvailable()
+        {
+            definition.initialState.consciousness = "Unresponsive";
+            definition.initialState.canSwallow = false;
+            StartAttempt();
+            Assert.That(conversation.CanAskPatient, Is.False);
+            Assert.That(conversation.HasWitness, Is.True);
+            foreach (var question in new[] { PatientQuestion.NameAndAge, PatientQuestion.WhatHappened, PatientQuestion.History })
+                Assert.That(conversation.Ask(question).Text, Is.EqualTo("El paciente no responde a la pregunta."));
+            Assert.That(conversation.Lines.Length, Is.EqualTo(1));
+            Assert.That(conversation.Ask(PatientQuestion.Witness).Speaker, Is.EqualTo("Testigo"));
+            Assert.That(conversation.Lines.Length, Is.EqualTo(2));
+            Assert.That(runtime.Completed, Is.Empty);
+        }
+
         [Test] public void BreathlessAnswersStayShortButConfirmedAgeMatchesWhatWasSaid()
         {
             definition.initialState.respiration = "fast";

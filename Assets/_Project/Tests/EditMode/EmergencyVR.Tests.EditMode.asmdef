@@ -1,7 +1,7 @@
 {
   "name": "EmergencyVR.Tests.EditMode",
   "rootNamespace": "EmergencyVR.Tests",
-  "references": ["EmergencyVR.Core", "EmergencyVR.Runtime", "EmergencyVR.Editor", "EmergencyVR.Tests.Shared", "Unity.XR.CoreUtils", "Unity.XR.Interaction.Toolkit", "Unity.InputSystem", "Unity.ugui"],
+  "references": ["EmergencyVR.Core", "EmergencyVR.Runtime", "EmergencyVR.Editor", "EmergencyVR.Tests.Shared", "Unity.XR.CoreUtils", "Unity.XR.Interaction.Toolkit", "Unity.XR.Management", "Unity.XR.Management.Editor", "Unity.InputSystem", "Unity.ugui"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

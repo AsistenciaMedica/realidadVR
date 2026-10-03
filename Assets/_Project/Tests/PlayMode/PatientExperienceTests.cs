@@ -56,14 +56,32 @@ namespace EmergencyVR.Tests
                 Assert.That(TextOf("Briefing context"), Does.Contain(identity.presentingComplaint), id);
                 Assert.That(flow.Review.Manager.IsRunning, Is.False);
                 flow.BeginTraining(); yield return null;
-                Assert.That(TextOf(definition.clinicalV2 == null ? "Current case" : "Session status"), Does.Contain(identity.displayName), id);
+                string sessionTitle = TextOf(!flow.IsDesktop || definition.clinicalV2 != null ? "Session status" : "Current case");
+                Assert.That(sessionTitle, Does.Contain(identity.displayName), id);
+                Assert.That(sessionTitle, Does.Not.Contain(definition.name), id);
                 Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("—"), id);
                 Assert.That(flow.MonitorValue("bp"), Is.EqualTo("—"), id);
                 flow.TogglePause(); yield return null;
                 Assert.That(TextOf("Pause case"), Is.EqualTo(TrainingExperience.LearnerTitle(definition)), id);
+                Assert.That(TextOf("Pause case"), Does.Not.Contain(definition.name), id);
                 Assert.That(flow.PatientConversation.CanAsk, Is.False);
                 flow.TogglePause(); flow.FinishTraining(); yield return null;
-                Assert.That(TextOf("Subtitle"), Does.Contain(definition.name.Replace(" · piloto migrado", "")), id);
+                Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Results), id);
+                Assert.That(flow.Review.HasResult, Is.True, id);
+                Assert.That(flow.Review.Manager.IsRunning, Is.False, id);
+                Assert.That(flow.Review.Selected.medical.id, Is.EqualTo(id), "Debrief must still belong to this patient.");
+                Assert.That(flow.Review.Selected.medical.name, Is.EqualTo(definition.name), id);
+                if (flow.IsDesktop)
+                    Assert.That(TextOf("Subtitle"), Does.Contain(definition.name.Replace(" · piloto migrado", "")), id);
+                else
+                {
+                    // The compact VR debrief replaces the diagnostic Subtitle with a neutral
+                    // heading, outcome and scrollable review of the finished attempt.
+                    Assert.That(TextOf("Page title"), Is.EqualTo("Tu práctica, paso a paso"), id);
+                    Assert.That(TextOf("Outcome"), Is.Not.Empty, id);
+                    Assert.That(flow.GetComponentsInChildren<Text>().Any(label => label.name == "Result detail" &&
+                        label.isActiveAndEnabled && !string.IsNullOrWhiteSpace(label.text)), Is.True, id);
+                }
             }
         }
 

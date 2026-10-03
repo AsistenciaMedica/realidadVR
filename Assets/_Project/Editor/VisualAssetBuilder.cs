@@ -24,9 +24,19 @@ namespace EmergencyVR.Editor
         }
         void OnPreprocessTexture()
         {
+            if (assetPath.StartsWith(VisualMaterialsSetup.Textures, StringComparison.Ordinal))
+            {
+                VisualMaterialsSetup.ConfigureTexture((TextureImporter)assetImporter, assetPath);
+                return;
+            }
+            if (assetPath == VisualMaterialsSetup.ControllerOcclusionTexture)
+            {
+                VisualMaterialsSetup.ConfigureControllerOcclusion((TextureImporter)assetImporter);
+                return;
+            }
             // The release roster has its own stricter texture budget and Android settings.
             if (assetPath.StartsWith("Assets/ThirdParty/Rocketbox/Roster/", StringComparison.Ordinal)) return;
-            if (!assetPath.StartsWith("Assets/ThirdParty/Rocketbox/", StringComparison.Ordinal) && !assetPath.StartsWith("Assets/_Project/Resources/Visual/Textures/", StringComparison.Ordinal)) return;
+            if (!assetPath.StartsWith("Assets/ThirdParty/Rocketbox/", StringComparison.Ordinal)) return;
             var importer = (TextureImporter)assetImporter;
             importer.maxTextureSize = 2048;
             importer.textureCompression = TextureImporterCompression.Compressed;

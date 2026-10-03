@@ -40,11 +40,11 @@ namespace EmergencyVR.Medical.Interaction
     [DefaultExecutionOrder(-50)]
     public sealed class VRCPRInput : MonoBehaviour
     {
-        CPRInteractionController controller;XROrigin origin;bool engaged;DesktopDemoController desktop;float lookupAt;
+        CPRInteractionController controller;MedicalProcedureRig rig;XROrigin origin;bool engaged,leftContact,rightContact;DesktopDemoController desktop;float lookupAt,nextLeftContact,nextRightContact;
         UnityEngine.XR.InputDevice left,right;
         [Tooltip("Virtual grip-pose offset from the sternum. This must be calibrated for the controller/hand visual, not used as an instrumented depth measurement.")]
         public float stackedGripOffset=.04f;
-        public void Initialize(CPRInteractionController c){controller=c;}
+        public void Initialize(CPRInteractionController c){controller=c;rig=c.GetComponent<MedicalProcedureRig>();}
         void Update()
         {
             if(desktop==null&&Time.unscaledTime>=lookupAt){desktop=FindFirstObjectByType<DesktopDemoController>();lookupAt=Time.unscaledTime+.5f;}
@@ -77,7 +77,14 @@ namespace EmergencyVR.Medical.Interaction
             var anchor=controller.ChestAnchor;var rest=controller.ChestRestPosition;var normal=anchor.up;
             // Contact detection is independent of grip buttons and remains live during AED analysis/shock.
             // Explicit anatomy volumes include head, arms and legs, not just the CPR contact region.
-            controller.SetProximityContact(leftTracked&&controller.IsPatientContact(lp)||rightTracked&&controller.IsPatientContact(rp));
+            bool touchingLeft=leftTracked&&controller.IsPatientContact(lp),touchingRight=rightTracked&&controller.IsPatientContact(rp);
+            controller.SetProximityContact(touchingLeft||touchingRight);
+            if(rig!=null&&rig.Manager.AcceptsInput)
+            {
+                if(touchingLeft&&!leftContact&&Time.unscaledTime>=nextLeftContact){MedicalHaptics.Pulse(XRNode.LeftHand,.10f,.025f,"PatientContact");nextLeftContact=Time.unscaledTime+.2f;}
+                if(touchingRight&&!rightContact&&Time.unscaledTime>=nextRightContact){MedicalHaptics.Pulse(XRNode.RightHand,.10f,.025f,"PatientContact");nextRightContact=Time.unscaledTime+.2f;}
+            }
+            leftContact=touchingLeft;rightContact=touchingRight;
             bool tracked=leftTracked&&rightTracked;
             if(!tracked||!gripping||!controller.CanCompress){if(engaged)controller.ReleaseContact();engaged=false;return;}
             var middle=(lp+rp)*.5f;float error=Vector3.ProjectOnPlane(middle-rest,normal).magnitude;
@@ -90,15 +97,36 @@ namespace EmergencyVR.Medical.Interaction
                 angle=Mathf.Max(Vector3.Angle(lr*Vector3.up,normal),Vector3.Angle(rr*Vector3.up,normal));
             controller.Feed(depth,error,angle,Vector3.Distance(lp,rp)<.16f,"XR_CONTROLLERS");
         }
-        void ClearContact(){if(controller==null)return;if(engaged)controller.ReleaseContact();engaged=false;controller.SetProximityContact(false);}
+        void ClearContact(){if(controller==null)return;if(engaged)controller.ReleaseContact();engaged=false;leftContact=rightContact=false;controller.SetProximityContact(false);}
         void OnDisable(){ClearContact();}
     }
     public static class MedicalHaptics
     {
-        public static void Pulse(float amplitude,float seconds)
+        public readonly struct Request
         {
-            Send(XRNode.LeftHand,amplitude,seconds);Send(XRNode.RightHand,amplitude,seconds);
+            public readonly XRNode Hand;
+            public readonly float Amplitude,Seconds;
+            public readonly string Reason;
+            public readonly bool Simulated;
+            public Request(XRNode hand,float amplitude,float seconds,string reason,bool simulated)
+            {Hand=hand;Amplitude=amplitude;Seconds=seconds;Reason=reason;Simulated=simulated;}
         }
-        static void Send(XRNode node,float amplitude,float seconds){var device=InputDevices.GetDeviceAtXRNode(node);if(device.isValid&&device.TryGetHapticCapabilities(out var c)&&c.supportsImpulse)device.SendHapticImpulse(0,Mathf.Clamp01(amplitude),seconds);}
+        // Records a requested output, not a claim that a physical controller vibrated.
+        public static event System.Action<Request> Requested;
+        public static void Pulse(float amplitude,float seconds,string reason="Procedure")
+        {
+            Pulse(XRNode.LeftHand,amplitude,seconds,reason);Pulse(XRNode.RightHand,amplitude,seconds,reason);
+        }
+        public static void Pulse(XRNode node,float amplitude,float seconds,string reason)
+        {
+            if(node!=XRNode.LeftHand&&node!=XRNode.RightHand||float.IsNaN(amplitude)||float.IsNaN(seconds)||float.IsInfinity(amplitude)||float.IsInfinity(seconds)||amplitude<=0||seconds<=0)return;
+            amplitude=Mathf.Clamp01(amplitude);seconds=Mathf.Min(seconds,.25f);
+            bool simulated=QuestLookSimulation.Enabled;
+            Requested?.Invoke(new Request(node,amplitude,seconds,reason,simulated));
+            if(simulated)return;
+            var device=InputDevices.GetDeviceAtXRNode(node);
+            if(device.isValid&&device.TryGetHapticCapabilities(out var capabilities)&&capabilities.supportsImpulse)
+                device.SendHapticImpulse(0,amplitude,seconds);
+        }
     }
 }

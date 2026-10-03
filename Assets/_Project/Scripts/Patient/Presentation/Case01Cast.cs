@@ -94,6 +94,7 @@ namespace EmergencyVR.Patient.Presentation
             var instance = Instantiate(prefab, position, Quaternion.identity, transform);
             var collider = instance.AddComponent<CapsuleCollider>();
             collider.center = Vector3.up * .9f; collider.height = 1.8f; collider.radius = .22f;
+            CharacterContactShadow.Attach(instance, instance.GetComponentInChildren<SkinnedMeshRenderer>());
             return instance.AddComponent<CharacterAnimator>();
         }
 

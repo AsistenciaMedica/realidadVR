@@ -1,0 +1,16 @@
+Poly Haven assets used by VITAL VR
+
+License: CC0 1.0 Universal — https://polyhaven.com/license
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Kloppenheim 05 HDRI (1K), Greg Zaal
+https://polyhaven.com/a/kloppenheim_05
+SHA-256: 42bea3f025fd616169560422783d5cebde209867280295537f1d2f37bc1e3208
+
+Surface textures (1K): aerial_grass_rock, concrete_floor_02,
+plastered_wall, wood_floor, terrazzo_tiles, rubber_tiles.
+Exterior view: urban_street_04.
+Asset pages: https://polyhaven.com/a/{asset-name}
+Download URLs and checksums are recorded in Assets/ThirdParty/PolyHaven/sources.json.
+
+No account or paid asset is required. Poly Haven is not affiliated with VITAL VR.

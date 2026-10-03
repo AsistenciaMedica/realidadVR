@@ -4,6 +4,7 @@ using System.Linq;
 using EmergencyVR.Scenarios;
 using EmergencyVR.Environment;
 using EmergencyVR.Medical;
+using EmergencyVR.Medical.Interaction;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,45 @@ namespace EmergencyVR.Tests
 {
     public sealed class MedicalIntegrationTests
     {
+        [UnityTest]
+        public IEnumerator PublicEnvironmentsStoreTheSameFunctionalToolsInCabinetsOrPortableCases()
+        {
+            yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
+            var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            var flow = Object.FindFirstObjectByType<EmergencyVR.UI.TrainingExperience>();
+            var aed = review.Procedures.GetComponentsInChildren<MedicalPhysicalTool>(true).Single(t => t.Kind == MedicalToolKind.AED);
+            var chest = review.Procedures.Visuals.ChestAnchor;
+            foreach (var environment in new[] { "gym", "mall", "football", "gym" })
+            {
+                int index = System.Array.FindIndex(review.Catalog.entries, e => e.medical?.environment == environment && e.medical.clinicalV2 == null);
+                flow.Prepare(index);
+                flow.BeginTraining();
+                yield return null;
+                yield return null;
+                Assert.That(review.Manager.IsRunning, Is.True);
+                var presenter = Object.FindFirstObjectByType<ScenarioEnvironmentPresenter>();
+                var module = presenter.transform.Find("Environment_" + environment);
+                Assert.That(module, Is.Not.Null);
+                Assert.That(module.GetComponentsInChildren<Transform>().Any(t => t.name == "MedicalCart" || t.name == "DefibrillatorPlaceholder"), Is.False);
+                Assert.That(review.Procedures.GetComponentsInChildren<Transform>().Any(t => t.name == "Bedside tablet case"), Is.False);
+                Assert.That(aed.CanBeGrabbed, Is.True);
+                Assert.That(review.Procedures.Visuals.ChestAnchor, Is.SameAs(chest));
+                var shelf = module.Find(environment == "football" ? "First aid station shelf collider" : "AED cabinet shelf collider").GetComponent<Collider>();
+                var shell = aed.transform.Find("AED shell").GetComponent<Renderer>().bounds;
+                var sole = new Vector3(shell.center.x, shell.min.y, shell.center.z);
+                Physics.SyncTransforms();
+                Assert.That(shelf.Raycast(new Ray(sole + Vector3.up * .1f, Vector3.down), out var contact, .2f), Is.True,
+                    environment + ": AED sole=" + sole + ", shelf=" + shelf.bounds);
+                Assert.That(Mathf.Abs(contact.point.y - sole.y), Is.LessThan(.025f), "The real grab object must rest on visible support.");
+                var home = aed.transform.position;
+                aed.transform.position += Vector3.up;
+                aed.ResetTool();
+                Assert.That(aed.transform.position, Is.EqualTo(home), "Reset must use the selected environment's storage position.");
+                flow.FinishTraining();
+                yield return null;
+            }
+        }
+
         [UnityTest] public IEnumerator PhysicalCprAndAedReachSharedEngineAndExportMetrics()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");yield return null;

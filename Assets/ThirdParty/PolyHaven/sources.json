@@ -2,6 +2,14 @@
   "license": "https://polyhaven.com/license",
   "assets": [
     {
+      "file": "Assets/_Project/Resources/Visual/Textures/kloppenheim_05_1k.hdr",
+      "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/kloppenheim_05_1k.hdr",
+      "page": "https://polyhaven.com/a/kloppenheim_05",
+      "author": "Greg Zaal",
+      "license": "CC0-1.0",
+      "sha256": "42bea3f025fd616169560422783d5cebde209867280295537f1d2f37bc1e3208"
+    },
+    {
       "file": "Assets/_Project/Resources/Visual/Textures/concrete_floor_02_color.jpg",
       "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_02/concrete_floor_02_diff_1k.jpg",
       "license": "CC0-1.0",

@@ -15,6 +15,7 @@ namespace EmergencyVR.Patient.Presentation
         Quaternion originalBodyOrientation;
         Vector3 chestRest,abdomenRest,headRestPosition,poseRestPosition,jawRestPosition,leftLidRest,rightLidRest;
         Quaternion headRest,poseRest;
+        Vector3 importedHeadForward = Vector3.forward;
         PatientVisualState visual;
         float compression,awareness,excursion,eyeClosure,elapsed,breathingClock,airwayTilt,shockUntil,painWeight,fearWeight,distressWeight;
         Quaternion headOffset=Quaternion.identity,animatedHeadBaseline;
@@ -109,7 +110,13 @@ namespace EmergencyVR.Patient.Presentation
             CaptureFaceBaseline();
             if(rig.chestMotion!=null) chestRest=rig.chestMotion.localPosition;
             if(rig.abdomenMotion!=null) abdomenRest=rig.abdomenMotion.localPosition;
-            if(rig.head!=null) { headRest=rig.head.localRotation;headRestPosition=rig.head.localPosition; }
+            if(rig.head!=null)
+            {
+                headRest=rig.head.localRotation;headRestPosition=rig.head.localPosition;
+                // Imported bone axes are arbitrary: cache the anatomical face direction from the posture frame.
+                if (!rig.provisionalAsset && rig.poseRoot != null)
+                    importedHeadForward = rig.head.InverseTransformDirection(rig.poseRoot.TransformDirection(Vector3.forward)).normalized;
+            }
             if(rig.poseRoot!=null) { poseRest=rig.poseRoot.localRotation;poseRestPosition=rig.poseRoot.localPosition; }
             if(rig.jaw!=null) jawRestPosition=rig.jaw.localPosition;
             if(rig.leftLid!=null) leftLidRest=rig.leftLid.localPosition;
@@ -237,11 +244,16 @@ namespace EmergencyVR.Patient.Presentation
         {
             if(rig.head==null) return;
             if(lookTarget==null && Camera.main!=null) lookTarget=Camera.main.transform;
+            if (!rig.provisionalAsset && rig.poseRoot != null)
+            {
+                AnimateImportedAttention(blend);
+                return;
+            }
             float turn=0,nod=0;
             if(lookTarget!=null && awareness>.001f)
             {
                 var direction=rig.head.parent.InverseTransformDirection(lookTarget.position-rig.head.position);
-                if(direction.sqrMagnitude<16)
+                if(direction.sqrMagnitude<4)
                 {
                     turn=-Mathf.Clamp(Mathf.Atan2(direction.x,Mathf.Max(.01f,direction.y))*Mathf.Rad2Deg,-18,18);
                     nod=Mathf.Clamp(Mathf.Atan2(direction.z,Mathf.Max(.01f,direction.y))*Mathf.Rad2Deg,-12,12);
@@ -261,6 +273,28 @@ namespace EmergencyVR.Patient.Presentation
                 if(rig.leftEye!=null) rig.leftEye.localRotation=eyes;
                 if(rig.rightEye!=null) rig.rightEye.localRotation=eyes;
             }
+        }
+        void AnimateImportedAttention(float blend)
+        {
+            animatedHeadBaseline = rig.head.localRotation;
+            var correction = Quaternion.identity;
+            if (lookTarget != null && awareness > .001f && visual.Consciousness != PatientConsciousness.Unresponsive && !visual.Seizure)
+            {
+                var direction = lookTarget.position - rig.head.position;
+                if (direction.sqrMagnitude > .01f && direction.sqrMagnitude < 4)
+                {
+                    var forward = rig.head.TransformDirection(importedHeadForward);
+                    correction = Quaternion.RotateTowards(Quaternion.identity,
+                        Quaternion.FromToRotation(forward, direction.normalized), 60 * awareness);
+                }
+            }
+            if (airwayTilt > .001f)
+                correction = Quaternion.AngleAxis(-airwayTilt * 15, rig.poseRoot.right) * correction;
+            var localTarget = Quaternion.Inverse(rig.head.parent.rotation) * correction * rig.head.rotation;
+            var offset = Quaternion.Inverse(animatedHeadBaseline) * localTarget;
+            headOffset = Quaternion.Slerp(headOffset, offset, blend);
+            rig.head.localRotation = animatedHeadBaseline * headOffset;
+            wroteImportedHead = true;
         }
         void AnimateFace(float blend)
         {

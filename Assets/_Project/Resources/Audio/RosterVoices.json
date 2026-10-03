@@ -1,0 +1,705 @@
+{
+    "note":  "Synthetic Spanish voices generated locally with Windows SpeechSynthesis. Source text is the unchanged PatientRoster.json; actual playback requires an exact transcript match.",
+    "lines":  [
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Me llamo Lucía. Tengo 28 años.",
+                      "resource":  "Audio/Roster/lucia-000",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Lucía… 28 años…",
+                      "resource":  "Audio/Roster/lucia-001",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Ya te escucho... todavía me da vueltas todo.",
+                      "resource":  "Audio/Roster/lucia-002",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Ya te escucho…",
+                      "resource":  "Audio/Roster/lucia-003",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Había subido las escaleras. Me sentí mareada y después estaba aquí, en el suelo.",
+                      "resource":  "Audio/Roster/lucia-004",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Lucía",
+                      "text":  "Había subido las escaleras…",
+                      "resource":  "Audio/Roster/lucia-005",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Testigo",
+                      "text":  "Llegábamos al gimnasio y dijo que se mareaba. La ayudé a bajar al suelo; no se golpeó.",
+                      "resource":  "Audio/Roster/lucia-006",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "gym-faint",
+                      "speaker":  "Testigo",
+                      "text":  "Dejó de contestarme un momento. Ahora vuelve a escucharme, pero aún se encuentra débil.",
+                      "resource":  "Audio/Roster/lucia-007",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Me llamo Mateo. Tengo 32 años.",
+                      "resource":  "Audio/Roster/mateo-008",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Mateo… 32 años…",
+                      "resource":  "Audio/Roster/mateo-009",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Me tiemblan las manos... no consigo pensar bien.",
+                      "resource":  "Audio/Roster/mateo-010",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Me tiemblan las manos…",
+                      "resource":  "Audio/Roster/mateo-011",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Tengo diabetes... todavía no he comido. Acababa de llegar para entrenar.",
+                      "resource":  "Audio/Roster/mateo-012",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Mateo",
+                      "text":  "Tengo diabetes…",
+                      "resource":  "Audio/Roster/mateo-013",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Testigo",
+                      "text":  "Acaba de llegar para entrenar. Me ha dicho que tiene diabetes y que aún no ha comido.",
+                      "resource":  "Audio/Roster/mateo-014",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "glucose-moderate",
+                      "speaker":  "Testigo",
+                      "text":  "Antes hablaba con normalidad. Ahora le cuesta concentrarse cuando le pregunto qué necesita.",
+                      "resource":  "Audio/Roster/mateo-015",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Me llamo Ricardo. Tengo 54 años.",
+                      "resource":  "Audio/Roster/ricardo-016",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Ricardo… 54 años…",
+                      "resource":  "Audio/Roster/ricardo-017",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Me aprieta aquí... y me cuesta respirar.",
+                      "resource":  "Audio/Roster/ricardo-018",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Me aprieta aquí…",
+                      "resource":  "Audio/Roster/ricardo-019",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Empezó al subir las escaleras. He parado, pero sigue la molestia.",
+                      "resource":  "Audio/Roster/ricardo-020",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Ricardo",
+                      "text":  "Empezó al subir las escaleras…",
+                      "resource":  "Audio/Roster/ricardo-021",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Testigo",
+                      "text":  "Dejó lo que estaba haciendo y se sentó. Dice que la molestia no se le pasa.",
+                      "resource":  "Audio/Roster/ricardo-022",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "chest-pain",
+                      "speaker":  "Testigo",
+                      "text":  "No lo he visto caerse. Yo estaba cerca cuando empezó a pedir ayuda.",
+                      "resource":  "Audio/Roster/ricardo-023",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Me llamo Sara. Tengo 26 años.",
+                      "resource":  "Audio/Roster/sara-024",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Sara… 26 años…",
+                      "resource":  "Audio/Roster/sara-025",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Me falta... el aire.",
+                      "resource":  "Audio/Roster/sara-026",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Me falta…",
+                      "resource":  "Audio/Roster/sara-027",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Tengo asma... mi inhalador está en mi bolsa.",
+                      "resource":  "Audio/Roster/sara-028",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Sara",
+                      "text":  "Tengo asma…",
+                      "resource":  "Audio/Roster/sara-029",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Testigo",
+                      "text":  "Estábamos en la clase. Salió porque le costaba respirar y se sentó aquí.",
+                      "resource":  "Audio/Roster/sara-030",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "asthma",
+                      "speaker":  "Testigo",
+                      "text":  "Esa es su bolsa. Me dijo que lleva allí su inhalador; no sé qué medicación usa.",
+                      "resource":  "Audio/Roster/sara-031",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-unconscious-breathing-v1",
+                      "speaker":  "Rosa",
+                      "text":  "Me llamo Rosa. Tengo 32 años.",
+                      "resource":  "Audio/Roster/rosa-032",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-unconscious-breathing-v1",
+                      "speaker":  "Rosa",
+                      "text":  "Rosa… 32 años…",
+                      "resource":  "Audio/Roster/rosa-033",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-unconscious-breathing-v1",
+                      "speaker":  "Testigo",
+                      "text":  "Se llama Rosa. Estaba conmigo, se encontró mal y la ayudé a bajar. No se golpeó.",
+                      "resource":  "Audio/Roster/rosa-034",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-unconscious-breathing-v1",
+                      "speaker":  "Testigo",
+                      "text":  "La estoy llamando y no me contesta. No sé qué le ocurre.",
+                      "resource":  "Audio/Roster/rosa-035",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-abnormal-breathing-v1",
+                      "speaker":  "Javier",
+                      "text":  "Me llamo Javier. Tengo 36 años.",
+                      "resource":  "Audio/Roster/javier-036",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "review-abnormal-breathing-v1",
+                      "speaker":  "Javier",
+                      "text":  "Javier… 36 años…",
+                      "resource":  "Audio/Roster/javier-037",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "review-abnormal-breathing-v1",
+                      "speaker":  "Testigo",
+                      "text":  "Es Javier, venía conmigo. Se desplomó hace un momento y no me contesta.",
+                      "resource":  "Audio/Roster/javier-038",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "review-abnormal-breathing-v1",
+                      "speaker":  "Testigo",
+                      "text":  "Hay personal de seguridad cerca. Puedo avisarles para que traigan el DEA.",
+                      "resource":  "Audio/Roster/javier-039",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Me llamo Camila. Tengo 31 años.",
+                      "resource":  "Audio/Roster/camila-040",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Camila… 31 años…",
+                      "resource":  "Audio/Roster/camila-041",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Se me fue... por otro lado. Puedo toser.",
+                      "resource":  "Audio/Roster/camila-042",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Se me fue…",
+                      "resource":  "Audio/Roster/camila-043",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Estaba comiendo... y empecé a toser.",
+                      "resource":  "Audio/Roster/camila-044",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Camila",
+                      "text":  "Estaba comiendo…",
+                      "resource":  "Audio/Roster/camila-045",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Testigo",
+                      "text":  "Estábamos comiendo y empezó a toser de repente. Todavía puede decir algunas palabras.",
+                      "resource":  "Audio/Roster/camila-046",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "choking-partial",
+                      "speaker":  "Testigo",
+                      "text":  "No le hemos metido nada en la boca. Acaba de ocurrir y me he quedado a su lado.",
+                      "resource":  "Audio/Roster/camila-047",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "Me llamo Beatriz. Tengo 44 años.",
+                      "resource":  "Audio/Roster/beatriz-048",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "Beatriz… 44 años…",
+                      "resource":  "Audio/Roster/beatriz-049",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "¿Dónde estábamos...? ¿Qué estaba buscando?",
+                      "resource":  "Audio/Roster/beatriz-050",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "¿Dónde estábamos…",
+                      "resource":  "Audio/Roster/beatriz-051",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "No lo recuerdo... quería encontrar algo.",
+                      "resource":  "Audio/Roster/beatriz-052",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Beatriz",
+                      "text":  "No lo recuerdo…",
+                      "resource":  "Audio/Roster/beatriz-053",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Testigo",
+                      "text":  "Soy su familiar. Hace unos minutos hablaba conmigo como siempre; este cambio no es habitual.",
+                      "resource":  "Audio/Roster/beatriz-054",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "confusion",
+                      "speaker":  "Testigo",
+                      "text":  "Se llama Beatriz. Me repite la misma pregunta y no entiendo qué le pasa.",
+                      "resource":  "Audio/Roster/beatriz-055",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Me llamo Luis. Tengo 45 años.",
+                      "resource":  "Audio/Roster/luis-056",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Luis… 45 años…",
+                      "resource":  "Audio/Roster/luis-057",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Tengo mucha sed y estoy algo mareado.",
+                      "resource":  "Audio/Roster/luis-058",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Tengo mucha sed y estoy algo mareado…",
+                      "resource":  "Audio/Roster/luis-059",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Llevo bastante rato caminando y apenas he bebido hoy. Me ayudaron a tumbarme al notar el mareo.",
+                      "resource":  "Audio/Roster/luis-060",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Luis",
+                      "text":  "Llevo bastante rato caminando y apenas he bebido hoy…",
+                      "resource":  "Audio/Roster/luis-061",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Testigo",
+                      "text":  "Dijo que se encontraba débil y lo ayudamos a tumbarse. No se cayó ni se golpeó.",
+                      "resource":  "Audio/Roster/luis-062",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "dehydration",
+                      "speaker":  "Testigo",
+                      "text":  "Ha estado caminando por el centro. No lo conozco y no sé si toma alguna medicación.",
+                      "resource":  "Audio/Roster/luis-063",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "arrest-witnessed",
+                      "speaker":  "Andrés",
+                      "text":  "Me llamo Andrés. Tengo 38 años.",
+                      "resource":  "Audio/Roster/andres-064",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "arrest-witnessed",
+                      "speaker":  "Andrés",
+                      "text":  "Andrés… 38 años…",
+                      "resource":  "Audio/Roster/andres-065",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "arrest-witnessed",
+                      "speaker":  "Testigo",
+                      "text":  "Es Andrés. Se ha desplomado mientras jugábamos, sin chocar con nadie.",
+                      "resource":  "Audio/Roster/andres-066",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "arrest-witnessed",
+                      "speaker":  "Testigo",
+                      "text":  "Puedo ir a buscar el DEA de las instalaciones. Hay alguien que puede llamar a emergencias.",
+                      "resource":  "Audio/Roster/andres-067",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Me llamo Pablo. Tengo 24 años.",
+                      "resource":  "Audio/Roster/pablo-068",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Pablo… 24 años…",
+                      "resource":  "Audio/Roster/pablo-069",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Ya te oigo... sigo un poco mareado.",
+                      "resource":  "Audio/Roster/pablo-070",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Ya te oigo…",
+                      "resource":  "Audio/Roster/pablo-071",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Me había parado en la banda. Empecé a ver borroso y ahora estoy aquí.",
+                      "resource":  "Audio/Roster/pablo-072",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Pablo",
+                      "text":  "Me había parado en la banda…",
+                      "resource":  "Audio/Roster/pablo-073",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Testigo",
+                      "text":  "Había parado de jugar. Dijo que se mareaba y lo ayudamos a bajar; no hubo un choque.",
+                      "resource":  "Audio/Roster/pablo-074",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-faint",
+                      "speaker":  "Testigo",
+                      "text":  "Dejó de contestar un momento. Ahora vuelve a responder, pero aún no se encuentra bien.",
+                      "resource":  "Audio/Roster/pablo-075",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Me llamo Elena. Tengo 34 años.",
+                      "resource":  "Audio/Roster/elena-076",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Elena… 34 años…",
+                      "resource":  "Audio/Roster/elena-077",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Me tiemblan las manos y tengo mucha hambre.",
+                      "resource":  "Audio/Roster/elena-078",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Me tiemblan las manos y tengo mucha hambre…",
+                      "resource":  "Audio/Roster/elena-079",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Tengo diabetes. Se ha alargado el partido y he retrasado la comida.",
+                      "resource":  "Audio/Roster/elena-080",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Elena",
+                      "text":  "Tengo diabetes…",
+                      "resource":  "Audio/Roster/elena-081",
+                      "voice":  "Microsoft Sabina"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Testigo",
+                      "text":  "Estamos viendo el partido. Me ha dicho que tiene diabetes y que no ha comido todavía.",
+                      "resource":  "Audio/Roster/elena-082",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "football-glucose",
+                      "speaker":  "Testigo",
+                      "text":  "Estaba hablando conmigo. Ahora dice que le tiemblan las manos y necesita ayuda.",
+                      "resource":  "Audio/Roster/elena-083",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Me llamo Sergio. Tengo 32 años.",
+                      "resource":  "Audio/Roster/sergio-084",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Sergio… 32 años…",
+                      "resource":  "Audio/Roster/sergio-085",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Estoy agotado... y me dan calambres.",
+                      "resource":  "Audio/Roster/sergio-086",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Estoy agotado…",
+                      "resource":  "Audio/Roster/sergio-087",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Llevo mucho tiempo aquí al sol. He sudado bastante y necesito parar.",
+                      "resource":  "Audio/Roster/sergio-088",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Sergio",
+                      "text":  "Llevo mucho tiempo aquí al sol…",
+                      "resource":  "Audio/Roster/sergio-089",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Testigo",
+                      "text":  "Ha estado ayudando al equipo desde antes de empezar. Hoy hace mucho calor.",
+                      "resource":  "Audio/Roster/sergio-090",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "heat-exhaustion",
+                      "speaker":  "Testigo",
+                      "text":  "Lo ayudamos a tumbarse a la sombra porque no se encontraba bien. Sigue escuchando y respondiendo cuando le hablamos.",
+                      "resource":  "Audio/Roster/sergio-091",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "Me llamo Miguel. Tengo 42 años.",
+                      "resource":  "Audio/Roster/miguel-092",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "Miguel… 42 años…",
+                      "resource":  "Audio/Roster/miguel-093",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "Me cuesta... respirar.",
+                      "resource":  "Audio/Roster/miguel-094",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "Me cuesta…",
+                      "resource":  "Audio/Roster/miguel-095",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "No se me pasa... aunque haya parado.",
+                      "resource":  "Audio/Roster/miguel-096",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Miguel",
+                      "text":  "No se me pasa…",
+                      "resource":  "Audio/Roster/miguel-097",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Testigo",
+                      "text":  "Estaba viendo el partido. Se apartó porque no podía recuperar el aliento.",
+                      "resource":  "Audio/Roster/miguel-098",
+                      "voice":  "Microsoft Raul"
+                  },
+                  {
+                      "scenarioId":  "hypoxia",
+                      "speaker":  "Testigo",
+                      "text":  "No lo conozco. Me acerqué cuando vi que necesitaba ayuda y me he quedado con él.",
+                      "resource":  "Audio/Roster/miguel-099",
+                      "voice":  "Microsoft Raul"
+                  }
+              ]
+}

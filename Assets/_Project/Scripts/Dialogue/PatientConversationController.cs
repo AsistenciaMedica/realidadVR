@@ -29,6 +29,7 @@ namespace EmergencyVR.Dialogue
         string attemptId;
         int witnessLine;
         bool identityObtained;
+        public event Action<PatientConversationLine> LinePresented;
 
         public PatientConversationController(Func<MedicalScenarioRuntime> currentAttempt,
             Func<MedicalScenarioDefinition> currentDefinition, Func<bool> acceptsInput)
@@ -57,6 +58,8 @@ namespace EmergencyVR.Dialogue
             }
         }
         public bool IdentityObtained { get { Synchronize(); return identityObtained; } }
+        public bool CanAskPatient => CanAsk && CanRespond(attempt.Patient);
+        public bool HasWitness => CanAsk && currentDefinition().patientIdentity.witnessLines?.Length > 0;
         public PatientConversationLine[] Lines { get { Synchronize(); return lines.ToArray(); } }
         public string Transcript { get { Synchronize(); return string.Join("\n\n", lines.Select(line => line.ToString())); } }
 
@@ -108,10 +111,20 @@ namespace EmergencyVR.Dialogue
                         question == PatientQuestion.NameAndAge ? identity.displayName + "… " + patient.age + " años…" : ShortReply(reply) + "…", true);
                 else response = new PatientConversationLine(identity.displayName, reply, true);
             }
+            // Keep the observation available to callers while avoiding repeated log
+            // entries when several question shortcuts reach an unresponsive patient.
+            if (lines.Count > 0 && !response.SpokenByPatient && response.Speaker == "Observación" &&
+                lines[lines.Count - 1].Speaker == response.Speaker && lines[lines.Count - 1].Text == response.Text)
+                return lines[lines.Count - 1];
             lines.Add(response);
             if (lines.Count > 6) lines.RemoveAt(0);
+            LinePresented?.Invoke(response);
             return response;
         }
+
+        static bool CanRespond(PatientSnapshot patient) => patient.consciousness != "Unresponsive" &&
+            patient.consciousness != "Drowsy" && patient.respiration != "absent" &&
+            patient.respiration != "agonal" && patient.circulation != "pulseless";
 
         static string ShortReply(string text)
         {

@@ -42,9 +42,22 @@ namespace EmergencyVR.UI
             {
                 var question = questions[i];
                 var button = Button(content, names[i], labels[i], 44 + i % 2 * 242, 344 + i / 2 * 58, 230, 48,
-                    () => { PatientConversation.Ask(question); nextRefresh = 0; });
+                    () => { PatientConversation.Ask(question); nextRefresh = 0; },
+                    question == PatientQuestion.Witness && !PatientConversation.CanAskPatient);
                 button.GetComponentInChildren<UnityEngine.UI.Text>().fontSize = 18;
-                live.Add(() => button.interactable = PatientConversation.CanAsk);
+                button.interactable = question == PatientQuestion.Witness ? PatientConversation.HasWitness : PatientConversation.CanAskPatient;
+                live.Add(() =>
+                {
+                    button.interactable = question == PatientQuestion.Witness ? PatientConversation.HasWitness : PatientConversation.CanAskPatient;
+                    if (question != PatientQuestion.Witness) return;
+                    bool emphasize = PatientConversation.HasWitness && !PatientConversation.CanAskPatient;
+                    var colors = button.colors;
+                    colors.normalColor = emphasize ? Accent : Raised;
+                    colors.highlightedColor = emphasize ? new Color32(129, 240, 214, 255) : new Color32(49, 80, 96, 255);
+                    colors.selectedColor = colors.highlightedColor;
+                    button.colors = colors;
+                    button.GetComponentInChildren<UnityEngine.UI.Text>().color = emphasize ? Background : Ink;
+                });
             }
             var body = ScrollArea(45, 465, 468, 247, 247);
             var transcript = Label(body, "Patient conversation", "", 0, 0, 431, 247, 19, Soft);
@@ -52,7 +65,9 @@ namespace EmergencyVR.UI
             {
                 transcript.text = PatientConversation.Transcript;
                 if (string.IsNullOrWhiteSpace(transcript.text))
-                    transcript.text = "Pregunta y escucha. Aquí se conservarán las respuestas de esta conversación.\n\nLas mediciones se consultan en el monitor.";
+                    transcript.text = PatientConversation.CanAskPatient
+                        ? "Pregunta y escucha. Aquí se conservarán las respuestas de esta conversación.\n\nLas mediciones se consultan en el monitor."
+                        : "El paciente no puede responder. Escucha al testigo y observa al paciente.";
                 float height = Mathf.Max(247, transcript.preferredHeight + 20);
                 transcript.rectTransform.sizeDelta = new Vector2(431, height);
                 ((RectTransform)body).sizeDelta = new Vector2(450, height);

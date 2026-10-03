@@ -7,6 +7,7 @@ using EmergencyVR.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR.Haptics;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -15,6 +16,7 @@ using UnityEngine.XR;
 
 namespace EmergencyVR.Tests
 {
+    [PrebuildSetup(SimulatedXRTestHooks.Setup), PostBuildCleanup(SimulatedXRTestHooks.Setup)]
     public sealed class QuestLookSimulationTests
     {
         QuestLookSimulation simulation;
@@ -96,6 +98,8 @@ namespace EmergencyVR.Tests
         [UnityTest]
         public IEnumerator AuthoredXRRayAndTriggerSelectMenuWithOnlyOneTrackedController()
         {
+            flow.Navigate(ExperiencePage.Environments);
+            yield return null;
             var button = flow.GetComponentsInChildren<Button>().Single(b => b.name == "Environment gym");
             var center = button.transform.TransformPoint(((RectTransform)button.transform).rect.center);
             var forward = flow.InterfaceCanvas.transform.forward;
@@ -105,9 +109,29 @@ namespace EmergencyVR.Tests
             simulation.SetTrigger(XRNode.RightHand, true);
             yield return null; yield return null;
             simulation.SetTrigger(XRNode.RightHand, false);
-            yield return null; yield return null;
+            yield return new WaitForSecondsRealtime(.4f);
             Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Catalog), "Selection must come from the authored XR ray and Input System trigger, with no Button.onClick invocation.");
             Assert.That(flow.SelectedEnvironment, Is.EqualTo("gym"));
+        }
+
+        [UnityTest]
+        public IEnumerator SimulatedHapticBackendAdvertisesAndAcceptsImpulseWithoutNativeRuntime()
+        {
+            foreach (var device in InputSystem.devices.Where(d => d.layout == "XRSimulatedController"))
+            {
+                var capabilities = GetHapticCapabilitiesCommand.Create();
+                Assert.That(device.ExecuteCommand(ref capabilities), Is.GreaterThanOrEqualTo(0));
+                Assert.That(capabilities.numChannels, Is.EqualTo(1));
+                Assert.That(capabilities.supportsImpulse, Is.True);
+                Assert.That(capabilities.supportsBuffer, Is.False);
+                int previous = simulation.SimulatedHapticImpulseCount;
+                var impulse = SendHapticImpulseCommand.Create(0, .15f, .02f);
+                Assert.That(device.ExecuteCommand(ref impulse), Is.GreaterThanOrEqualTo(0));
+                Assert.That(simulation.SimulatedHapticImpulseCount, Is.EqualTo(previous + 1));
+                Assert.That(simulation.LastSimulatedHapticHand, Is.EqualTo(device.usages.Contains(UnityEngine.InputSystem.CommonUsages.LeftHand) ? XRNode.LeftHand : XRNode.RightHand));
+            }
+            yield return null;
+            LogAssert.NoUnexpectedReceived();
         }
 
         [UnityTest]

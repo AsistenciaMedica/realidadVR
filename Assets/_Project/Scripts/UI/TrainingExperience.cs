@@ -19,16 +19,16 @@ using CommonUsages = UnityEngine.XR.CommonUsages;
 
 namespace EmergencyVR.UI
 {
-    public enum ExperiencePage { Welcome, Environments, Catalog, Briefing, Training, Pause, Results, Help, Settings, Finish, Restart, Exit }
+    public enum ExperiencePage { Welcome, Environments, Catalog, Briefing, Training, Pause, Results, Help, Settings, Finish, Restart, Exit, Tutorial }
 
     // Product navigation owns presentation only. ReviewCaseSession remains the case gateway.
     public sealed partial class TrainingExperience : MonoBehaviour
     {
         public ExperiencePage Page { get; private set; } = ExperiencePage.Welcome;
         public ReviewCaseSession Review { get; private set; }
-        public bool BlocksWorldInput => Page != ExperiencePage.Training;
+        public bool BlocksWorldInput => IsTransitioning || (Page != ExperiencePage.Training && Page != ExperiencePage.Tutorial);
         public bool IsDesktop => desktop != null;
-        public bool WorldVisible => Page == ExperiencePage.Training || (Review.Manager.IsRunning && Page != ExperiencePage.Results);
+        public bool WorldVisible => WelcomeWorldVisible || Page == ExperiencePage.Training || (Review.Manager.IsRunning && Page != ExperiencePage.Results);
         public string SelectedEnvironment { get; private set; } = "";
         public int PendingCaseIndex { get; private set; } = -1;
         public Canvas InterfaceCanvas => canvas;
@@ -90,9 +90,13 @@ namespace EmergencyVR.UI
             Review.SelectionChanged += Selected;
             Review.Procedures.MeasurementRecorded += Measured;
             ready = true;
+            InitializeIntro();
+            if (!IsDesktop) recenterAfterTrackingFrames = 2;
             Render();
-            if (System.Environment.GetCommandLineArgs().Contains("-vital-patient-roster-smoke")) StartCoroutine(PatientRosterSmoke());
+            if (System.Environment.GetCommandLineArgs().Contains("-vital-render-budget")) StartCoroutine(RenderBudgetSmoke());
+            else if (System.Environment.GetCommandLineArgs().Contains("-vital-patient-roster-smoke")) StartCoroutine(PatientRosterSmoke());
             else if (System.Environment.GetCommandLineArgs().Contains("-vital-ux-smoke")) StartCoroutine(ExperienceSmoke());
+            else if (System.Environment.GetCommandLineArgs().Contains("-vital-demo-recommended")) StartRecommendedDemo();
         }
 
         void CreateCanvas()
@@ -118,7 +122,7 @@ namespace EmergencyVR.UI
             else
             {
                 canvas.renderMode = RenderMode.WorldSpace; canvas.worldCamera = viewer;
-                surface.sizeDelta = new Vector2(1440, 900); surface.localScale = Vector3.one * .00165f;
+                surface.sizeDelta = new Vector2(1000, 900); surface.localScale = Vector3.one * (VrMenuWidth / 1000);
                 root.AddComponent<TrackedDeviceGraphicRaycaster>();
                 // Retain the authored XR UI input module and all existing controller bindings.
                 if (EventSystem.current == null) new GameObject("VITAL VR XR Events", typeof(EventSystem), typeof(XRUIInputModule));
@@ -129,10 +133,7 @@ namespace EmergencyVR.UI
         public void Recenter()
         {
             if (viewer == null || surface == null || IsDesktop) return;
-            var forward = Vector3.ProjectOnPlane(viewer.transform.forward, Vector3.up).normalized;
-            if (forward.sqrMagnitude < .01f) forward = Vector3.forward;
-            surface.position = viewer.transform.position + forward * 2.2f;
-            surface.rotation = Quaternion.LookRotation(forward, Vector3.up);
+            PositionVrInterface();
         }
 
         public bool PointerOverInterface
@@ -153,7 +154,7 @@ namespace EmergencyVR.UI
         void Measured(MedicalToolKind kind, PatientSnapshot patient, double at)
         {
             if (observedSession != Review.Manager.MedicalSession) { readings.Clear(); observedSession = Review.Manager.MedicalSession; }
-            readings[kind] = new Reading { Patient = patient, Time = at }; nextRefresh = 0;
+            readings[kind] = new Reading { Patient = patient.Copy(), Time = at }; nextRefresh = 0; redraw = true;
         }
 
         void Update()
@@ -171,7 +172,7 @@ namespace EmergencyVR.UI
                 foreach (var hand in new[] { XRNode.LeftHand, XRNode.RightHand })
                     pressed |= (QuestLookSimulation.TryGetSecondaryButton(hand, out var value) ||
                         InputDevices.GetDeviceAtXRNode(hand).TryGetFeatureValue(CommonUsages.secondaryButton, out value)) && value;
-                if (pressed && !secondaryHeld) { Recenter(); if (Page == ExperiencePage.Training || Page == ExperiencePage.Pause) TogglePause(); }
+                if (pressed && !secondaryHeld) { Recenter(); if (Page == ExperiencePage.Tutorial) tutorial?.ConfirmRecenter(); else if (Page == ExperiencePage.Training || Page == ExperiencePage.Pause) TogglePause(); }
                 secondaryHeld = pressed;
             }
             if (redraw) Render();
@@ -180,12 +181,17 @@ namespace EmergencyVR.UI
             UpdateGuideHighlight();
             UpdateAssistKey();
             UpdateWorldKeys();
+            UpdateHeadsetLifecycle();
+            UpdateVrSubtitles();
         }
 
         public void Navigate(ExperiencePage page)
         {
+            if (page == ExperiencePage.Training && (applicationInterrupted || controllersUnavailable &&
+                !ControllerTracked(XRNode.LeftHand) && !ControllerTracked(XRNode.RightHand))) return;
             if (Review.Manager.IsRunning && (page == ExperiencePage.Welcome || page == ExperiencePage.Environments || page == ExperiencePage.Catalog || page == ExperiencePage.Briefing)) return;
             Page = page;
+            if (page == ExperiencePage.Welcome) recommendedStep = -1;
             if (page != ExperiencePage.Training && Review.Manager.IsRunning) Review.Manager.SetPaused(true);
             else if (page == ExperiencePage.Training) Review.Manager.SetPaused(false);
             redraw = true; Recenter();
@@ -207,10 +213,12 @@ namespace EmergencyVR.UI
         public void BeginTraining()
         {
             if (PendingCaseIndex < 0 || Review.Manager.IsRunning) return;
+            RestoreIntroWorld();
             if (!Review.Select(PendingCaseIndex)) return;
             Review.Manager.StartCase();
             if (!Review.Manager.IsRunning) { notice = Review.Manager.Feedback; redraw = true; return; }
-            notice = ""; actionDrawer = patientDrawer = false;
+            notice = ""; actionDrawer = patientDrawer = dialogueDrawer = callDrawer = observedDrawer = guidanceDrawer = false;
+            actionPage = dialoguePage = 0; guidanceText = "";
             desktop?.ResetPosition();
             if (desktop != null && Review.Selected.medical != null) desktop.FocusPatient(Review.Procedures.Visuals.ChestAnchor.position);
             Navigate(ExperiencePage.Training);
@@ -240,13 +248,17 @@ namespace EmergencyVR.UI
         }
         void ApplyVisibility()
         {
+            ApplyIntroWorld();
             viewer.cullingMask = WorldVisible ? originalMask : 1 << 5;
             viewer.backgroundColor = WorldVisible ? originalBackground : Background;
-            viewer.clearFlags = WorldVisible ? originalClear : CameraClearFlags.SolidColor;
+            viewer.clearFlags = WorldVisible && RenderSettings.skybox != null ? CameraClearFlags.Skybox :
+                WorldVisible ? originalClear : CameraClearFlags.SolidColor;
             foreach (var pair in locomotion) if (pair.Key != null) pair.Key.enabled = !BlocksWorldInput && pair.Value;
         }
         void OnDestroy()
         {
+            DisposeIntro();
+            DisposeInterfaceFeedback();
             if (rounded != null) Destroy(rounded);
             if (roundedTexture != null) Destroy(roundedTexture);
             if (xrManager != null && selectionFilter != null) xrManager.selectFilters.Remove(selectionFilter);

@@ -10,8 +10,105 @@ using UnityEngine.TestTools;
 
 namespace EmergencyVR.Tests
 {
+    [DefaultExecutionOrder(1000)]
+    public sealed class PatientAttentionPoseProbe : MonoBehaviour
+    {
+        public Transform Head;
+        public Vector3 LocalFaceForward;
+        public float DirectionError { get; private set; }
+        public Quaternion LocalRotation { get; private set; }
+        public int CapturedFrames { get; private set; }
+
+        void LateUpdate()
+        {
+            if (Head == null) return;
+            DirectionError = Vector3.Angle(Head.TransformDirection(LocalFaceForward), transform.position - Head.position);
+            LocalRotation = Head.localRotation;
+            CapturedFrames++;
+        }
+    }
+
     public sealed class PatientRosterVisualIntegrationTests
     {
+        [UnityTest]
+        public IEnumerator UnsupportedSeatedPatientKeepsAnUprightTrunkAndBothHandsAboveThighs()
+        {
+            yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
+            var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries, e => e.medical?.id == "football-glucose")), Is.True);
+            var visual = review.Procedures.Visuals;
+            var body = visual.Rig.GetComponent<ArticulatedPatient>();
+            var staging = review.GetComponent<PatientSceneStaging>();
+            float deadline = Time.realtimeSinceStartup + 5;
+            while (!staging.SupportVisible && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.That(staging.ValidateSupport(), Is.True, staging.LastValidationFailure);
+            Assert.That(Vector3.Angle(body.neck.position - body.pelvis.position, Vector3.up), Is.LessThan(15),
+                "A backless bench must not support a visibly reclined trunk.");
+            for (int side = 0; side < 2; side++)
+            {
+                var thigh = body.thighs[side].position;
+                var towardKnee = body.calves[side].position - thigh;
+                float along = Vector3.Dot(body.hands[side].position - thigh, towardKnee) / towardKnee.sqrMagnitude;
+                var separation = body.hands[side].position - (thigh + towardKnee * along);
+                Assert.That(along, Is.InRange(.30f, .90f), "Wrist must rest over the thigh rather than hang beside the seat.");
+                Assert.That(separation.magnitude, Is.LessThan(.17f));
+                Assert.That(separation.y, Is.GreaterThan(.025f), "The hand must not penetrate the leg.");
+                Assert.That(body.forearms[side].position.y, Is.LessThan(body.upperArms[side].position.y), "Elbows remain relaxed.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator ConsciousSeatedAndSupinePatientsFollowTheLearnerWithoutTrackingWhenUnresponsive()
+        {
+            yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
+            var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            var visual = review.Procedures.Visuals;
+            var body = visual.Rig.GetComponent<ArticulatedPatient>();
+            var target = new GameObject("Attention test learner");
+            var pose = target.AddComponent<PatientAttentionPoseProbe>();
+            visual.SetLookTarget(target.transform);
+            try
+            {
+                foreach (var id in new[] { "football-glucose", "gym-faint" })
+                {
+                    target.transform.position = Vector3.one * 100;
+                    Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries, e => e.medical?.id == id)), Is.True);
+                    yield return new WaitForSeconds(1.3f);
+                    var head = visual.Rig.head;
+                    var forward = body.skeleton.TransformDirection(Vector3.forward);
+                    var right = body.skeleton.TransformDirection(Vector3.right);
+                    var localFaceForward = head.InverseTransformDirection(forward);
+                    pose.Head = head;
+                    pose.LocalFaceForward = localFaceForward;
+                    var authoredPosture = visual.EffectivePosture;
+                    foreach (float side in new[] { -.55f, .55f })
+                    {
+                        target.transform.position = head.position + forward * 1.1f + right * side;
+                        yield return new WaitForSeconds(.9f);
+                        // Update removes the previous additive head rotation. The probe
+                        // observes the completed LateUpdate pose, also in batchmode.
+                        Assert.That(pose.CapturedFrames, Is.GreaterThan(0));
+                        Assert.That(pose.DirectionError,
+                            Is.LessThan(8), id + " must turn toward the learner using anatomical, not imported bone, axes.");
+                        Assert.That(visual.EffectivePosture, Is.EqualTo(authoredPosture));
+                    }
+                    var unresponsive = review.Selected.medical.initialState.Copy();
+                    unresponsive.consciousness = "Unresponsive";
+                    visual.SetState(unresponsive);
+                    yield return new WaitForSeconds(1.2f);
+                    var restingHead = pose.LocalRotation;
+                    target.transform.position = head.position + forward + right * -1;
+                    yield return new WaitForSeconds(.8f);
+                    Assert.That(Quaternion.Angle(pose.LocalRotation, restingHead), Is.LessThan(1), "An unresponsive patient must not track a moving learner.");
+                }
+            }
+            finally
+            {
+                visual.SetLookTarget(null);
+                Object.Destroy(target);
+            }
+        }
+
         [UnityTest]
         public IEnumerator SymptomaticSeatedPatientsHoldTheirTorsoAndClearTheirHandsForCompressions()
         {

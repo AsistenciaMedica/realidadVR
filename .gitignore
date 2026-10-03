@@ -30,3 +30,5 @@ Thumbs.db
 /demo/.env*
 /.utmp/
 node_modules/
+__pycache__/
+*.pyc

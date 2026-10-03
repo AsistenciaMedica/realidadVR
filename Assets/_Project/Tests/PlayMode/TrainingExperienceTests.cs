@@ -31,6 +31,56 @@ namespace EmergencyVR.Tests
         }
         int MedicalIndex => Array.FindIndex(flow.Review.Catalog.entries, e => e.medical != null && e.medical.clinicalV2 == null);
 
+        [UnityTest] public IEnumerator FirstBriefingDefaultsToGuidedPracticeAndKeepsAnExplicitChoice()
+        {
+            flow.Prepare(MedicalIndex); yield return null;
+            Assert.That(flow.Review.Procedures.TrainingMode, Is.True);
+            Assert.That(flow.GetComponentsInChildren<Button>().Single(b => b.name == "Guided mode")
+                .GetComponentInChildren<Text>().text, Does.StartWith("●"));
+            flow.Review.Procedures.TrainingMode = false;
+            flow.Browse("gym"); flow.Prepare(MedicalIndex); yield return null;
+            Assert.That(flow.Review.Procedures.TrainingMode, Is.False, "Returning to briefing must preserve a deliberate choice.");
+        }
+
+        [UnityTest] public IEnumerator GuidedMonitorOnlyShowsAcquiredReadingsAndDebriefKeepsIdsInTheExportOnly()
+        {
+            flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.id == "arrest-witnessed"));
+            flow.BeginTraining(); yield return null;
+            Assert.That(flow.Review.Procedures.TrainingMode, Is.True);
+            Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("—"));
+            Assert.That(flow.GetComponentsInChildren<Text>().Any(t => t.name == (flow.IsDesktop ? "No measurements yet" : "Acquired reading notice")), Is.True);
+            Assert.That(flow.GetComponentsInChildren<Text>().Any(t => t.name.StartsWith("Value ")), Is.False);
+            var sample = flow.Review.Manager.MedicalSession.Patient;
+            flow.Review.Procedures.RecordMeasurement(MedicalToolKind.Oximeter, sample);
+            yield return null;
+            Assert.That(flow.GetComponentsInChildren<Text>().Where(t => t.name.StartsWith("Value ")).Select(t => t.name),
+                Is.EqualTo(flow.IsDesktop ? new[] { "Value spo2" } : Array.Empty<string>()));
+            Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("Sin lectura"), "A failed acquisition is still a measured observation.");
+            flow.FinishTraining(); yield return null;
+            var result = flow.Review.Manager.MedicalResult;
+            string exportedBefore = JsonUtility.ToJson(result);
+            Assert.That(result.criticalErrors.Any(error => error.StartsWith("CheckSceneSafety:")), Is.True);
+            Assert.That(flow.DisplayClinicalText(result.criticalErrors.First(error => error.StartsWith("CheckSceneSafety:"))),
+                Is.EqualTo("Seguridad de escena: no realizada"));
+            Assert.That(flow.GetComponentsInChildren<Text>().Any(t => t.text.Contains("CheckSceneSafety") || t.text.Contains("CallEmergencyServices")), Is.False);
+            Assert.That(JsonUtility.ToJson(result), Is.EqualTo(exportedBefore));
+        }
+
+        [UnityTest] public IEnumerator UnresponsivePatientQuestionsAreDisabledAndWitnessRemainsAvailable()
+        {
+            flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.id == "arrest-witnessed"));
+            flow.BeginTraining(); yield return null;
+            flow.GetComponentsInChildren<Button>().Single(b => b.name == "Open patient").onClick.Invoke();
+            yield return null; yield return new WaitForSecondsRealtime(.25f);
+            foreach (var name in new[] { "Patient name", "Patient situation", "Patient history" })
+                Assert.That(flow.GetComponentsInChildren<Button>().Single(b => b.name == name).interactable, Is.False);
+            var witness = flow.GetComponentsInChildren<Button>().Single(b => b.name == "Witness account");
+            Assert.That(witness.interactable, Is.True);
+            witness.onClick.Invoke();
+            Assert.That(flow.PatientConversation.Lines.Single().Speaker, Is.EqualTo("Testigo"));
+            Assert.That(flow.Review.Manager.MedicalSession.Completed, Is.Empty);
+        }
+
         [UnityTest] public IEnumerator ProductSelectorShowsOnlyThreeEnvironmentsWithFiveCasesEach()
         {
             var welcomeCards = flow.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Environment ")).Select(b => b.name);
@@ -51,7 +101,7 @@ namespace EmergencyVR.Tests
         {
             var original = flow.Review.SelectedIndex;
             Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Welcome));
-            Assert.That(flow.WorldVisible, Is.False);
+            Assert.That(flow.WorldVisible, Is.EqualTo(!flow.IsDesktop), "VR opens in the welcome room; no clinical attempt has started.");
             Assert.That(flow.GetComponentsInChildren<Text>().Any(t => t.text == VitalBrand.Tagline), Is.True);
             flow.Browse("gym"); yield return null;
             flow.Prepare(MedicalIndex); yield return null;

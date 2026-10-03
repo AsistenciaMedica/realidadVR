@@ -1,0 +1,60 @@
+{
+  "note": "CC0 assets downloaded directly without an account. Freesound files use the public HQ preview of the licensed recording. Original bytes are retained; Unity imports mono 22.05 kHz Vorbis. Runtime applies low spatial volume and crossfades loop seams. Wind is synthesized by its original author. No crowds or voices are represented as clinical evidence.",
+  "assets": [
+    {
+      "path": "Assets/_Project/Resources/Audio/Ambience/speaker-music.ogg",
+      "title": "Chill lofi inspired [loop edit]",
+      "author": "omfgdude; seamless loop edit by qubodup",
+      "source": "https://opengameart.org/content/chill-lofi-inspired-loop-edit",
+      "download": "https://opengameart.org/sites/default/files/chilllofir-loop.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "ccaa02bb60310146f1fa3b1c70be0a5a57f0674b9c4944a22b85b0c03e932cdb",
+      "verifiedOn": "2026-10-02"
+    },
+    {
+      "path": "Assets/_Project/Resources/Audio/Ambience/field-wind.wav",
+      "title": "wind1",
+      "author": "Luke.RUSTLTD",
+      "source": "https://opengameart.org/content/wind1",
+      "download": "https://opengameart.org/sites/default/files/wind1.wav",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "a2856f794fbf77e05f8241dc4adeade7f62fa21c3c9dc49f7725b6c6218060c3",
+      "verifiedOn": "2026-10-02"
+    },
+    {
+      "path": "Assets/_Project/Resources/Audio/Ambience/gym-motor.mp3",
+      "title": "Generator (loop)",
+      "author": "YCbCr",
+      "source": "https://opengameart.org/content/generator-loop",
+      "download": "https://opengameart.org/sites/default/files/loop_generator_1.mp3",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "c5989e33550cefb84e7e224c531662d02530e0484caa814a7fa7e7bed39f2062",
+      "verifiedOn": "2026-10-02"
+    },
+    {
+      "path": "Assets/_Project/Resources/Audio/Ambience/mall-murmur.mp3",
+      "title": "Busy Room Ambience / Small crowd / People talking in background",
+      "author": "Breviceps",
+      "source": "https://freesound.org/people/Breviceps/sounds/457043/",
+      "download": "https://cdn.freesound.org/previews/457/457043_9159316-hq.mp3",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "623eacd59fcfbceb7aa8dde58f8cd6f41eb33a8009dd255b42b20ec0273b6544",
+      "verifiedOn": "2026-10-02"
+    },
+    {
+      "path": "Assets/_Project/Resources/Audio/Ambience/field-whistle.mp3",
+      "title": "Referee whistle sound.wav",
+      "author": "Rosa-Orenes256",
+      "source": "https://freesound.org/people/Rosa-Orenes256/sounds/538422/",
+      "download": "https://cdn.freesound.org/previews/538/538422_11966684-hq.mp3",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sha256": "1bc56409d3439a16fd54bc8fa83affb7e2bc69519b15ac49979d924e895910bf",
+      "verifiedOn": "2026-10-02"
+    }
+  ]
+}

@@ -51,7 +51,7 @@ namespace EmergencyVR.Medical.Interaction
         readonly List<MedicalPhysicalTool> tools=new List<MedicalPhysicalTool>();
         GameObject communicationStand;
         Material white,navy,red,cyan,metal;
-        GameObject equipment,airway,hiddenSceneryAED;bool hiddenSceneryWasActive;MedicalScenarioRuntime lastSession;bool wasRunning;TextMesh bedside;
+        GameObject equipment,airway,hiddenSceneryAED;bool hiddenSceneryWasActive;MedicalScenarioRuntime lastSession;bool wasRunning;
         public static MedicalProcedureRig Attach(ReviewCaseSession review)
         {
             if(review==null)throw new ArgumentNullException(nameof(review));
@@ -104,6 +104,7 @@ namespace EmergencyVR.Medical.Interaction
             Measurements=0;UnsafeAttempts=0;
             if(!medical)return;
             var anchor=GameObject.Find("PortableEquipmentAnchor");equipment.transform.position=anchor!=null?anchor.transform.position:new Vector3(-1.8f,.98f,3.75f);
+            ConfigureStorage(Review.Selected.medical.environment);
             if(initialResponder)
             {
                 if(communicationStand==null)
@@ -112,7 +113,11 @@ namespace EmergencyVR.Medical.Interaction
                     Shape(communicationStand,"Reception side table",new Vector3(0,.85f,0),new Vector3(.48f,.07f,.38f),navy);
                     Shape(communicationStand,"Reception table support",new Vector3(0,.42f,0),new Vector3(.10f,.84f,.10f),metal);
                     var support=communicationStand.AddComponent<BoxCollider>();support.center=new Vector3(0,.85f,0);support.size=new Vector3(.48f,.07f,.38f);
-                    var label=Display(communicationStand,"Emergency telephone sign",new Vector3(0,1.10f,.10f),.012f);label.text="TELÉFONO\n112 · SIMULACIÓN";
+                    Shape(communicationStand,"Telephone sign support",new Vector3(0,1.0f,.13f),new Vector3(.025f,.30f,.025f),metal);
+                    Shape(communicationStand,"Telephone sign board",new Vector3(0,1.15f,.13f),new Vector3(.48f,.24f,.025f),navy);
+                    var label=Display(communicationStand,"Emergency telephone sign",new Vector3(0,1.15f,.112f),.065f);
+                    label.text="TELÉFONO\n112";label.alignment=TextAlignment.Center;
+                    MedicalDeviceTextFit.Fit(label,.44f,.20f);
                 }
                 communicationStand.SetActive(true);communicationStand.transform.position=new Vector3(-1.8f,0,2.8f);
                 foreach(var tool in tools)if(tool.Kind==MedicalToolKind.Phone)tool.transform.position=communicationStand.transform.position+new Vector3(0,.90f,0);
@@ -128,7 +133,6 @@ namespace EmergencyVR.Medical.Interaction
                 Manager.MedicalSession?.Capabilities.usesClinicalStateMachine==true);
             if(wasRunning&&!Manager.IsRunning&&Manager.MedicalResult!=null)Manager.MedicalResult.procedures=Report();
             wasRunning=Manager.IsRunning;
-            if(bedside!=null)bedside.text="VITAL VR\n"+(TrainingMode?Review.PatientReadout():"MODO EVALUACIÓN\nConsultar instrumentos")+"\n"+(TrainingMode?Hint:"");
         }
         public ProcedureMetrics Report()=>new ProcedureMetrics {mode=TrainingMode?"TRAINING":"EVALUATION",cpr=CPR.Metrics,rightPadPlaced=AED.State.RightPad,leftPadPlaced=AED.State.LeftPad,shocks=AED.State.Shocks,measurements=Measurements,unsafeDeviceAttempts=UnsafeAttempts};
         void ResetTools()
@@ -137,20 +141,47 @@ namespace EmergencyVR.Medical.Interaction
             if(communicationStand!=null&&Manager?.MedicalDefinition?.clinicalV2?.capabilities.usesObservedPatientData==true)
                 foreach(var tool in tools)if(tool.Kind==MedicalToolKind.Phone)tool.transform.position=communicationStand.transform.position+new Vector3(0,.90f,0);
         }
+        void ConfigureStorage(string environment)
+        {
+            foreach (var tool in tools)
+            {
+                Vector3 position;
+                switch (tool.Kind)
+                {
+                    case MedicalToolKind.AED:
+                        position = environment == "gym" || environment == "mall"
+                            ? new Vector3(-.68f, .185f, .93f) : new Vector3(-.65f, .03f, 0);
+                        break;
+                    case MedicalToolKind.RightPad: position = new Vector3(-.23f, .03f, -.05f); break;
+                    case MedicalToolKind.LeftPad: position = new Vector3(-.09f, .03f, -.05f); break;
+                    case MedicalToolKind.BloodPressure: position = new Vector3(.12f, .035f, .10f); break;
+                    case MedicalToolKind.Oximeter: position = new Vector3(.29f, .035f, .10f); break;
+                    case MedicalToolKind.Glucose: position = new Vector3(.43f, .035f, .10f); break;
+                    case MedicalToolKind.Phone: position = new Vector3(.44f, .025f, -.10f); break;
+                    case MedicalToolKind.AutoInjector: position = new Vector3(.07f, .03f, -.10f); break;
+                    default: position = new Vector3(.25f, .04f, -.10f); break;
+                }
+                tool.SetStoragePose(position, Quaternion.identity);
+            }
+        }
+
         void BuildKit()
         {
             equipment=new GameObject("Portable medical tools");equipment.transform.SetParent(transform,false);
-            // Fold-out worktop supports the complete kit; the original cart alone is narrower than these tools.
-            Shape(equipment,"Fold-out worktop",new Vector3(0,-.025f,0),new Vector3(2.08f,.04f,.48f),white);
-            var trayCollider=new GameObject("Worktop physics",typeof(BoxCollider));trayCollider.transform.SetParent(equipment.transform,false);trayCollider.transform.localPosition=new Vector3(0,-.025f,0);trayCollider.GetComponent<BoxCollider>().size=new Vector3(2.08f,.04f,.48f);
-            foreach(float x in new[]{-.93f,.93f})foreach(float z in new[]{-.17f,.17f})
-                Shape(equipment,"Folding support",new Vector3(x,-.51f,z),new Vector3(.032f,.94f,.032f),metal);
-            Shape(equipment,"Tablet support",new Vector3(0,.20f,.20f),new Vector3(.03f,.42f,.03f),metal);
-            Shape(equipment,"Bedside tablet case",new Vector3(0,.47f,.20f),new Vector3(.75f,.40f,.032f),navy);
+            Shape(equipment,"First aid case base",new Vector3(.12f,-.012f,0),new Vector3(.92f,.04f,.46f),red);
+            foreach(float x in new[]{-.35f,.59f})
+                Shape(equipment,"First aid case side",new Vector3(x,.035f,0),new Vector3(.025f,.08f,.46f),red);
+            foreach(float z in new[]{-.225f,.225f})
+                Shape(equipment,"First aid case rim",new Vector3(.12f,.035f,z),new Vector3(.92f,.08f,.025f),red);
+            Shape(equipment,"Open first aid case lid",new Vector3(.12f,.25f,.22f),new Vector3(.94f,.43f,.025f),red);
+            Shape(equipment,"First aid white cross vertical",new Vector3(.12f,.25f,.204f),new Vector3(.04f,.18f,.01f),white);
+            Shape(equipment,"First aid white cross horizontal",new Vector3(.12f,.25f,.203f),new Vector3(.18f,.04f,.01f),white);
+            var trayCollider=new GameObject("First aid case physics",typeof(BoxCollider));trayCollider.transform.SetParent(equipment.transform,false);trayCollider.transform.localPosition=new Vector3(.12f,-.012f,0);trayCollider.GetComponent<BoxCollider>().size=new Vector3(.92f,.04f,.46f);
             var caseRoot=new GameObject("Interactive AED");caseRoot.transform.SetParent(equipment.transform,false);caseRoot.transform.localPosition=new Vector3(0,.09f,0);
             Shape(caseRoot,"AED shell",Vector3.zero,new Vector3(.32f,.12f,.25f),white);
             Shape(caseRoot,"Rubber trim",new Vector3(0,-.025f,0),new Vector3(.34f,.05f,.27f),navy);
-            var lid=Shape(caseRoot,"AED lid",new Vector3(0,.075f,.06f),new Vector3(.32f,.03f,.13f),cyan);AED.Lid=lid.transform;
+            var aedLid=Shape(caseRoot,"AED lid",new Vector3(0,.075f,.06f),new Vector3(.32f,.03f,.13f),cyan);AED.Lid=aedLid.transform;
+            Shape(caseRoot,"AED carry handle",new Vector3(0,.08f,.15f),new Vector3(.14f,.025f,.035f),navy);
             Shape(caseRoot,"AED display glass",new Vector3(-.035f,.067f,-.06f),new Vector3(.215f,.005f,.09f),navy);
             AED.Display=Display(caseRoot,"AED screen",new Vector3(-.035f,.071f,-.06f),.022f);AED.Display.transform.localRotation=Quaternion.Euler(90,0,0);
             MedicalDeviceTextFit.Fit(AED.Display,.185f,.065f);
@@ -167,7 +198,7 @@ namespace EmergencyVR.Medical.Interaction
             var collider=airway.AddComponent<BoxCollider>();collider.size=new Vector3(.1f,.08f,.12f);
             var target=airway.AddComponent<MedicalWorldButton>();target.Initialize(this,()=>{if(SubmitNext("OpenAirway")){Visuals.SetAirwayTilt(1);Hint="Vía aérea representada; revisar respiración.";}});
             var simple=airway.AddComponent<XRSimpleInteractable>();simple.selectEntered.AddListener(_=>target.Use());
-            bedside=Display(equipment,"Bedside tablet",new Vector3(0,.47f,.178f),.007f);
+            // Measurements remain on the actual instruments; public first-aid kits have no hospital monitor.
         }
         void Pad(bool right,Vector3 position)
         {

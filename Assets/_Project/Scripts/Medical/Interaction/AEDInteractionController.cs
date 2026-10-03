@@ -12,10 +12,16 @@ namespace EmergencyVR.Medical.Interaction
         public TextMesh Display;
         float analysisStarted;
         bool contactWarning;
+        AEDVoiceController voice;
         bool Running => rig != null && rig.Manager != null && rig.Manager.AcceptsInput && rig.Manager.MedicalSession != null;
         bool Touching => rig.CPR != null && rig.CPR.Touching;
 
-        public void Initialize(MedicalProcedureRig rig) { this.rig = rig; }
+        public void Initialize(MedicalProcedureRig rig)
+        {
+            this.rig = rig;
+            voice = gameObject.AddComponent<AEDVoiceController>();
+            voice.Initialize(rig);
+        }
         public void RegisterPad(MedicalPhysicalTool pad, bool right)
         {
             if (right) { rightPad = pad; rightCable = Cable(); }
@@ -85,7 +91,7 @@ namespace EmergencyVR.Medical.Interaction
                 if (!shockable) { SetDisplay("DESCARGA BLOQUEADA\nREVISAR ESTADO"); return; }
                 if (rig.SubmitNext("DeliverAEDShock") && State.Shock(Touching, shockable))
                 {
-                    rig.Visuals.TriggerShockReaction(); rig.Audio.Pulse(.12f, 450); MedicalHaptics.Pulse(.25f, .06f);
+                    rig.Visuals.TriggerShockReaction(); rig.Audio.Pulse(.12f, 450); MedicalHaptics.Pulse(.25f, .06f,"AEDShock");
                     SetDisplay("DESCARGA SIMULADA\nREANUDAR RCP");
                 }
             }
@@ -110,7 +116,7 @@ namespace EmergencyVR.Medical.Interaction
                 if (close) rig.Hint = "Comprueba respaldo retirado y orientación del parche.";
                 return false;
             }
-            pad.AttachTo(target); MedicalHaptics.Pulse(.13f, .04f); rig.Audio.Pulse(.04f, 700);
+            pad.AttachTo(target); pad.FeedbackPulse(.13f, .04f,"PadPlaced"); rig.Audio.Pulse(.04f, 700);
             if (State.RightPad && State.LeftPad)
             {
                 rig.SubmitNext("AttachAEDPads"); SetDisplay("PARCHES CONECTADOS\nINICIAR ANÁLISIS");
@@ -147,7 +153,11 @@ namespace EmergencyVR.Medical.Interaction
         {
             rig.UnsafeAttempts++; SetDisplay(message); rig.Hint = "Contacto detectado: retirar las manos antes de utilizar el DEA.";
         }
-        void SetDisplay(string text) { if (Display != null) Display.text = text; }
+        void SetDisplay(string text)
+        {
+            if (Display != null) Display.text = text;
+            if (voice != null) voice.Present(text, Device, Running);
+        }
         void Draw(LineRenderer line, MedicalPhysicalTool pad)
         {
             if (line == null || pad == null) return;

@@ -159,9 +159,12 @@ namespace EmergencyVR.UI
                 {
                     Require(PatientConversation.Lines.Length == 0, "Conversation from a previous attempt leaked into " + id);
                     Click("Open patient"); yield return null;
-                    Click("Patient name"); yield return null;
-                    Click("Patient situation"); yield return null;
-                    Click("Patient history"); yield return null;
+                    if (PatientConversation.CanAskPatient)
+                    {
+                        Click("Patient name"); yield return null;
+                        Click("Patient situation"); yield return null;
+                        Click("Patient history"); yield return null;
+                    }
                     Click("Witness account"); yield return null;
                     sample.dialogueAvailable = PatientConversation.CanAsk;
                     sample.transcript = PatientConversation.Transcript;
@@ -198,12 +201,15 @@ namespace EmergencyVR.UI
             var previousPosition = viewer.transform.position;
             var previousRotation = viewer.transform.rotation;
             bool previousCanvas = canvas.enabled;
+            bool previousSubtitlesSuppressed = suppressVrSubtitles;
             var responderRenderers = Review.Procedures.Hands.GetComponentsInChildren<ArticulatedHand>(true)
                 .SelectMany(hand => hand.GetComponentsInChildren<Renderer>(true)).Distinct().ToArray();
             var rendering = responderRenderers.ToDictionary(renderer => renderer, renderer => renderer.forceRenderingOff);
             try
             {
                 canvas.enabled = false;
+                suppressVrSubtitles = true;
+                if (vrSubtitleCanvas != null) vrSubtitleCanvas.gameObject.SetActive(false);
                 // This actor record has no operator viewpoint. Hide only the responder's hands,
                 // sleeves and watch; retain the patient, equipment, furniture and all scenery.
                 foreach (var renderer in responderRenderers) renderer.forceRenderingOff = true;
@@ -211,7 +217,7 @@ namespace EmergencyVR.UI
                 Require(FindPatientCaptureView(bounds, side), "No unobstructed full-body capture position for " + name);
                 // TrackedPoseDriver, body animation and gaze need frames after the
                 // simulated HMD pose changes; rendering immediately captures stale eyes.
-                yield return null; yield return new WaitForSecondsRealtime(.5f); yield return new WaitForEndOfFrame();
+                yield return null; yield return new WaitForSecondsRealtime(.8f); yield return new WaitForEndOfFrame();
                 Debug.Log("VITAL_PATIENT_CAPTURE " + name + " camera=" + viewer.transform.position.ToString("F3"));
                 SaveCaptureEvidence(directory, name, side ? "actor-seat-contact-inspection-no-interface" : "actor-portrait-inspection-no-interface");
             }
@@ -219,6 +225,7 @@ namespace EmergencyVR.UI
             {
                 foreach (var pair in rendering) if (pair.Key != null) pair.Key.forceRenderingOff = pair.Value;
                 canvas.enabled = previousCanvas;
+                suppressVrSubtitles = previousSubtitlesSuppressed;
                 SetCaptureHeadPose(previousPosition, previousRotation);
             }
         }

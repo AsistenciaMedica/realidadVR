@@ -1,6 +1,7 @@
 {
   "name": "EmergencyVR.Runtime",
   "rootNamespace": "EmergencyVR",
+  "allowUnsafeCode": true,
   "references": [
     "EmergencyVR.Core",
     "Unity.XR.Interaction.Toolkit",

@@ -1,0 +1,76 @@
+Gym models ? CC BY 4.0
+License: https://creativecommons.org/licenses/by/4.0/
+
+Models are scaled/placed for VITAL VR. Encoded source images were extracted without pixel modification into shared SHA256/channel files. GLB geometry, material parameters, UVs and normals were retained; Unity imports textures at <=1024 with mipmaps, ASTC 6x6 on Android. Original and derived hashes are in Assets/ThirdParty/GymModels/sources.json. Reproduce: python tools/Externalize-GymTextures.py.
+
+Treadmill Machine ? sousinho
+https://sketchfab.com/3d-models/faed3a2a275b4fd68089e1d8bdfb7f89
+License: CC-BY-4.0
+
+treadmill ProForm ? EmanuelRestrepoVelez
+https://sketchfab.com/3d-models/03e4ff99ecc24e5f8ea49d4e8df876e8
+License: CC-BY-4.0
+
+Elliptical trainer ? r.m.kowalewski
+https://sketchfab.com/3d-models/ebab27ba3cd14c75a36643919d3c2a71
+License: CC-BY-4.0
+
+Weight Room Set 1 ? tylerhalterman
+https://sketchfab.com/3d-models/1d18318c3e81407b8321159fb3424026
+License: CC-BY-4.0
+
+Weight Room Set 2 ? tylerhalterman
+https://sketchfab.com/3d-models/fa481412927e43dfbeab9f6da464c15b
+License: CC-BY-4.0
+
+Gym Lat Pulldown ? neilken
+https://sketchfab.com/3d-models/50fb1df222e6468f9d7ada63c45d673d
+License: CC-BY-4.0
+
+Gym Machine_ Body Solid ? Huunguyen98
+https://sketchfab.com/3d-models/4d1d0fb6879f42a9bccf1666a752c276
+License: CC-BY-4.0
+
+kettlebell ? anesbe89
+https://sketchfab.com/3d-models/2e09cbcbde964a658d51838e2f9866bb
+License: CC-BY-4.0
+
+Weight Room Set 3 ? tylerhalterman
+https://sketchfab.com/3d-models/8bfa29f8961b40258d5d1dc63d19c9a2
+License: CC-BY-4.0
+
+Weight Lifting Plates ? Dakota.Hinkle
+https://sketchfab.com/3d-models/f26c89d6991542af9ab37970b4683fb9
+License: CC-BY-4.0
+
+Yoga Mat ? JeremyGrayson
+https://sketchfab.com/3d-models/fd65a9c9aa634e97bd70cd184c2fd152
+License: CC-BY-4.0
+
+Vintage / Old punching bag ? maxsbond.work
+https://sketchfab.com/3d-models/487e01cd3eea41c8a49062956c79eb66
+License: CC-BY-4.0
+
+Lockers - By Velivian Fesothe ? fesothe
+https://sketchfab.com/3d-models/fd38da81ce0e41f29869c0dc7d051d2c
+License: CC-BY-4.0
+
+Water cooler ? tboiston
+https://sketchfab.com/3d-models/4b88c4c4e94c497ca39f831f374e89fc
+License: CC-BY-4.0
+
+Wall Clock ? felipeprodev
+https://sketchfab.com/3d-models/2e964ac0242e4b1789adfd9549c653dc
+License: CC-BY-4.0
+
+first aid kit ? sergeykuchmin
+https://sketchfab.com/3d-models/5a8e5955aa1f4cab89bca44c279349a8
+License: CC-BY-4.0
+
+Office Phone ? DanTronMcTronDan
+https://sketchfab.com/3d-models/ecefa2359e574c69b0926ea253646332
+License: CC-BY-4.0
+
+IPHONE X LOWPOLY ? FredDrabble
+https://sketchfab.com/3d-models/3067c70fb7d14bd3b2b03e3246d6052d
+License: CC-BY-4.0

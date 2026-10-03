@@ -15,7 +15,6 @@ namespace EmergencyVR.UI
             if(UsesObservedData) return ObservedMonitorValue(key);
             var p = Review.Manager.MedicalSession?.Patient;
             if (p == null) return "—";
-            if (Review.Procedures.TrainingMode) return Value(p, key);
             var kind = key == "bp" ? MedicalToolKind.BloodPressure : key == "glucose" ? MedicalToolKind.Glucose : MedicalToolKind.Oximeter;
             if (key != "bp" && key != "glucose" && key != "spo2") return "—";
             return readings.TryGetValue(kind, out var measurement) ? Value(measurement.Patient, key) : "—";
@@ -36,7 +35,6 @@ namespace EmergencyVR.UI
         }
         string ReadingTime(string key)
         {
-            if (Review.Procedures.TrainingMode) return "Simulado · en directo";
             var kind = key == "bp" ? MedicalToolKind.BloodPressure : key == "glucose" ? MedicalToolKind.Glucose : MedicalToolKind.Oximeter;
             if (key != "bp" && key != "glucose" && key != "spo2") return "No monitorizado";
             return readings.TryGetValue(kind, out var r) ? "Medido a " + TimeLabel(r.Time) : "Sin medir";
@@ -69,19 +67,27 @@ namespace EmergencyVR.UI
             Box(content, "Clinical monitor", 1054, 118, 364, 714, Background, true, true);
             Label(content, "Monitor heading", "MONITOR DEL PACIENTE", 1072, 140, 327, 30, 20, Ink, true);
             Label(content, "Monitor mode", Review.Procedures.TrainingMode ? "PRÁCTICA GUIADA · SIMULACIÓN" : "EVALUACIÓN · ÚLTIMAS LECTURAS", 1072, 180, 330, 25, 15, Accent, true);
-            Vital("hr", "FC", "latidos/min", 1070, 222, 159, Accent);
-            Vital("spo2", "SpO₂", "%", 1240, 222, 160, new Color32(126, 197, 239, 255));
-            Vital("bp", "PRESIÓN ARTERIAL", "mmHg", 1070, 360, 330, Ink);
-            Vital("rr", "FR", "resp/min", 1070, 498, 159, Ink);
-            Vital("glucose", "GLUCEMIA", "mmol/L", 1240, 498, 160, Amber);
-            var source = Label(content, "Measurement provenance", "", 1073, 643, 324, 96, 17, Soft);
-            Bind(source, () => "SpO₂  ·  " + ReadingTime("spo2") + "\nTA  ·  " + ReadingTime("bp") + "\nGlucemia  ·  " + ReadingTime("glucose"));
-            Label(content, "Monitor note", Review.Procedures.TrainingMode ? "Valores del paciente simulado.\nInformación adicional en su ficha." : "Una lectura no equivale a monitorización continua. Repite la medición cuando corresponda.", 1073, 750, 324, 66, 17, Soft);
+            var measuredKeys = new[] { "spo2", "bp", "glucose" }.Where(key => MonitorValue(key) != "—").ToArray();
+            if (measuredKeys.Length == 0)
+                Label(content, "No measurements yet", "Aún no has medido constantes.\n\nUtiliza los instrumentos para obtener una lectura.", 1073, 242, 324, 188, 23, Soft);
+            for (int i = 0; i < measuredKeys.Length; i++)
+            {
+                string key = measuredKeys[i];
+                Vital(key, key == "spo2" ? "SpO₂" : key == "bp" ? "PRESIÓN ARTERIAL" : "GLUCEMIA",
+                    key == "spo2" ? "%" : key == "bp" ? "mmHg" : "mmol/L", 1070, 222 + i * 138, 330,
+                    key == "glucose" ? Amber : key == "spo2" ? new Color32(126, 197, 239, 255) : Ink);
+            }
+            if (measuredKeys.Length > 0)
+            {
+                var source = Label(content, "Measurement provenance", "", 1073, 643, 324, 96, 17, Soft);
+                Bind(source, () => string.Join("\n", measuredKeys.Select(key => (key == "spo2" ? "SpO₂" : key == "bp" ? "TA" : "Glucemia") + "  ·  " + ReadingTime(key))));
+                Label(content, "Monitor note", "Una lectura no equivale a monitorización continua. Repite la medición cuando corresponda.", 1073, 750, 324, 66, 17, Soft);
+            }
 
             Box(content, "Feedback surface", 26, 752, 998, 116, Background, true, true);
             Label(content, "Feedback title", "REGISTRO DE LA SESIÓN", 44, 766, 952, 26, 16, Accent, true);
             var feedback = Label(content, "Feedback", "", 44, 800, 957, 54, 22);
-            Bind(feedback, () => Review.Manager.Feedback);
+            Bind(feedback, () => DisplayClinicalText(Review.Manager.Feedback));
             if (showHints)
             {
                 Box(content, "Interaction hint surface", 560, 623, 464, 111, Background);
@@ -128,7 +134,23 @@ namespace EmergencyVR.UI
                 return text + p.dialogue + "\n\n" + (Review.Procedures.TrainingMode ? "Datos de ayuda del caso simulado." : "Observa al paciente y utiliza los instrumentos para obtener las lecturas.");
             });
         }
-        string ActionName(string id) => Review.ActionIds.Contains(id) ? Review.ActionLabel(id) : Friendly(id);
+        string ActionName(string id) => Review.ActionIds.Contains(id) ? Review.ActionLabel(id) : "Observación de la sesión";
+
+        // IDs remain unchanged in the medical DTO/export. Only learner-facing text is formatted here.
+        public string DisplayClinicalText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text ?? "";
+            int separator = text.IndexOf(':');
+            string id = separator < 0 ? "" : text.Substring(0, separator);
+            if (Review.ActionIds.Contains(id) && text.IndexOf("omisión crítica", StringComparison.OrdinalIgnoreCase) >= 0)
+                return ActionName(id) + ": no realizada";
+            foreach (var action in Review.ActionIds.OrderByDescending(value => value.Length))
+                text = System.Text.RegularExpressions.Regex.Replace(text,
+                    @"(?<![A-Za-z0-9_])" + System.Text.RegularExpressions.Regex.Escape(action) + @"(?![A-Za-z0-9_])", ActionName(action));
+            return text.Replace("normalBreathing", "respiración normal").Replace("noTrauma", "ausencia de traumatismo")
+                .Replace("noShock", "descarga no indicada").Replace("seizureStopped", "convulsión finalizada")
+                .Replace("CRITICAL_FAILURE", "resultado crítico");
+        }
 
         void DrawResults()
         {
@@ -172,7 +194,7 @@ namespace EmergencyVR.UI
                 line("Qué ocurrió", true);
                 line($"{result.correctActions.Length} acciones correctas · {result.incorrectActions.Length} incorrectas · {result.omittedActions.Length} omitidas", false);
                 line("Errores críticos", true);
-                line(result.criticalErrors.Length == 0 ? "No se registraron errores críticos." : string.Join("\n", result.criticalErrors), false);
+                line(result.criticalErrors.Length == 0 ? "No se registraron errores críticos." : string.Join("\n", result.criticalErrors.Select(DisplayClinicalText)), false);
                 line("Para tu siguiente práctica", true);
                 foreach (var recommendation in result.recommendations) line(recommendation, false);
                 foreach (var section in result.sections) line(section.name + "  ·  " + (section.measured ? section.scorePercent.ToString("0") + "/100" : "No evaluado"), false);
@@ -187,7 +209,9 @@ namespace EmergencyVR.UI
             {
                 line("La evolución de tu sesión", true);
                 if (result.timeline.Length == 0) line("No se registraron eventos.", false);
-                foreach (var entry in result.timeline) line(TimeLabel(entry.elapsedSeconds) + "  ·  " + ActionName(entry.id) + "\n" + Friendly(entry.disposition) + "  ·  " + entry.message, false);
+                foreach (var entry in result.timeline) line(TimeLabel(entry.elapsedSeconds) + "  ·  " +
+                    (entry.section == "Timeline" ? "Evolución del paciente" : ActionName(entry.actionId)) + "\n" +
+                    Friendly(entry.disposition) + "  ·  " + DisplayClinicalText(entry.message), false);
             }
             else if (resultTab == 3)
             {
@@ -212,7 +236,7 @@ namespace EmergencyVR.UI
             }
             ((RectTransform)body).sizeDelta = new Vector2(996, Mathf.Max(351, y));
             Button(content, "Repeat training", "Repetir entrenamiento", 48, 764, 304, 56, Repeat, true);
-            Button(content, "Return catalog", "Elegir otro entrenamiento", 377, 764, 422, 56, () => Browse(SelectedEnvironment));
+            Button(content, ResultNextName, ResultNextText, 377, 764, 422, 56, NextFromResult);
             Button(content, "Export results", "Guardar informe", 821, 764, 276, 56, () =>
             {
                 try { Review.ExportResult(); notice = "Informe JSON guardado en ReviewResults."; }

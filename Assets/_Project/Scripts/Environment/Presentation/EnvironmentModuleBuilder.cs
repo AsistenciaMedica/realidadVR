@@ -8,8 +8,9 @@ namespace EmergencyVR.Environment.Presentation
     {
         readonly EnvironmentGeometry g;
         readonly Transform root;
-        public EnvironmentModuleBuilder(Transform root, EnvironmentPalette palette, List<Mesh> meshes)
-        { this.root = root; g = new EnvironmentGeometry(root, palette, meshes); }
+        readonly bool forBaking;
+        public EnvironmentModuleBuilder(Transform root, EnvironmentPalette palette, List<Mesh> meshes, bool forBaking = false)
+        { this.root = root; this.forBaking = forBaking; g = new EnvironmentGeometry(root, palette, meshes); }
 
         public void Build(string id)
         {
@@ -21,19 +22,40 @@ namespace EmergencyVR.Environment.Presentation
                 else if (id == "gym") Gym();
                 else Mall();
             }
-            g.Cluster("Portable care station");
-            // This is a floor-supported station for the reused cart/DEA, outside the patient and approach route.
-            B(new Vector3(-1.8f, .006f, 3.75f), new Vector3(1.02f, .012f, 1.05f), id == "football" ? "rubber" : "stone");
-            g.Text("DEA", new Vector3(-1.8f, 1.63f, 4.03f), .025f);
-            T(new Vector3(-1.8f, .02f, 4.08f), new Vector3(-1.8f, 1.63f, 4.08f), .02f, "metal");
-            B(new Vector3(-1.8f, 1.63f, 4.055f), new Vector3(.42f, .25f, .035f), "white");
+            FirstAidStation(id);
             g.Finish();
+        }
+
+        void FirstAidStation(string id)
+        {
+            if (id == "dental") return; // The preserved technical dental room still owns its clinical furniture.
+            g.Cluster(id == "football" ? "Organizer first aid station" : "Public first aid station");
+            var centre = new Vector3(-1.8f, 0, 3.75f);
+            float width = id == "football" ? 1.85f : 1.25f;
+            B(centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f), "wood");
+            foreach (float x in new[] { -.43f * width, .43f * width })
+                foreach (float z in new[] { -.20f, .20f })
+                    B(centre + new Vector3(x, .445f, z), new Vector3(.045f, .89f, .045f), "metal");
+            g.Solid("First aid station shelf", centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f));
+            if (id == "football")
+            {
+                return;
+            }
+            g.Cluster("Wall AED cabinet");
+            var cabinet = new Vector3(-2.48f, 1.40f, 4.77f);
+            B(cabinet + new Vector3(0, 0, .115f), new Vector3(.62f, .64f, .045f), "white");
+            foreach (float x in new[] { -.30f, .30f }) B(cabinet + new Vector3(x, 0, 0), new Vector3(.035f, .64f, .28f), "white");
+            foreach (float y in new[] { -.31f, .31f }) B(cabinet + new Vector3(0, y, 0), new Vector3(.62f, .035f, .28f), "white");
+            // Open front lets the real XR-grabbable DEA be removed; no decorative duplicate inside.
+            g.Solid("AED cabinet shelf", cabinet + new Vector3(0, -.31f, 0), new Vector3(.62f, .035f, .28f));
+            B(cabinet + new Vector3(0, .59f, .115f), new Vector3(.62f, .28f, .035f), "safetyGreen");
+            g.Text("DEA", cabinet + new Vector3(0, .59f, .093f), .095f, light: true);
         }
 
         void Interior(string id)
         {
             g.Cluster("Room shell");
-            string floor = id == "gym" ? "rubber" : "stone";
+            string floor = id == "gym" ? "rubber" : id == "mall" ? "mallFloor" : "stone";
             B(new Vector3(0, -.10f, 1), new Vector3(7, .2f, 8), floor, true);
             B(new Vector3(0, 1.55f, 5.06f), new Vector3(7.2f, 3.1f, .12f), "plaster", true);
             B(new Vector3(-3.56f, 1.55f, 1), new Vector3(.12f, 3.1f, 8), "plaster", true);
@@ -191,7 +213,7 @@ namespace EmergencyVR.Environment.Presentation
             g.Text("ZONA DE ENTRENAMIENTO", new Vector3(3.44f, 2.84f, 2.2f), .019f, 90);
             if (GymPropSet.Available)
             {
-                GymPropSet.Build(root);
+                GymPropSet.Build(root, !forBaking);
                 return;
             }
 
@@ -253,7 +275,8 @@ namespace EmergencyVR.Environment.Presentation
                 foreach (float z in new[] { -.6f, 3.13f })
                 {
                     B(new Vector3(x, 1.4f, z), new Vector3(.07f, 2.35f, 2.92f), "navy");
-                    B(new Vector3(x - side * .05f, 1.33f, z), new Vector3(.034f, 1.87f, 2.61f), "glass");
+                    g.Surface("Illuminated shop interior", new Vector3(x - side * .05f, 1.33f, z),
+                        Quaternion.Euler(0, side < 0 ? -90 : 90, 0), new Vector2(2.61f, 1.87f), "shopInterior");
                     foreach (float offset in new[] { -1.25f, 0, 1.25f }) B(new Vector3(x - side * .08f, 1.31f, z + offset), new Vector3(.035f, 1.97f, .046f), "metal");
                     B(new Vector3(x - side * .08f, 2.36f, z), new Vector3(.06f, .33f, 2.75f), "wood");
                     g.Text(z < 1 ? "ATELIER" : "CASA  /  OBJETOS", new Vector3(x - side * .13f, 2.36f, z), .022f, side < 0 ? -90 : 90, true);
@@ -289,7 +312,7 @@ namespace EmergencyVR.Environment.Presentation
             B(new Vector3(0, -.10f, 10), new Vector3(36, .20f, 52), "grass", true);
             // A clear outdoor training pitch with long sight lines and full-height goals; no indoor walls/ceiling.
             for (int i = 0; i < 13; i++)
-                if (i % 2 == 0) B(new Vector3(0, .002f, -14 + i * 4), new Vector3(31, .004f, 4), "green");
+                if (i % 2 == 0) B(new Vector3(0, .002f, -14 + i * 4), new Vector3(31, .004f, 4), "grassStripe");
             foreach (float x in new[] { -15f, 15f }) B(new Vector3(x, .010f, 10), new Vector3(.085f, .009f, 48), "white");
             foreach (float z in new[] { -14f, 10f, 34f }) B(new Vector3(0, .011f, z), new Vector3(30, .009f, .085f), "white");
             Ring(new Vector3(0, .018f, 10), 5, .035f, "white", 48);
@@ -346,7 +369,7 @@ namespace EmergencyVR.Environment.Presentation
             // Low draw-cost stepped seating across the far edge gives scale without an NPC crowd.
             for (int i = 0; i < 3; i++)
             {
-                B(new Vector3(10.8f, .20f + i * .3f, 33 + i * .5f), new Vector3(7.5f, .3f, .60f), "stone");
+                B(new Vector3(10.8f, .20f + i * .3f, 33 + i * .5f), new Vector3(7.5f, .3f, .60f), "footballStand");
                 for (int seat = 0; seat < 10; seat++) Soft(new Vector3(7.55f + seat * .72f, .378f + i * .3f, 33 + i * .5f), new Vector3(.50f, .065f, .39f), "blue");
             }
         }

@@ -79,6 +79,11 @@ una declaración de cumplimiento de los requisitos de publicación de Meta Store
 La feature Meta Quest Support genera las adaptaciones de manifiesto; no añadir
 un AndroidManifest manual ni permisos innecesarios en esta fase.
 
+Para el candidato con foveación fija, seguir también la
+[validación del manifiesto final de la APK](ANDROID_MANIFEST_VALIDATION.md).
+El hook del proyecto elimina requisitos oculares añadidos por OpenXR sin alterar
+los dispositivos Quest seleccionados.
+
 ## 4. Validar antes de compilar
 
 1. Edit → Project Settings → XR Plug-in Management → **Project Validation** →

@@ -1,0 +1,16 @@
+{
+  "note": "Spanish presentation of the existing AED display messages. Does not define procedure rules or timings.",
+  "lines": [
+    {"display": "ABIERTO\nENCENDER", "text": "DEA abierto. Encienda el dispositivo.", "resource": "Audio/AED/open", "voice": "Microsoft Sabina"},
+    {"display": "RETIRAR RESPALDO\nCOLOCAR PARCHES", "text": "Retire el respaldo y coloque los parches.", "resource": "Audio/AED/pads", "voice": "Microsoft Sabina"},
+    {"display": "PARCHES CONECTADOS\nINICIAR ANÁLISIS", "text": "Parches conectados. Inicie el análisis.", "resource": "Audio/AED/ready", "voice": "Microsoft Sabina"},
+    {"display": "ANALIZANDO\nNO TOCAR", "text": "Analizando. No toque al paciente.", "resource": "Audio/AED/analysing", "voice": "Microsoft Sabina"},
+    {"display": "CONTACTO DETECTADO\nRETIRAR MANOS", "text": "Contacto detectado. Retire las manos.", "resource": "Audio/AED/contact", "voice": "Microsoft Sabina"},
+    {"display": "NO TOCAR\nAL PACIENTE", "text": "No toque al paciente.", "resource": "Audio/AED/clear", "voice": "Microsoft Sabina"},
+    {"display": "ALEJARSE\nANTES DE DESCARGAR", "text": "Aléjese antes de descargar.", "resource": "Audio/AED/stand-clear", "voice": "Microsoft Sabina"},
+    {"display": "DESCARGA INDICADA\nNADIE TOCA: PULSAR", "text": "Descarga indicada. Nadie debe tocar al paciente. Pulse el botón de descarga.", "resource": "Audio/AED/shock-advised", "voice": "Microsoft Sabina"},
+    {"display": "DESCARGA BLOQUEADA\nREVISAR ESTADO", "text": "Descarga bloqueada. Revise el estado.", "resource": "Audio/AED/blocked", "voice": "Microsoft Sabina"},
+    {"display": "DESCARGA SIMULADA\nREANUDAR RCP", "text": "Descarga simulada. Reanude la reanimación cardiopulmonar.", "resource": "Audio/AED/shock-delivered", "voice": "Microsoft Sabina"},
+    {"display": "NO DESCARGAR\nREANUDAR RCP", "text": "No descargar. Reanude la reanimación cardiopulmonar.", "resource": "Audio/AED/no-shock", "voice": "Microsoft Sabina"}
+  ]
+}

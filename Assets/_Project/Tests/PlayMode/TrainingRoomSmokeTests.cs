@@ -28,6 +28,15 @@ namespace EmergencyVR.Tests
             while(SceneManager.GetActiveScene().name!="TrainingRoom" && Time.realtimeSinceStartup<deadline) yield return null;
             Assert.That(SceneManager.GetActiveScene().name,Is.EqualTo("TrainingRoom"));
             yield return null; // Start wires UI listeners.
+            // The product now starts inside the welcome gym. Select the preserved
+            // technical exercise before asserting its original room and legacy UI.
+            var flow = Object.FindFirstObjectByType<TrainingExperience>();
+            int technical = System.Array.FindIndex(flow.Review.Catalog.entries, e => e.medical == null);
+            Assert.That(technical, Is.GreaterThanOrEqualTo(0));
+            flow.Prepare(technical);
+            yield return null;
+            Assert.That(flow.Review.Select(technical), Is.True);
+            yield return null;
             Assert.That(Object.FindObjectsByType<GeneratedEnvironment>(FindObjectsSortMode.None).Length,Is.EqualTo(1));
             var origin=Object.FindFirstObjectByType<XROrigin>();
             Assert.That(origin,Is.Not.Null);

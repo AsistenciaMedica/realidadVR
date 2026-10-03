@@ -244,7 +244,7 @@ namespace EmergencyVR.UI
             else line(ClinicalCaseDebrief.Reflection(runtime));
             ((RectTransform)body).sizeDelta = new Vector2(1326, Math.Max(351, y));
             Button(content, "Repeat training", "Repetir entrenamiento", 48, 764, 350, 56, Repeat, true);
-            Button(content, "Return catalog", "Elegir otro entrenamiento", 418, 764, 424, 56, () => Browse(SelectedEnvironment));
+            Button(content, ResultNextName, ResultNextText, 418, 764, 424, 56, NextFromResult);
             Button(content, "Export results", "Guardar informe", 862, 764, 255, 56, () => { try { Review.ExportResult(); notice = "Informe guardado."; } catch (Exception e) { notice = "No se pudo guardar el informe."; Debug.LogException(e); } redraw = true; });
             Button(content, "Results home", "Inicio", 1137, 764, 255, 56, () => Navigate(ExperiencePage.Welcome));
             Label(content, "Export notice", notice, 50, 735, 1280, 27, 16, Accent);

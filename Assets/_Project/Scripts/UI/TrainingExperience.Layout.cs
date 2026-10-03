@@ -64,6 +64,7 @@ namespace EmergencyVR.UI
         {
             var image = Box(parent, name, x, y, w, h, Color.white, true, true);
             var button = image.gameObject.AddComponent<Button>(); button.targetGraphic = image;
+            if (!IsDesktop) image.gameObject.AddComponent<VRMenuFeedback>().Initialize(button, PlayInterfaceFeedback);
             // Start at the authored color, avoiding a white flash when navigating between pages.
             image.canvasRenderer.SetColor(primary ? Accent : Raised);
             var colors = button.colors;
@@ -71,8 +72,8 @@ namespace EmergencyVR.UI
             colors.highlightedColor = primary ? new Color32(129, 240, 214, 255) : new Color32(49, 80, 96, 255);
             colors.selectedColor = colors.highlightedColor; colors.pressedColor = primary ? new Color32(41, 170, 146, 255) : Border;
             colors.disabledColor = CardColor; colors.fadeDuration = .08f; button.colors = colors;
-            button.onClick.AddListener(() => action());
-            var text = Label(image.transform, "Label", title, 14, 0, w - 28, h, 22, primary ? Background : Ink, true);
+            button.onClick.AddListener(() => RunInterfaceAction(name, action));
+            var text = Label(image.transform, "Label", title, 14, 0, w - 28, h, IsDesktop ? 22 : 30, primary ? Background : Ink, true);
             text.alignment = TextAnchor.MiddleCenter;
             return button;
         }
@@ -88,8 +89,15 @@ namespace EmergencyVR.UI
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f); rect.sizeDelta = new Vector2(1440, 900);
             content = rect;
             ApplyVisibility();
+            if (!IsDesktop)
+            {
+                rect.sizeDelta = VrPageSize;
+                RenderVrPage();
+                return;
+            }
             if (Page == ExperiencePage.Training) { DrawTraining(); return; }
-            Box(content, "Backdrop", 0, 0, 1440, 900, Background, true, true);
+            if (Page == ExperiencePage.Tutorial) { DrawIntroTutorial(); return; }
+            if (!WelcomeWorldVisible) Box(content, "Backdrop", 0, 0, 1440, 900, Background, true, true);
             Header();
             switch (Page)
             {

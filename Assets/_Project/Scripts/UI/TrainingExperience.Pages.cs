@@ -16,8 +16,10 @@ namespace EmergencyVR.UI
             Label(content, "Welcome brand", "VITAL <color=#ED1939>VR</color>", 60, 224, 655, 111, 86, Ink, true);
             Label(content, "Welcome tagline", VitalBrand.Tagline, 64, 355, 620, 112, 36, Ink, true);
             Label(content, "Welcome description", "Un espacio para entrenar decisiones, practicar procedimientos y revisar tu actuación.", 64, 501, 560, 90, 25, Soft);
-            Button(content, "Start learning", "Elegir entrenamiento  →", 64, 622, 405, 66, () => Navigate(ExperiencePage.Environments), true);
-            Button(content, "Learn controls", "Conocer los controles", 64, 706, 405, 57, () => OpenUtility(ExperiencePage.Help));
+            Button(content, "Recommended demo", "Demo recomendada  →", 64, 606, 405, 66, StartRecommendedDemo, true);
+            Button(content, "Start learning", "Elegir entrenamiento  →", 64, 684, 405, 56, () => Navigate(ExperiencePage.Environments));
+            Button(content, "Learn controls", IsDesktop ? "Conocer los controles" : "Practicar controles · 30 s", 64, 752, 405, 56, StartIntroTutorial);
+            Label(content, "Welcome voice notice", "Voz sintética · tutorial opcional", 65, 815, 625, 23, 16, Soft);
             Box(content, "Welcome collection", 739, 149, 637, 629, CardColor);
             Label(content, "Collection title", "TU PRÓXIMO ENTRENAMIENTO", 767, 178, 570, 32, 19, Accent, true);
             Label(content, "Collection subtitle", environments.Length + " entornos · " + Review.Scope.ScenarioIds.Length + " entrenamientos", 767, 218, 570, 48, 25, Ink, true);
@@ -135,7 +137,7 @@ namespace EmergencyVR.UI
             bool guided = Review.Procedures.TrainingMode;
             bool observed = m?.clinicalV2?.capabilities.usesObservedPatientData == true;
             Button(content, "Guided mode", (guided ? "●  " : "○  ") + "Práctica guiada", 928, 395, 438, 56, () => { Review.Procedures.TrainingMode = true; redraw = true; }, guided);
-            Label(content, "Guided description", observed ? "Práctica con orientación de interacción. La ficha conserva solo la información que obtienes." : "Ayudas de procedimiento y valores simulados visibles para aprender.", 940, 465, 407, 68, 20, Soft);
+            Label(content, "Guided description", observed ? "Práctica con orientación de interacción. La ficha conserva solo la información que obtienes." : "Ayudas de procedimiento. Utiliza los instrumentos para medir las constantes.", 940, 465, 407, 68, 20, Soft);
             Button(content, "Assessment mode", (!guided ? "●  " : "○  ") + "Evaluación", 928, 548, 438, 56, () => { Review.Procedures.TrainingMode = false; redraw = true; }, !guided);
             Label(content, "Assessment description", observed ? "Sin pistas clínicas. Habla con el paciente, observa y actúa según tu formación." : "Sin pistas. Consulta al paciente y realiza las mediciones con los instrumentos.", 940, 618, 407, 77, 20, Soft);
             Label(content, "Review status", m == null ? "Práctica de controles · sin contenido clínico" : (m.medicalValidationStatus == "APPROVED" ? "Contenido revisado" : "Contenido de simulación en revisión clínica"), 50, 725, 1260, 29, 17, Amber);
@@ -177,7 +179,7 @@ namespace EmergencyVR.UI
         void DrawSettings()
         {
             PageTitle("Preferencias", "Tu espacio de entrenamiento", "Ajusta el sonido y las ayudas de interacción.");
-            Box(content, "Settings card", 48, 321, 1344, 361, CardColor);
+            Box(content, "Settings card", 48, 321, 1344, IsDesktop ? 361 : 412, CardColor);
             Label(content, "Audio title", "Volumen general", 81, 356, 530, 44, 28, Ink, true);
             Label(content, "Audio description", "Ambiente, paciente y equipo médico", 81, 409, 800, 39, 23, Soft);
             Button(content, "Volume down", "−", 970, 353, 65, 59, () => { AudioListener.volume = Mathf.Max(0, AudioListener.volume - .1f); redraw = true; });
@@ -187,6 +189,15 @@ namespace EmergencyVR.UI
             Label(content, "Hints title", "Recordatorios de controles", 81, 516, 830, 48, 28, Ink, true);
             Label(content, "Hints description", "Las pistas clínicas dependen del modo elegido al preparar el caso.", 81, 574, 1010, 73, 22, Soft);
             Button(content, "Toggle hints", showHints ? "Activados" : "Desactivados", 1108, 511, 238, 59, () => { showHints = !showHints; redraw = true; }, showHints);
+            if (!IsDesktop)
+            {
+                Label(content, "Quality title", "Calidad visual · ajusta la fluidez", 81, 666, 740, 43, 26, Ink, true);
+                bool smooth = EmergencyVR.Desktop.QuestQualityControl.Smooth;
+                Button(content, "Quality high", (smooth ? "○  " : "●  ") + "Alta", 864, 659, 225, 55,
+                    () => { EmergencyVR.Desktop.QuestQualityControl.SetSmooth(false); redraw = true; }, !smooth);
+                Button(content, "Quality smooth", (smooth ? "●  " : "○  ") + "Fluida", 1110, 659, 236, 55,
+                    () => { EmergencyVR.Desktop.QuestQualityControl.SetSmooth(true); redraw = true; }, smooth);
+            }
             Button(content, "Back from settings", "← Volver", 48, 756, 189, 56, () => Navigate(returnPage));
             if (!IsDesktop) Button(content, "Recenter interface", "Centrar interfaz", 1000, 756, 392, 56, Recenter);
         }
@@ -197,7 +208,11 @@ namespace EmergencyVR.UI
                 "El tiempo, la evolución del paciente y los procedimientos están detenidos.");
             Box(content, "Pause card", 250, 325, 940, 365, CardColor);
             Label(content, "Pause case", CleanCopy(Review.Selected.medical == null ? Review.Selected.definition.displayName : LearnerTitle(Review.Selected.medical)), 288, 362, 864, 93, 33, Ink, true);
-            Label(content, "Pause detail", finish || restart || exit ? "El intento actual se cerrará con las acciones realizadas y las omisiones pendientes. Puedes revisar y guardar su resultado." : "Tómate el tiempo que necesites. Al continuar volverás al mismo punto del ejercicio.", 290, 474, 853, 113, 25, Soft);
+            var detail = Label(content, "Pause detail", "", 290, 474, 853, 113, 25, Soft);
+            Bind(detail, () => finish || restart || exit
+                ? "El intento actual se cerrará con las acciones realizadas y las omisiones pendientes. Puedes revisar y guardar su resultado."
+                : controllersUnavailable ? "Recupera el seguimiento de al menos un mando para continuar. El caso y el audio permanecen en pausa."
+                : "Tómate el tiempo que necesites. Al continuar volverás al mismo punto del ejercicio.");
             if (finish || restart || exit)
             {
                 Button(content, "Cancel confirmation", "Seguir en pausa", 290, 601, 392, 58, () => Navigate(ExperiencePage.Pause));
@@ -205,7 +220,8 @@ namespace EmergencyVR.UI
             }
             else
             {
-                Button(content, "Resume training", "Continuar entrenamiento", 290, 601, 860, 58, () => Navigate(ExperiencePage.Training), true);
+                var resume = Button(content, "Resume training", "Continuar entrenamiento", 290, 601, 860, 58, () => Navigate(ExperiencePage.Training), true);
+                live.Add(() => resume.interactable = !controllersUnavailable && !applicationInterrupted);
                 Button(content, "Request finish", "Finalizar y revisar", 250, 750, 450, 58, () => Navigate(ExperiencePage.Finish));
                 Button(content, "Request restart", "Preparar otro intento", 721, 750, 469, 58, () => Navigate(ExperiencePage.Restart));
             }

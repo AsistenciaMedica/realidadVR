@@ -26,6 +26,7 @@ namespace EmergencyVR.Patient.Presentation
         bool seatedCalibrated;
         readonly RaycastHit[] seatedFloorHits = new RaycastHit[32];
         Transform leftMiddleFinger, leftIndexFinger, leftLittleFinger;
+        Transform rightMiddleFinger, rightIndexFinger, rightLittleFinger;
         public bool HasImportedSkin => deformingMeshes != null && deformingMeshes.Length > 0;
 
         void Start()
@@ -39,6 +40,9 @@ namespace EmergencyVR.Patient.Presentation
                 if (bone.name == "Bip01 L Finger2") leftMiddleFinger = bone;
                 if (bone.name == "Bip01 L Finger1") leftIndexFinger = bone;
                 if (bone.name == "Bip01 L Finger4") leftLittleFinger = bone;
+                if (bone.name == "Bip01 R Finger2") rightMiddleFinger = bone;
+                if (bone.name == "Bip01 R Finger1") rightIndexFinger = bone;
+                if (bone.name == "Bip01 R Finger4") rightLittleFinger = bone;
             }
         }
         public void React(string action)
@@ -62,7 +66,7 @@ namespace EmergencyVR.Patient.Presentation
             if(useClip&&clip!=null)CharacterAnimationLibrary.Sample(clip,skeleton.GetChild(0).gameObject,Mathf.Repeat(phase,clip.length));
             float blend = 1 - Mathf.Exp(-Time.deltaTime * 5);
             var rotation = posture == PatientPosture.Recovery ? Quaternion.Euler(0,0,65) :
-                posture == PatientPosture.Seated ? Quaternion.Euler(-65,0,0) :
+                posture == PatientPosture.Seated ? Quaternion.Euler(-85,0,0) :
                 posture == PatientPosture.Standing ? Quaternion.Euler(-90,0,0) : Quaternion.identity;
             if (posture != PatientPosture.Seated) seatedCalibrated = false;
             bool calibrateSeat = posture == PatientPosture.Seated && (!seatedCalibrated || seatedMesh != rig.face.sharedMesh ||
@@ -97,7 +101,13 @@ namespace EmergencyVR.Patient.Presentation
                     Aim(forearms[side], hands[side], frame.TransformDirection(forearmDirection + Vector3.right * seizure * .22f));
                 }
                 Vector3 thighDirection = Vector3.down, calfDirection = Vector3.down;
-                if (posture == PatientPosture.Seated) { thighDirection = new Vector3(0,-.45f,.9f); calfDirection = new Vector3(0,-.95f,-.3f); }
+                if (posture == PatientPosture.Seated)
+                {
+                    // Keep the validated leg/sole directions while bringing the unsupported trunk upright.
+                    var legs = Quaternion.Inverse(targetRotation) * Quaternion.Euler(-65, 0, 0) * rootRotation;
+                    thighDirection = legs * new Vector3(0, -.45f, .9f);
+                    calfDirection = legs * new Vector3(0, -.95f, -.3f);
+                }
                 if (posture == PatientPosture.Recovery && side == 0) { thighDirection = new Vector3(.25f,-.65f,.7f); calfDirection = new Vector3(0,-.7f,-.65f); }
                 if(!useClip)
                 {
@@ -108,9 +118,14 @@ namespace EmergencyVR.Patient.Presentation
             if(cough>0 && !useClip && state.Consciousness!=PatientConsciousness.Unresponsive)
                 spine.rotation=Quaternion.AngleAxis(Mathf.Sin(phase*16)*cough*4,frame.right)*spine.rotation;
             if (posture == PatientPosture.Seated && state.Consciousness != PatientConsciousness.Unresponsive && !state.Seizure &&
-                visual.CompressionDepthMetres <= .001f && cough <= .01f && response <= .01f &&
-                (state.Expression == PatientExpression.Pain || state.Expression == PatientExpression.Distress))
-                PoseSymptomHand(state.Expression == PatientExpression.Pain);
+                visual.CompressionDepthMetres <= .001f && cough <= .01f && response <= .01f)
+            {
+                PoseRestingHand(0);
+                PoseRestingHand(1);
+                // Preserve the existing symptom gesture; only free hands rest on the thighs.
+                if (state.Expression == PatientExpression.Pain || state.Expression == PatientExpression.Distress)
+                    PoseSymptomHand(state.Expression == PatientExpression.Pain);
+            }
             if (calibrateSeat)
             {
                 CalibrateSeatedHeight();
@@ -122,6 +137,25 @@ namespace EmergencyVR.Patient.Presentation
                 Set(renderer, breathingShape, visual.BreathingExcursionMetres / .011f * 100);
                 Set(renderer, compressionShape, visual.CompressionDepthMetres / .08f * 100);
             }
+        }
+        void PoseRestingHand(int side)
+        {
+            var front = skeleton.TransformDirection(Vector3.forward).normalized;
+            var up = skeleton.TransformDirection(Vector3.up).normalized;
+            var lateral = skeleton.TransformDirection(side == 0 ? Vector3.left : Vector3.right).normalized;
+            var target = Vector3.Lerp(thighs[side].position, calves[side].position, .65f) + up * .095f;
+            var pole = upperArms[side].position + lateral * .14f - up * .28f + front * .18f;
+            SolveTwoBone(upperArms[side], forearms[side], hands[side], target, pole);
+            var middle = side == 0 ? leftMiddleFinger : rightMiddleFinger;
+            var index = side == 0 ? leftIndexFinger : rightIndexFinger;
+            var little = side == 0 ? leftLittleFinger : rightLittleFinger;
+            if (middle == null || index == null || little == null) return;
+            var fingers = middle.position - hands[side].position;
+            var normal = Vector3.Cross(index.position - hands[side].position, little.position - hands[side].position);
+            if (fingers.sqrMagnitude < .00001f || normal.sqrMagnitude < .00000001f) return;
+            var current = Quaternion.LookRotation(fingers, normal);
+            var desired = Quaternion.LookRotation((calves[side].position - thighs[side].position).normalized, -up);
+            hands[side].rotation = desired * Quaternion.Inverse(current) * hands[side].rotation;
         }
         void PoseSymptomHand(bool chestDiscomfort)
         {

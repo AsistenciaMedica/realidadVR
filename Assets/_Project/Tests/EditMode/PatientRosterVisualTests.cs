@@ -36,7 +36,10 @@ namespace EmergencyVR.Tests
                     foreach (var name in new[] { "_BaseMap", "_BumpMap" })
                     {
                         var texture = material.GetTexture(name);
-                        if (texture != null) Assert.That(Mathf.Max(texture.width, texture.height), Is.LessThanOrEqualTo(identities[i].id == "Daniel" ? 2048 : 1024));
+                        if (texture == null) continue;
+                        bool face = texture.name.Contains("_head_color") || texture.name.Contains("_head_normal");
+                        Assert.That(Mathf.Max(texture.width, texture.height), Is.LessThanOrEqualTo(face ? 2048 : 1024),
+                            identities[i].id + ": only face maps may use 2K; body and hair remain at 1K.");
                     }
             }
         }

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace EmergencyVR.Medical.Interaction
 {
@@ -15,6 +17,7 @@ namespace EmergencyVR.Medical.Interaction
         Vector3 originalPosition;
         Quaternion originalRotation;
         bool attached, prepared, reading, resetting;
+        XRNode? feedbackHand;
         public MedicalToolKind Kind { get; private set; }
         public TextMesh Display;
         public bool IsAttached => attached;
@@ -26,7 +29,12 @@ namespace EmergencyVR.Medical.Interaction
             this.rig = rig; Kind = kind;
             body = GetComponent<Rigidbody>(); grab = GetComponent<XRGrabInteractable>();
             originalParent = transform.parent; originalPosition = transform.localPosition; originalRotation = transform.localRotation;
-            grab.selectEntered.AddListener(_ => OnGrabbed());
+            grab.selectEntered.AddListener(args =>
+            {
+                feedbackHand = args.interactorObject.handedness == InteractorHandedness.Left ? XRNode.LeftHand :
+                    args.interactorObject.handedness == InteractorHandedness.Right ? XRNode.RightHand : (XRNode?)null;
+                OnGrabbed();
+            });
             grab.selectExited.AddListener(_ => OnReleased());
             grab.activated.AddListener(_ => Use());
             body.isKinematic = true; body.useGravity = false;
@@ -44,7 +52,7 @@ namespace EmergencyVR.Medical.Interaction
                 if (Display != null) Display.text = "--";
             }
             body.isKinematic = true; body.useGravity = false;
-            MedicalHaptics.Pulse(.1f, .03f);
+            FeedbackPulse(.1f, .03f, "Grab");
             if (Kind == MedicalToolKind.AED) rig.AED.Grabbed();
         }
 
@@ -101,6 +109,7 @@ namespace EmergencyVR.Medical.Interaction
         public bool OnReleased()
         {
             if (resetting) return false;
+            FeedbackPulse(.07f, .02f, "Release");
             if(!rig.AllowsEquipment(Kind)) { Drop();return false; }
             if (attached) return true;
             if (IsPad)
@@ -183,7 +192,7 @@ namespace EmergencyVR.Medical.Interaction
             if (accepted)
             {
                 rig.RecordMeasurement(Kind, p);
-                rig.Measurements++; rig.Audio.Pulse(.04f, 800); MedicalHaptics.Pulse(.12f, .03f);
+                rig.Measurements++; rig.Audio.Pulse(.04f, 800); FeedbackPulse(.12f, .03f, "Measurement");
                 rig.Hint = "Adquisición registrada. El instrumento puede retirarse y recolocarse para una nueva medición prevista.";
             }
             else rig.Hint = "Adquisición no registrada: revisar la secuencia del caso y repetir cuando corresponda.";
@@ -211,6 +220,22 @@ namespace EmergencyVR.Medical.Interaction
             var screen = transform.Find("Screen"); if (screen != null) screen.localRotation = Quaternion.identity;
             if (Display != null) Display.text = Kind == MedicalToolKind.Phone ? "SOS" : "--";
             resetting = false;
+            feedbackHand = null;
+        }
+
+        public void FeedbackPulse(float amplitude,float seconds,string reason)
+        {
+            if(feedbackHand.HasValue) MedicalHaptics.Pulse(feedbackHand.Value,amplitude,seconds,reason);
+            else MedicalHaptics.Pulse(amplitude,seconds,reason);
+        }
+
+        // Set only when selecting an environment, after the previous attempt has returned its tools.
+        // The physical object and its patient attachment targets remain the same across all storage layouts.
+        public void SetStoragePose(Vector3 localPosition, Quaternion localRotation)
+        {
+            originalPosition = localPosition;
+            originalRotation = localRotation;
+            ResetTool();
         }
     }
 }

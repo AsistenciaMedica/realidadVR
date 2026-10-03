@@ -7,7 +7,9 @@
       "author": "sousinho",
       "source": "https://sketchfab.com/3d-models/faed3a2a275b4fd68089e1d8bdfb7f89",
       "license": "CC-BY-4.0",
-      "sha256": "46e899f98617e0944efce42f1a24059e9fabba6e9a05e999cb1703786987984c"
+      "sha256": "51ca96b2e98368ad0730f313e88427cb7590a7b9b4fc5a7ad0e547b8d22619f8",
+      "originalSha256": "46e899f98617e0944efce42f1a24059e9fabba6e9a05e999cb1703786987984c",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/treadmill_b.glb",
@@ -15,7 +17,9 @@
       "author": "EmanuelRestrepoVelez",
       "source": "https://sketchfab.com/3d-models/03e4ff99ecc24e5f8ea49d4e8df876e8",
       "license": "CC-BY-4.0",
-      "sha256": "83a062e903dd563dd3b1e75b716e2def0e71389322e8a38de5c81e9e65bc54ed"
+      "sha256": "5f8a6c3492e95a4c5716c8680df1f09f45392203a35144ac9eac9b025f816e01",
+      "originalSha256": "83a062e903dd563dd3b1e75b716e2def0e71389322e8a38de5c81e9e65bc54ed",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/elliptical.glb",
@@ -31,7 +35,9 @@
       "author": "tylerhalterman",
       "source": "https://sketchfab.com/3d-models/1d18318c3e81407b8321159fb3424026",
       "license": "CC-BY-4.0",
-      "sha256": "96ba2d058e38d75b23bd515f44750db5d5c7fad1d952bf8f399c80085b39d78a"
+      "sha256": "343a0d28336f56c948616a2f4f09cadcd2860e761ece08adbc735f049e289ff9",
+      "originalSha256": "96ba2d058e38d75b23bd515f44750db5d5c7fad1d952bf8f399c80085b39d78a",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/dumbbell_rack.glb",
@@ -39,7 +45,9 @@
       "author": "tylerhalterman",
       "source": "https://sketchfab.com/3d-models/fa481412927e43dfbeab9f6da464c15b",
       "license": "CC-BY-4.0",
-      "sha256": "1c9770a4cfed964a41aa708e757103fa911203d21c29d5372d52241fa0d4cec7"
+      "sha256": "83ecb3590a6d2d7ad2ec7abf32c8895547fe7ada6d412e8356ae8c4e405fd4ce",
+      "originalSha256": "1c9770a4cfed964a41aa708e757103fa911203d21c29d5372d52241fa0d4cec7",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/lat_pulldown.glb",
@@ -55,7 +63,9 @@
       "author": "Huunguyen98",
       "source": "https://sketchfab.com/3d-models/4d1d0fb6879f42a9bccf1666a752c276",
       "license": "CC-BY-4.0",
-      "sha256": "8a4bf07e5075c7247d8cdf7ed13552fabf2cf315913b7ce000fbb56fd4e2f2df"
+      "sha256": "62f0fccc0263c52a1cbd4c11017330560ca8850f6645a6b926404f8a0148e5e1",
+      "originalSha256": "8a4bf07e5075c7247d8cdf7ed13552fabf2cf315913b7ce000fbb56fd4e2f2df",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/kettlebell.glb",
@@ -71,7 +81,9 @@
       "author": "tylerhalterman",
       "source": "https://sketchfab.com/3d-models/8bfa29f8961b40258d5d1dc63d19c9a2",
       "license": "CC-BY-4.0",
-      "sha256": "2fac6425006b8a3410d42a25956147eed75836160a35cef0f1e5cf066cdbe7f1"
+      "sha256": "8956c411e1c137d1333bd0e8ca5a6dd45924a04d12b34a9bf7ac8dbff1f140d7",
+      "originalSha256": "2fac6425006b8a3410d42a25956147eed75836160a35cef0f1e5cf066cdbe7f1",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/weight_plates.glb",
@@ -79,7 +91,9 @@
       "author": "Dakota.Hinkle",
       "source": "https://sketchfab.com/3d-models/f26c89d6991542af9ab37970b4683fb9",
       "license": "CC-BY-4.0",
-      "sha256": "a44bb84400a23b0c3b74df60b50fd7c33377d1383bc7db6b34e4f565996591a7"
+      "sha256": "1e1a6b1d769607552d5cbb0f44bfe4904ff25e80186a7e23c1b28e067a7f7c52",
+      "originalSha256": "a44bb84400a23b0c3b74df60b50fd7c33377d1383bc7db6b34e4f565996591a7",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/yoga_mat.glb",
@@ -87,7 +101,9 @@
       "author": "JeremyGrayson",
       "source": "https://sketchfab.com/3d-models/fd65a9c9aa634e97bd70cd184c2fd152",
       "license": "CC-BY-4.0",
-      "sha256": "78ecd3b5b0bbbd088e9fd5c3bd7118f175eb6e0591df12a51eed3302b5eff156"
+      "sha256": "a8cc7dc39f9df13ef0ecf98fe4524e04bf68bc8ae9bcb0b6484ec249275e65d1",
+      "originalSha256": "78ecd3b5b0bbbd088e9fd5c3bd7118f175eb6e0591df12a51eed3302b5eff156",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/punching_bag.glb",
@@ -95,7 +111,9 @@
       "author": "maxsbond.work",
       "source": "https://sketchfab.com/3d-models/487e01cd3eea41c8a49062956c79eb66",
       "license": "CC-BY-4.0",
-      "sha256": "b46229abcc631a62bd5908a34c102aa7205142749e50bf9a4302cd2b8b01134f"
+      "sha256": "11e43fc6724641d77547d5e1ccd93708840f120afe4c2fe030693898cffc713a",
+      "originalSha256": "b46229abcc631a62bd5908a34c102aa7205142749e50bf9a4302cd2b8b01134f",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/lockers.glb",
@@ -111,7 +129,9 @@
       "author": "tboiston",
       "source": "https://sketchfab.com/3d-models/4b88c4c4e94c497ca39f831f374e89fc",
       "license": "CC-BY-4.0",
-      "sha256": "61cc3d096eceb5ecf9fe0bd8b4ad99679dc79e09e99565c3cf9628f20dc85c72"
+      "sha256": "47d5e0bb613df09486dc5e755503f9fb7427b15a533ba6162779dea511dc0127",
+      "originalSha256": "61cc3d096eceb5ecf9fe0bd8b4ad99679dc79e09e99565c3cf9628f20dc85c72",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/wall_clock.glb",
@@ -119,7 +139,9 @@
       "author": "felipeprodev",
       "source": "https://sketchfab.com/3d-models/2e964ac0242e4b1789adfd9549c653dc",
       "license": "CC-BY-4.0",
-      "sha256": "f51aee403907e7184c3cde4767bf6396b5d2864f712d3ee19edabc4eba728ae6"
+      "sha256": "a25b527757e6fe4036ccb42f94b2e20606802bbfd0e0911f07a97d2c1d74b6cf",
+      "originalSha256": "f51aee403907e7184c3cde4767bf6396b5d2864f712d3ee19edabc4eba728ae6",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/first_aid_kit.glb",
@@ -127,7 +149,9 @@
       "author": "sergeykuchmin",
       "source": "https://sketchfab.com/3d-models/5a8e5955aa1f4cab89bca44c279349a8",
       "license": "CC-BY-4.0",
-      "sha256": "cd8f08dc8497b231e231ae117b6025e692996fab96fc01aab56f4a57778a1e56"
+      "sha256": "900ecbef1547690a26d8e4c67707818cd8327944887d9dcd8487dd7cda3b84eb",
+      "originalSha256": "cd8f08dc8497b231e231ae117b6025e692996fab96fc01aab56f4a57778a1e56",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/desk_phone.glb",
@@ -135,7 +159,9 @@
       "author": "DanTronMcTronDan",
       "source": "https://sketchfab.com/3d-models/ecefa2359e574c69b0926ea253646332",
       "license": "CC-BY-4.0",
-      "sha256": "12bc8dc757ee9d44733e06140502f81e75c7374a39589b04f9eead785d0d7edf"
+      "sha256": "794d40e18fd92e7e8569cd7731de059e153e72662ee17ce2f6a4e4721681e386",
+      "originalSha256": "12bc8dc757ee9d44733e06140502f81e75c7374a39589b04f9eead785d0d7edf",
+      "derivation": "Externalized original encoded images by SHA256/channel; removed duplicate image buffer views. Geometry, materials, UVs, normals, author and license unchanged. tools/Externalize-GymTextures.py"
     },
     {
       "file": "Assets/ThirdParty/GymModels/Resources/Gym/smartphone.glb",

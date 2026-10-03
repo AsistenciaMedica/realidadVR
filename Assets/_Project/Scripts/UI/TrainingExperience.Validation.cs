@@ -33,7 +33,7 @@ namespace EmergencyVR.UI
             string directory = flag >= 0 && flag + 1 < args.Length ? args[flag + 1] : Path.Combine(Application.persistentDataPath, "UXPreview");
             Directory.CreateDirectory(directory);
             yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame();
-            Require(Page == ExperiencePage.Welcome && !Review.Manager.IsRunning && !WorldVisible, "Welcome must precede the clinical world.");
+            Require(Page == ExperiencePage.Welcome && !Review.Manager.IsRunning && WorldVisible == !IsDesktop, "Welcome must precede the clinical attempt; VR shows the welcome room.");
             CaptureInterface(directory, "01-welcome");
             Click("Start learning"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "02-environments");
             Click("Environment gym"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "03-catalog");
@@ -66,13 +66,14 @@ namespace EmergencyVR.UI
             yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "10-assessment");
             Review.Manager.FinishCase(); yield return null;
             Click("Results home"); yield return null;
-            Require(Page == ExperiencePage.Welcome && !WorldVisible, "Returning home must hide the clinical world.");
+            Require(Page == ExperiencePage.Welcome && !Review.Manager.IsRunning && WorldVisible == !IsDesktop, "Returning home must restore the welcome view without an active case.");
         }
         void Click(string name)
         {
             var button = pageRoot.GetComponentsInChildren<Button>().Single(b => b.name == name);
             Require(button.interactable, "Button disabled: " + name);
             ExecuteEvents.Execute(button.gameObject, new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
+            SettleSnapshotTransition();
         }
         static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
         void CaptureInterface(string directory, string name)

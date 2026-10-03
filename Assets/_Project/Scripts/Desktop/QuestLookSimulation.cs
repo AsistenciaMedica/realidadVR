@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR;
 #if ENABLE_VR || UNITY_GAMECORE
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.XR.Haptics;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation;
 #endif
 
@@ -41,6 +42,8 @@ namespace EmergencyVR.Desktop
         public Camera View { get; private set; }
         public bool ManualControlsEnabled { get; set; }
         public int DeviceCount { get; private set; }
+        public int SimulatedHapticImpulseCount { get; private set; }
+        public XRNode LastSimulatedHapticHand { get; private set; }
         public bool IsSimulation => true;
         Transform TrackingSpace => Origin.CameraFloorOffsetObject != null ? Origin.CameraFloorOffsetObject.transform : Origin.transform;
         int previousQuality;
@@ -112,7 +115,7 @@ namespace EmergencyVR.Desktop
             spawnPosition = Origin.transform.position;
             spawnRotation = Origin.transform.rotation;
             var args = System.Environment.GetCommandLineArgs();
-            ManualControlsEnabled = !Application.isBatchMode && !args.Contains("-vital-patient-roster-smoke") && !args.Contains("-vital-xr-walkthrough");
+            ManualControlsEnabled = !Application.isBatchMode && !args.Contains("-vital-patient-roster-smoke") && !args.Contains("-vital-xr-walkthrough") && !args.Contains("-vital-render-budget");
 #if ENABLE_VR || UNITY_GAMECORE
             SimulatedInputLayoutLoader.Initialize();
             hmd = InputSystem.AddDevice<XRSimulatedHMD>();
@@ -120,6 +123,7 @@ namespace EmergencyVR.Desktop
             right = InputSystem.AddDevice<XRSimulatedController>();
             InputSystem.SetDeviceUsage(left, UnityEngine.InputSystem.CommonUsages.LeftHand);
             InputSystem.SetDeviceUsage(right, UnityEngine.InputSystem.CommonUsages.RightHand);
+            SetDeviceCommandCallback(true);
             DeviceCount = 3;
             headState.Reset(); leftState.Reset(); rightState.Reset();
             initialized = true;
@@ -138,7 +142,7 @@ namespace EmergencyVR.Desktop
 
         public void FocusPatient(Vector3 chest)
         {
-            var position = new Vector3(chest.x + .9f, Mathf.Max(chest.y + .85f, 1.62f), chest.z - 1.15f);
+            var position = new Vector3(chest.x - .9f, Mathf.Max(chest.y + .85f, 1.62f), chest.z - 1.15f);
             SetHeadPose(position, Quaternion.LookRotation(chest - position, Vector3.up));
         }
 
@@ -205,6 +209,37 @@ namespace EmergencyVR.Desktop
         }
 
 #if ENABLE_VR || UNITY_GAMECORE
+        unsafe void SetDeviceCommandCallback(bool subscribe)
+        {
+            if (subscribe) InputSystem.onDeviceCommand += HandleDeviceCommand;
+            else InputSystem.onDeviceCommand -= HandleDeviceCommand;
+        }
+
+        // XRI queries the Input System device backend, not UnityEngine.XR. Advertise one virtual
+        // impulse channel and record accepted impulses; no vibration hardware is implied.
+        unsafe long? HandleDeviceCommand(UnityEngine.InputSystem.InputDevice device, InputDeviceCommand* command)
+        {
+            if (device != left && device != right) return null;
+            if (command->type == default(GetHapticCapabilitiesCommand).typeStatic)
+            {
+                if (command->sizeInBytes < sizeof(GetHapticCapabilitiesCommand)) return InputDeviceCommand.GenericFailure;
+                var capabilities = (GetHapticCapabilitiesCommand*)command;
+                capabilities->numChannels = 1;
+                capabilities->supportsImpulse = true;
+                capabilities->supportsBuffer = false;
+                capabilities->frequencyHz = capabilities->maxBufferSize = capabilities->optimalBufferSize = 0;
+                return InputDeviceCommand.GenericSuccess;
+            }
+            if (command->type == default(SendHapticImpulseCommand).typeStatic)
+            {
+                if (command->sizeInBytes < sizeof(SendHapticImpulseCommand)) return InputDeviceCommand.GenericFailure;
+                SimulatedHapticImpulseCount++;
+                LastSimulatedHapticHand = device == left ? XRNode.LeftHand : XRNode.RightHand;
+                return InputDeviceCommand.GenericSuccess;
+            }
+            return null;
+        }
+
         XRSimulatedControllerState ControllerState(XRNode node)
         {
             if (node != XRNode.LeftHand && node != XRNode.RightHand) throw new ArgumentOutOfRangeException(nameof(node));
@@ -288,6 +323,7 @@ namespace EmergencyVR.Desktop
         void OnDestroy()
         {
 #if ENABLE_VR || UNITY_GAMECORE
+            SetDeviceCommandCallback(false);
             if (hmd != null && hmd.added) InputSystem.RemoveDevice(hmd);
             if (left != null && left.added) InputSystem.RemoveDevice(left);
             if (right != null && right.added) InputSystem.RemoveDevice(right);

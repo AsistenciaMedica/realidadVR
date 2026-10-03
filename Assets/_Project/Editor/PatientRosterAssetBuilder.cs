@@ -47,12 +47,12 @@ namespace EmergencyVR.Editor
 
         static void BuildAppearance(ModelSource source, string commit, SkinnedMeshRenderer target)
         {
-            // Correct assets first imported by the older, global 2K Rocketbox importer.
+            // Keep authoring rebuilds consistent with the shared Quest texture policy.
             foreach (var path in Directory.GetFiles(source.textureDirectory).Where(p => !p.EndsWith(".meta")))
             {
                 var importer = AssetImporter.GetAtPath(path.Replace('\\', '/')) as TextureImporter;
-                if (importer == null || importer.maxTextureSize == 1024) continue;
-                importer.maxTextureSize = 1024;
+                if (importer == null || importer.maxTextureSize == QuestCharacterImportSetup.MaximumSize(path)) continue;
+                QuestCharacterImportSetup.Configure(importer, path);
                 importer.SaveAndReimport();
             }
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(source.modelPath);

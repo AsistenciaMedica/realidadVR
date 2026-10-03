@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: a856e4f8ad6b4eaaa2c3931795a2067e
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 8
+  defaultSettings:
+    serializedVersion: 2
+    loadType: 1
+    sampleRateSetting: 0
+    sampleRateOverride: 16000
+    compressionFormat: 1
+    quality: 0.65
+    conversionMode: 0
+    preloadAudioData: 0
+  platformSettingOverrides: {}
+  forceToMono: 1
+  normalize: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: Synthetic Spanish orientation; transcript in tools/IntroVoiceLines.json
+  assetBundleName:
+  assetBundleVariant:

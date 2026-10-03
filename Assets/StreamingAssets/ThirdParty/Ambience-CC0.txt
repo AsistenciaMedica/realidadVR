@@ -1,0 +1,42 @@
+VITAL VR - ambient audio provenance
+Verified 2026-10-02. All external ambient assets below are CC0 1.0.
+License: https://creativecommons.org/publicdomain/zero/1.0/
+Original source bytes retained. Unity imports mono 22.05 kHz Vorbis; quiet spatial sources and loop crossfades are applied during playback.
+Freesound assets use their publicly available HQ previews; no account was needed.
+
+Chill lofi inspired [loop edit]
+Author: omfgdude; seamless loop edit by qubodup
+Source and license declaration: https://opengameart.org/content/chill-lofi-inspired-loop-edit
+File: Assets/_Project/Resources/Audio/Ambience/speaker-music.ogg
+Download: https://opengameart.org/sites/default/files/chilllofir-loop.ogg
+SHA-256: ccaa02bb60310146f1fa3b1c70be0a5a57f0674b9c4944a22b85b0c03e932cdb
+
+wind1
+Author: Luke.RUSTLTD
+Source and license declaration: https://opengameart.org/content/wind1
+File: Assets/_Project/Resources/Audio/Ambience/field-wind.wav
+Download: https://opengameart.org/sites/default/files/wind1.wav
+SHA-256: a2856f794fbf77e05f8241dc4adeade7f62fa21c3c9dc49f7725b6c6218060c3
+
+Generator (loop)
+Author: YCbCr
+Source and license declaration: https://opengameart.org/content/generator-loop
+File: Assets/_Project/Resources/Audio/Ambience/gym-motor.mp3
+Download: https://opengameart.org/sites/default/files/loop_generator_1.mp3
+SHA-256: c5989e33550cefb84e7e224c531662d02530e0484caa814a7fa7e7bed39f2062
+
+Busy Room Ambience / Small crowd / People talking in background
+Author: Breviceps
+Source and license declaration: https://freesound.org/people/Breviceps/sounds/457043/
+File: Assets/_Project/Resources/Audio/Ambience/mall-murmur.mp3
+Download: https://cdn.freesound.org/previews/457/457043_9159316-hq.mp3
+SHA-256: 623eacd59fcfbceb7aa8dde58f8cd6f41eb33a8009dd255b42b20ec0273b6544
+
+Referee whistle sound.wav
+Author: Rosa-Orenes256
+Source and license declaration: https://freesound.org/people/Rosa-Orenes256/sounds/538422/
+File: Assets/_Project/Resources/Audio/Ambience/field-whistle.mp3
+Download: https://cdn.freesound.org/previews/538/538422_11966684-hq.mp3
+SHA-256: 1bc56409d3439a16fd54bc8fa83affb7e2bc69519b15ac49979d924e895910bf
+
+Spanish DEA, roster and introduction voices are separate local Windows SpeechSynthesis outputs, not third-party CC0 sound recordings. Their generator scripts and exact text manifests are in tools/.
