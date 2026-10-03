@@ -32,10 +32,10 @@ namespace EmergencyVR.Environment.Presentation
             g.Cluster(id == "football" ? "Organizer first aid station" : "Public first aid station");
             var centre = new Vector3(-1.8f, 0, 3.75f);
             float width = id == "football" ? 1.85f : 1.25f;
-            B(centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f), "wood");
+            B(centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f), id == "gym" ? "gymWood" : "wood");
             foreach (float x in new[] { -.43f * width, .43f * width })
                 foreach (float z in new[] { -.20f, .20f })
-                    B(centre + new Vector3(x, .445f, z), new Vector3(.045f, .89f, .045f), "metal");
+                    B(centre + new Vector3(x, .445f, z), new Vector3(.045f, .89f, .045f), id == "gym" ? "gymSteel" : "metal");
             g.Solid("First aid station shelf", centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f));
             if (id == "football")
             {
@@ -49,7 +49,7 @@ namespace EmergencyVR.Environment.Presentation
             // Open front lets the real XR-grabbable DEA be removed; no decorative duplicate inside.
             g.Solid("AED cabinet shelf", cabinet + new Vector3(0, -.31f, 0), new Vector3(.62f, .035f, .28f));
             B(cabinet + new Vector3(0, .59f, .115f), new Vector3(.62f, .28f, .035f), "safetyGreen");
-            g.Text("DEA", cabinet + new Vector3(0, .59f, .093f), .095f, light: true);
+            g.Text("DEA", cabinet + new Vector3(0, .59f, .093f), id == "gym" ? .055f : .095f, light: true);
         }
 
         void Interior(string id)
@@ -69,14 +69,14 @@ namespace EmergencyVR.Environment.Presentation
                 g.Surface("Wall finish front", new Vector3(0, 1.55f, -2.995f), Quaternion.Euler(0, 180, 0), new Vector2(7, 3.1f), "gymWall");
                 g.Surface("Wall finish left", new Vector3(-3.495f, 1.55f, 1), Quaternion.Euler(0, -90, 0), new Vector2(8, 3.1f), "gymWall");
             }
-            B(new Vector3(0, 3.16f, 1), new Vector3(7.2f, .12f, 8.2f), "white");
+            B(new Vector3(0, 3.16f, 1), new Vector3(7.2f, .12f, 8.2f), id == "gym" ? "gymCeiling" : "white");
             foreach (float x in new[] { -3.47f, 3.47f })
             {
-                B(new Vector3(x, .07f, 1), new Vector3(.04f, .14f, 8), "navy");
+                B(new Vector3(x, .07f, 1), new Vector3(.04f, .14f, 8), id == "gym" ? "gymTrim" : "navy");
                 B(new Vector3(x, 3.05f, 1), new Vector3(.06f, .12f, 8), "white");
             }
             foreach (float z in new[] { -2.97f, 4.97f })
-                B(new Vector3(0, .07f, z), new Vector3(7, .14f, .04f), "navy");
+                B(new Vector3(0, .07f, z), new Vector3(7, .14f, .04f), id == "gym" ? "gymTrim" : "navy");
             g.Cluster("Floor finish");
             // Welded clinical flooring and rubber flooring read as continuous surfaces, not a debug grid.
             if (id == "mall")
@@ -85,8 +85,8 @@ namespace EmergencyVR.Environment.Presentation
                 for (int i = -1; i <= 2; i++) B(new Vector3(0, .003f, i * 2), new Vector3(7, .004f, .003f), "plaster");
             }
             g.Cluster("Entrance");
-            B(new Vector3(0, 1.16f, -2.965f), new Vector3(1.30f, 2.32f, .04f), "navy");
-            B(new Vector3(0, 1.14f, -2.925f), new Vector3(1.14f, 2.20f, .05f), "blue");
+            B(new Vector3(0, 1.16f, -2.965f), new Vector3(1.30f, 2.32f, .04f), id == "gym" ? "gymTrim" : "navy");
+            B(new Vector3(0, 1.14f, -2.925f), new Vector3(1.14f, 2.20f, .05f), id == "gym" ? "gymWood" : "blue");
             B(new Vector3(0, 1.55f, -2.888f), new Vector3(.79f, .63f, .016f), "glass");
             T(new Vector3(.43f, .87f, -2.85f), new Vector3(.43f, 1.22f, -2.85f), .021f, "metal");
             B(new Vector3(0, .24f, -2.889f), new Vector3(1.08f, .31f, .014f), "metal");
@@ -123,10 +123,15 @@ namespace EmergencyVR.Environment.Presentation
             g.Surface("Wall finish right pier 2", new Vector3(3.495f, (sill + head) * .5f, (to + 5) * .5f), Quaternion.Euler(0, 90, 0), new Vector2(5 - to, head - sill), "gymWall");
             g.Cluster("Window frames");
             for (int i = 0; i <= 4; i++)
-                B(new Vector3(x - .04f, (sill + head) * .5f, from + i * (to - from) / 4), new Vector3(.12f, head - sill, .06f), "navy");
+                B(new Vector3(x - .04f, (sill + head) * .5f, from + i * (to - from) / 4), new Vector3(.12f, head - sill, .045f), "gymTrim");
             B(new Vector3(x - .08f, sill + .015f, 1), new Vector3(.2f, .03f, to - from + .06f), "white");
-            B(new Vector3(x - .04f, head, 1), new Vector3(.12f, .05f, to - from + .06f), "navy");
-            B(new Vector3(x - .04f, sill + .02f, 1), new Vector3(.12f, .05f, to - from + .06f), "navy");
+            B(new Vector3(x - .04f, head, 1), new Vector3(.12f, .05f, to - from + .06f), "gymTrim");
+            B(new Vector3(x - .04f, sill + .02f, 1), new Vector3(.12f, .05f, to - from + .06f), "gymTrim");
+            // Deep reveals and small opening handles give the glazing a readable physical thickness.
+            foreach (float z in new[] { from, to })
+                B(new Vector3(x - .12f, (sill + head) * .5f, z), new Vector3(.25f, head - sill, .04f), "gymWall");
+            foreach (float z in new[] { -.72f, 2.68f })
+                T(new Vector3(x - .13f, 1.64f, z), new Vector3(x - .13f, 1.77f, z), .009f, "gymSteel");
             g.Solid("Window glazing", new Vector3(x, (sill + head) * .5f, 1), new Vector3(.06f, head - sill, to - from));
             g.Cluster("Street outside");
             g.Surface("Street view", new Vector3(9.5f, 3.52f, 1), Quaternion.Euler(0, 90, 0), new Vector2(24, 9.6f), "exterior");
@@ -139,7 +144,7 @@ namespace EmergencyVR.Environment.Presentation
             foreach (float x in new[] { -1.6f, 1.6f })
                 foreach (float z in new[] { -1.4f, 1.2f, 3.6f })
                 {
-                    B(new Vector3(x, 3.075f, z), new Vector3(1.24f, .05f, .64f), "white");
+                    B(new Vector3(x, 3.075f, z), new Vector3(1.24f, .05f, .64f), "gymCeiling");
                     B(new Vector3(x, 3.05f, z), new Vector3(1.16f, .012f, .56f), "ceilingLamp");
                 }
             for (int i = -2; i < 4; i++) B(new Vector3(0, 3.086f, i * 1.25f), new Vector3(7, .024f, .014f), "stone");
@@ -202,14 +207,15 @@ namespace EmergencyVR.Environment.Presentation
         void Gym()
         {
             g.Cluster("Gym feature wall");
-            B(new Vector3(0, 1.48f, 4.969f), new Vector3(7, 2.3f, .04f), "navy");
-            B(new Vector3(0, .46f, 4.939f), new Vector3(7, .08f, .025f), "accent");
-            g.BrandLockup(new Vector3(.2f, 2.45f, 4.925f), 2.2f);
-            g.Text("FUERZA   ·   MOVILIDAD   ·   BIENESTAR", new Vector3(.2f, 2.12f, 4.925f), .012f, light: true);
-            // Recessed opaque mirror finish conveys the wall without a second render camera on Quest.
-            B(new Vector3(-3.475f, 1.58f, .8f), new Vector3(.04f, 1.5f, 3.7f), "metal");
-            B(new Vector3(-3.445f, 1.58f, .8f), new Vector3(.019f, 1.40f, 3.60f), "glass");
-            g.Text("HIDRATACIÓN", new Vector3(1.15f, 1.55f, -2.93f), .015f);
+            g.Surface("Gym rear plaster", new Vector3(0, 1.55f, 4.994f), Quaternion.identity, new Vector2(7, 3.1f), "gymWall");
+            // A compact timber acoustic panel gives the strength area a material and human scale.
+            B(new Vector3(.2f, 1.74f, 4.955f), new Vector3(2.68f, 2.1f, .055f), "gymTrim");
+            for (int i = 0; i < 27; i++)
+                B(new Vector3(-1.1f + i * .10f, 1.74f, 4.908f), new Vector3(.065f, 2.1f, .045f), "gymWood");
+            g.BrandLockup(new Vector3(.2f, 2.44f, 4.858f), 1.55f);
+            g.Text("ENTRENAMIENTO", new Vector3(.2f, 2.08f, 4.855f), .012f, light: true);
+            GymInteriorDetails();
+            g.Text("HIDRATACIÓN", new Vector3(1.15f, 1.55f, -2.905f), .012f, 180);
             g.Text("ZONA DE ENTRENAMIENTO", new Vector3(3.44f, 2.84f, 2.2f), .019f, 90);
             if (GymPropSet.Available)
             {
@@ -219,15 +225,15 @@ namespace EmergencyVR.Environment.Presentation
 
             g.Cluster("Weight bench and free weights");
             Vector3 c = new Vector3(-2.17f, 0, 1.05f);
-            B(c + Vector3.up * .012f, new Vector3(1.24f, .025f, 2.15f), "blue");
+            Soft(c + Vector3.up * .012f, new Vector3(.95f, .018f, 1.9f), "rubber");
             foreach (float z in new[] { -.5f, .5f })
             {
                 T(c + new Vector3(-.32f, .07f, z), c + new Vector3(.32f, .07f, z), .044f, "metal");
                 T(c + new Vector3(0, .07f, z), c + new Vector3(0, .40f, z), .05f, "metal");
             }
             T(c + new Vector3(0, .30f, -.56f), c + new Vector3(0, .30f, .56f), .052f, "metal");
-            Soft(c + new Vector3(0, .48f, -.36f), new Vector3(.42f, .12f, .47f), "navy");
-            Soft(c + new Vector3(0, .59f, .24f), new Vector3(.43f, .12f, .72f), "navy", Quaternion.Euler(-16, 0, 0));
+            Soft(c + new Vector3(0, .48f, -.36f), new Vector3(.42f, .10f, .47f), "gymUpholstery");
+            Soft(c + new Vector3(0, .59f, .24f), new Vector3(.43f, .10f, .72f), "gymUpholstery", Quaternion.Euler(-16, 0, 0));
             g.Solid("Weight bench", c + new Vector3(0, .32f, 0), new Vector3(.7f, .65f, 1.45f));
             Dumbbell(c + new Vector3(.49f, .085f, -.8f), .22f);
             Soft(c + new Vector3(0, .68f, .47f), new Vector3(.45f, .037f, .18f), "white", Quaternion.Euler(-16, 0, 0));
@@ -261,6 +267,44 @@ namespace EmergencyVR.Environment.Presentation
             g.Solid("Treadmill", t + new Vector3(0, .52f, 0), new Vector3(.92f, 1.04f, 1.8f));
             g.Cluster("Recovery corner");
             Bench(new Vector3(-2.7f, 0, -1.84f), .95f, 90);
+        }
+
+        void GymInteriorDetails()
+        {
+            // Durable lower wall panels replace the former opaque panel labelled as a mirror.
+            g.Cluster("Gym wall protection and fittings");
+            B(new Vector3(-3.456f, .65f, .8f), new Vector3(.055f, 1.14f, 4.2f), "gymWood");
+            B(new Vector3(-3.415f, 1.225f, .8f), new Vector3(.055f, .025f, 4.2f), "gymTrim");
+            foreach (float z in new[] { -.6f, .8f, 2.2f })
+                B(new Vector3(-3.422f, .65f, z), new Vector3(.012f, 1.11f, .006f), "gymTrim");
+
+            // Realistic small fittings stay on the perimeter, outside the clinical working area.
+            foreach (float z in new[] { -.55f, 2.9f })
+            {
+                Soft(new Vector3(-3.412f, .30f, z), new Vector3(.025f, .09f, .145f), "white");
+                foreach (float dz in new[] { -.032f, .032f })
+                    B(new Vector3(-3.397f, .30f, z + dz), new Vector3(.009f, .035f, .023f), "gymTrim");
+            }
+            foreach (float z in new[] { -.35f, 2.5f })
+            {
+                B(new Vector3(-2.72f, 3.087f, z), new Vector3(.42f, .018f, .7f), "gymSteel");
+                for (int i = 0; i < 9; i++)
+                    B(new Vector3(-2.72f, 3.074f, z - .27f + i * .0675f), new Vector3(.33f, .012f, .025f), "gymTrim");
+            }
+
+            g.Cluster("Gym towel and bottle station");
+            var shelf = new Vector3(-3.16f, 0, -.75f);
+            Soft(shelf + new Vector3(0, .87f, 0), new Vector3(.53f, .045f, .86f), "gymWood");
+            foreach (float z in new[] { -.30f, .30f })
+            {
+                T(shelf + new Vector3(-.24f, .72f, z), shelf + new Vector3(.21f, .84f, z), .012f, "gymSteel");
+                B(shelf + new Vector3(-.25f, .78f, z), new Vector3(.016f, .18f, .045f), "gymSteel");
+            }
+            for (int i = 0; i < 3; i++)
+                Soft(shelf + new Vector3(.015f, .916f + .026f * i, .17f), new Vector3(.36f, .024f, .25f), "white");
+            Bottle(shelf + new Vector3(.07f, .895f, -.22f), "gymSteel");
+            g.Text("TOALLAS", new Vector3(-3.405f, 1.37f, -.75f), .010f, -90);
+            // Shelf is decorative and cannot block tool pickup or the authored patient contacts.
         }
 
         void Mall()

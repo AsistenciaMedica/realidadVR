@@ -106,6 +106,8 @@ namespace EmergencyVR.Patient.Presentation
             dialogue = review.Manager.Dialogue;
             if (dialogue != null) dialogue.ResponsePresented += ResponsePresented;
             BuildAssembly();
+            RefineCloseRangeSurfaces();
+            CacheHandLandmarks();
             ResetNeutral();
             body.skeleton.rotation = Quaternion.LookRotation(Forward, Vector3.up);
             for (int i = 0; i < 2; i++) restingFeet[i] = body.ankles[i].rotation;
@@ -151,6 +153,7 @@ namespace EmergencyVR.Patient.Presentation
             else ApplyPose(progress);
             PresentAttention();
             PresentPerformance();
+            PreserveSeatedHandContacts();
             SyncInteractionColliders();
         }
 
@@ -266,14 +269,13 @@ namespace EmergencyVR.Patient.Presentation
                 SolveLimb(body.thighs[side], body.calves[side], body.ankles[side], foot,
                     body.thighs[side].position + Forward * .9f + Vector3.up * .35f);
                 body.ankles[side].rotation = Quaternion.AngleAxis(-80 * recline, Right) * restingFeet[side];
-                var benchHand = Origin + lateral * .34f + Forward * .075f + Vector3.up * .53f;
+                var benchHand = SeatedHandTarget(side);
                 var assistedHand = body.pelvis.position + lateral * .29f + up * .30f + front * .12f;
                 var restingHand = body.pelvis.position + lateral * .29f - up * .16f + front * .04f;
                 var target = Vector3.Lerp(benchHand, assistedHand, Smooth(value / .24f));
                 target = Vector3.Lerp(target, restingHand, recline);
-                if (side == 1 && value <= 0) target = body.pelvis.position + up * .23f + front * .18f + lateral * .13f;
                 SolveLimb(body.upperArms[side], body.forearms[side], body.hands[side], target,
-                    body.upperArms[side].position + lateral * .8f - up * .35f);
+                    body.upperArms[side].position + lateral * .30f - up * .32f + front * .16f);
             }
             float phase = Clinical?.RespiratoryPhase ?? 0;
             float rate = Clinical?.RespiratoryRate ?? visual.VisualState.RespiratoryRate;
@@ -316,7 +318,8 @@ namespace EmergencyVR.Patient.Presentation
                 var local = Quaternion.Inverse(frame) * delta;
                 float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -20, 20) * attention;
                 float pitch = Mathf.Clamp(-Mathf.Atan2(local.y, Mathf.Max(.1f, new Vector2(local.x, local.z).magnitude)) * Mathf.Rad2Deg, -10, 12) * attention;
-                attentionRotation = Quaternion.AngleAxis(yaw, Vector3.up) * Quaternion.AngleAxis(pitch, Right);
+                var targetRotation = Quaternion.AngleAxis(yaw, Vector3.up) * Quaternion.AngleAxis(pitch, Right);
+                attentionRotation = Quaternion.Slerp(attentionRotation, targetRotation, 1 - Mathf.Exp(-Time.deltaTime * 4));
                 if (rig.leftEye != null) rig.leftEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.leftEye.rotation;
                 if (rig.rightEye != null) rig.rightEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.rightEye.rotation;
             }

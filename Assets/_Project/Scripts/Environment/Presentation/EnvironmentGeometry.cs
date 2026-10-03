@@ -33,9 +33,10 @@ namespace EmergencyVR.Environment.Presentation
             string key = cluster + "/" + material;
             if (!batches.TryGetValue(key, out var instances)) { instances = new List<CombineInstance>(); batches.Add(key, instances); }
             var primitive = primitives[shape];
-            if (material == "footballStand")
+            if (material == "footballStand" || material == "gymWood")
             {
-                // One concrete tile per metre on every face, including the narrow step risers.
+                // World-sized UVs keep the grain vertical on timber, and concrete tiles at metre scale.
+                // A thin slat must sample a narrow part of the grain rather than stretch a whole board.
                 primitive = Object.Instantiate(primitive);
                 var vertices = primitive.vertices; var normals = primitive.normals; var uv = new Vector2[vertices.Length];
                 for (int i = 0; i < uv.Length; i++)

@@ -3,6 +3,24 @@
 Destinatario: **Astra**, agente que ejecuta este plan sobre `proyectovr`.
 Fecha: viernes 2 de octubre de 2026. Entrega: **lunes 5 por la noche**.
 
+## Prioridad actual — revisión visual del gimnasio (3 de octubre)
+
+Por indicación de Juan, mejorar primero el gimnasio y Daniel; los demás escenarios
+esperan su valoración en **Meta XR Simulator**. Juan realiza la prueba visual.
+Esta revisión solo compila y hornea el gimnasio, sin ejecutar suites ni recorridos.
+
+- Acabados diferenciados de caucho, madera, pared, acero y tapizado, con escala de textura corregida.
+- Distribución despejada, ventanas con remates y detalles de uso; banco y colchoneta con bordes redondeados.
+- Daniel apoya las manos en banco/muslo, suaviza la mirada y los movimientos e incorpora parpadeo irregular.
+- Luz principal con sombras para personajes y horneado del gimnasio disponible también en el proyecto fuente.
+- Se conserva el modelo humano actual y el contenido clínico. La aceptación del realismo queda pendiente de Juan.
+
+Preparación reproducible: `tools/Prepare-GymVisualPreview.ps1`. Compila y hornea en
+`C:\Users\Juan\vital-lab`, y copia el gimnasio y sus dependencias al proyecto fuente.
+Evidencia local: `TestResults/gym-visual-revision/`. Las APK/ZIP anteriores no contienen esta revisión.
+Compilación completada y horneado GPU finalizado a las 12:26 de Bogotá: 2 lightmaps,
+67 superficies y 100 probes. Recursos copiados al proyecto; pendiente únicamente la valoración visual de Juan.
+
 ## La situación
 
 - El martes 6 **el cliente se pondrá el Quest por primera vez**. Será la primera

@@ -28,6 +28,35 @@ namespace EmergencyVR.Editor.Environment
         [MenuItem("Emergency VR/Art/Bake Quest environments")]
         public static void BakeAll() => EnsureBaked(true);
 
+        [MenuItem("Emergency VR/Art/Bake gym visual revision only")]
+        public static void BakeGymVisualRevision()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Leave Play Mode before baking the gym.");
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+                if (SceneManager.GetSceneAt(i).isDirty)
+                    throw new InvalidOperationException("Save open scenes before baking the gym.");
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+                throw new InvalidOperationException("Gym baking needs a graphics device.");
+            VisualMaterialsSetup.EnsureGymMaterials();
+            var setup = EditorSceneManager.GetSceneManagerSetup();
+            var previousPipeline = QualitySettings.renderPipeline;
+            try
+            {
+                QualitySettings.renderPipeline = AssetDatabase.LoadAssetAtPath<RenderPipelineAsset>("Assets/_Project/Settings/QuestURP.asset");
+                Bake("gym", Fingerprint());
+                AssetDatabase.SaveAssets();
+                Debug.Log("VITAL_GYM_VISUAL_REVISION_BAKED");
+            }
+            finally
+            {
+                QualitySettings.renderPipeline = previousPipeline;
+                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                var saved = setup.Where(s => !string.IsNullOrEmpty(s.path)).ToArray();
+                if (saved.Length > 0) EditorSceneManager.RestoreSceneManagerSetup(saved);
+            }
+        }
+
         public static void EnsureBaked(bool force = false)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -329,7 +358,7 @@ namespace EmergencyVR.Editor.Environment
             sun.type = LightType.Directional;
             sun.lightmapBakeType = LightmapBakeType.Baked;
             sun.shadows = LightShadows.Soft;
-            sun.intensity = id == "football" ? 1.1f : id == "gym" ? 1.5f : .25f;
+            sun.intensity = id == "football" ? 1.1f : id == "gym" ? .8f : .25f;
             sun.color = new Color(1, .985f, .95f);
             sun.transform.rotation = Quaternion.Euler(id == "football" ? 48 : 36, id == "football" ? -38 : -100, 0);
             if (id == "football") return;
@@ -346,7 +375,7 @@ namespace EmergencyVR.Editor.Environment
                     panel.areaSize = id == "gym" ? new Vector2(1.10f, .50f) : new Vector2(1.18f, .36f);
                     panel.lightmapBakeType = LightmapBakeType.Baked;
                     panel.shadows = LightShadows.Soft;
-                    panel.intensity = id == "gym" ? 10 : id == "mall" ? 16 : 8;
+                    panel.intensity = id == "gym" ? 6 : id == "mall" ? 16 : 8;
                     panel.color = new Color(1, .985f, .96f);
                     panel.range = 8;
                 }
@@ -386,6 +415,12 @@ namespace EmergencyVR.Editor.Environment
             data.ambientSky = data.outdoor ? new Color(.63f, .73f, .82f) : new Color(.62f, .65f, .68f);
             data.ambientEquator = data.outdoor ? new Color(.36f, .44f, .48f) : new Color(.42f, .45f, .47f);
             data.ambientGround = data.outdoor ? new Color(.20f, .25f, .18f) : new Color(.28f, .30f, .31f);
+            if (data.environmentId == "gym")
+            {
+                data.ambientSky = new Color(.42f, .46f, .50f);
+                data.ambientEquator = new Color(.30f, .31f, .30f);
+                data.ambientGround = new Color(.16f, .15f, .13f);
+            }
             data.skybox = data.outdoor ? Resources.Load<Material>("Visual/Materials/FootballSky") : null;
             if (data.outdoor && (data.skybox == null || data.skybox.GetTexture("_MainTex") == null))
                 throw new InvalidOperationException("Cannot bake outdoor lighting with a missing HDRI panorama.");

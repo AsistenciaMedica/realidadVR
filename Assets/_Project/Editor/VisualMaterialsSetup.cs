@@ -27,8 +27,7 @@ namespace EmergencyVR.Editor
             EditorUtility.SetDirty(renderer);
             // Import native images first, then each dependent GLB synchronously and reject missing bindings.
             QuestGymTextureSetup.ReimportAndValidate();
-            Lit("GymFloor", "rubber_tiles", new Vector2(7, 8), new Color(.72f, .72f, .72f), .08f);
-            Lit("GymWall", "plastered_wall", new Vector2(3, 1.5f), new Color(.93f, .94f, .93f), .06f);
+            ConfigureGymMaterials();
             Lit("FootballGrass", "aerial_grass_rock", new Vector2(18, 26), new Color(.54f, .95f, .55f), .03f);
             Lit("MallFloor", "terrazzo_tiles", new Vector2(7, 8), Color.white, .55f);
             Lit("FootballStand", "concrete_floor_02", Vector2.one, new Color(.77f, .78f, .75f), .12f);
@@ -59,11 +58,45 @@ namespace EmergencyVR.Editor
             Debug.Log("VITAL_ENVIRONMENT_MATERIALS_READY");
         }
 
-        static void Lit(string name, string map, Vector2 tiling, Color color, float smoothness)
+        // This scoped entry point updates the gym finish assets without reimporting textures,
+        // changing their user-authored settings, or touching another scenario's materials.
+        [MenuItem("Emergency VR/Art/Refresh gym finishes only")]
+        public static void EnsureGymMaterials()
+        {
+            Directory.CreateDirectory(Folder);
+            ConfigureGymMaterials();
+            AssetDatabase.SaveAssets();
+        }
+
+        static void ConfigureGymMaterials()
+        {
+            // The source photograph contains four tiles across: a 2 m repeat makes 50 cm tiles.
+            Lit("GymFloor", "rubber_tiles", new Vector2(3.5f, 4), Color.white, .24f, .4f);
+            Lit("GymWall", "plastered_wall", new Vector2(3, 1.5f), new Color(.92f, .91f, .88f), .1f, .2f);
+            Lit("GymWood", "wood_floor", new Vector2(.5f, 1), new Color(.92f, .88f, .8f), .28f, .25f);
+            Lit("GymCeiling", "plastered_wall", new Vector2(3, 3), new Color(.79f, .78f, .74f), .06f, .12f);
+            Solid("GymTrim", new Color(.16f, .17f, .17f), .3f);
+            Solid("GymSteel", new Color(.63f, .65f, .65f), .43f, .92f);
+            Solid("GymUpholstery", new Color(.28f, .285f, .27f), .15f);
+            Solid("GymAccent", new Color(.45f, .32f, .16f), .18f);
+        }
+
+        static void Solid(string name, Color color, float smoothness, float metallic = 0)
         {
             var material = Material(name, "Universal Render Pipeline/Lit");
             material.SetColor("_BaseColor", color);
             material.SetFloat("_Smoothness", smoothness);
+            material.SetFloat("_Metallic", metallic);
+            material.enableInstancing = true;
+            EditorUtility.SetDirty(material);
+        }
+
+        static void Lit(string name, string map, Vector2 tiling, Color color, float smoothness, float normalScale = 1)
+        {
+            var material = Material(name, "Universal Render Pipeline/Lit");
+            material.SetColor("_BaseColor", color);
+            material.SetFloat("_Smoothness", smoothness);
+            material.SetFloat("_BumpScale", normalScale);
             var albedo = Texture(map + "_color.jpg");
             var normal = Texture(map + "_normal.jpg");
             if (albedo != null) { material.SetTexture("_BaseMap", albedo); material.SetTextureScale("_BaseMap", tiling); }

@@ -19,21 +19,17 @@ namespace EmergencyVR.Environment.Presentation
             parent.SetParent(root, false);
 
             // Back wall: strength area. The patient lies around (1.55, 0, 2.1); keep a 1 m working margin.
-            Prop(parent, "power_rack_bench", new Vector3(0, 0, 4.05f), 180, 2.2f, Fit.Height);
-            Prop(parent, "dumbbell_rack", new Vector3(2.35f, 0, 4.45f), 180, 1.9f, Fit.Length);
-            Prop(parent, "weight_plates", new Vector3(-.95f, 0, 4.55f), 0, .9f, Fit.Length, solid: false);
-            Prop(parent, "kettlebell", new Vector3(1.0f, 0, 4.5f), 20, .28f, Fit.Height);
-            Prop(parent, "kettlebell", new Vector3(1.05f, 0, 4.12f), -35, .24f, Fit.Height);
-            Prop(parent, "barbell", new Vector3(-.2f, 0, 3.0f), 0, 2.0f, Fit.Length, solid: false);
+            Prop(parent, "power_rack_bench", new Vector3(-.05f, 0, 4.15f), 180, 2.1f, Fit.Height);
+            Prop(parent, "dumbbell_rack", new Vector3(2.4f, 0, 4.52f), 180, 1.65f, Fit.Length);
+            Prop(parent, "weight_plates", new Vector3(-.85f, 0, 4.58f), 0, .68f, Fit.Length, solid: false);
+            Prop(parent, "kettlebell", new Vector3(2.03f, 0, 4.10f), 20, .28f, Fit.Height);
+            Prop(parent, "kettlebell", new Vector3(2.42f, 0, 4.10f), -15, .24f, Fit.Height);
 
-            // Right wall: cardio line facing the wall.
-            Prop(parent, "treadmill_a", new Vector3(2.45f, 0, -.35f), 180, 1.95f, Fit.Length);
-            Prop(parent, "treadmill_b", new Vector3(2.55f, 0, -1.7f), -90, 1.9f, Fit.Length);
-            Prop(parent, "elliptical", new Vector3(2.6f, 0, -2.6f), -90, 1.65f, Fit.Height);
+            // A single cardio bay fits the room; leave the window-side patient approach clear.
+            Prop(parent, "treadmill_a", new Vector3(2.65f, 0, -1.25f), 180, 1.95f, Fit.Length);
 
-            // Left wall (mirror side): selectorised machines.
-            Prop(parent, "lat_pulldown", new Vector3(-2.75f, 0, 1.45f), 90, 2.1f, Fit.Height);
-            Prop(parent, "body_solid_machine", new Vector3(-2.7f, 0, -.55f), 90, 1.95f, Fit.Height);
+            // One selectorised station on the left leaves a usable circulation aisle.
+            Prop(parent, "lat_pulldown", new Vector3(-2.78f, 0, 1.35f), 90, 2.05f, Fit.Height);
 
             // Entrance wall: lockers, mats, hydration.
             Prop(parent, "lockers", new Vector3(-2.2f, 0, -2.62f), 0, 1.85f, Fit.Height);
@@ -42,8 +38,7 @@ namespace EmergencyVR.Environment.Presentation
             Prop(parent, "yoga_mat", new Vector3(-1.02f, 0, -2.78f), 25, .62f, Fit.Height);
             Prop(parent, "water_cooler", new Vector3(1.15f, 0, -2.72f), 0, 1.1f, Fit.Height);
 
-            // Corner details.
-            Prop(parent, "punching_bag", new Vector3(3.05f, .55f, 1.0f), 0, 1.25f, Fit.Height);
+            // Wall-mounted accessory; the former floating punching bag occupied the patient approach.
             Prop(parent, "wall_clock", new Vector3(-3.47f, 2.35f, -1.6f), 90, .36f, Fit.Length, solid: false, onFloor: false);
             if (desktopLighting && !Application.isMobilePlatform && !EmergencyVR.Desktop.QuestLookSimulation.Enabled) Lighting(root);
         }

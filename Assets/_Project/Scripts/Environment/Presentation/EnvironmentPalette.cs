@@ -40,16 +40,25 @@ namespace EmergencyVR.Environment.Presentation
             Add("lamp", new Color(.82f, .88f, .86f), emission: new Color(.32f, .36f, .34f));
             // Corporate signage has its own token; clinical furniture and surfaces retain their existing palette.
             Add("brandNavy", EmergencyVR.UI.VitalBrand.Navy);
-            // Gym shell: CC0 Poly Haven surfaces, tiled to ~1 m rubber tiles across the 7 x 8 m floor.
-            Add("gymFloor", new Color(.72f, .72f, .72f), smooth: .08f,
-                map: "rubber_tiles", tiling: new Vector2(7, 8), saved: "GymFloor");
-            Add("gymWall", new Color(.93f, .94f, .93f), smooth: .06f,
-                map: "plastered_wall", tiling: new Vector2(3, 1.5f), saved: "GymWall");
+            // Gym-only finishes: the rubber photograph has four tiles per 2 m repeat.
+            // Architectural surfaces stay neutral; warm wood and painted steel have distinct responses.
+            Add("gymFloor", Color.white, smooth: .24f,
+                map: "rubber_tiles", tiling: new Vector2(3.5f, 4), saved: "GymFloor", normalScale: .4f);
+            Add("gymWall", new Color(.92f, .91f, .88f), smooth: .1f,
+                map: "plastered_wall", tiling: new Vector2(3, 1.5f), saved: "GymWall", normalScale: .2f);
+            Add("gymWood", new Color(.92f, .88f, .8f), smooth: .28f,
+                map: "wood_floor", tiling: new Vector2(.5f, 1), saved: "GymWood", normalScale: .25f);
+            Add("gymCeiling", new Color(.79f, .78f, .74f), smooth: .06f,
+                map: "plastered_wall", tiling: new Vector2(3, 3), saved: "GymCeiling", normalScale: .12f);
+            Add("gymTrim", new Color(.16f, .17f, .17f), smooth: .3f, saved: "GymTrim");
+            Add("gymSteel", new Color(.63f, .65f, .65f), metallic: .92f, smooth: .43f, saved: "GymSteel");
+            Add("gymUpholstery", new Color(.28f, .285f, .27f), smooth: .15f, saved: "GymUpholstery");
+            Add("gymAccent", new Color(.45f, .32f, .16f), smooth: .18f, saved: "GymAccent");
             Add("ceilingLamp", new Color(.95f, .96f, .95f), emission: new Color(2.2f, 2.13f, 2.02f), saved: "CeilingLamp");
             Add("exterior", Color.white, saved: "ExteriorView");
 
             void Add(string name, Color color, float metallic = 0, float smooth = .12f, Color emission = default,
-                string map = null, Vector2 tiling = default, string saved = null)
+                string map = null, Vector2 tiling = default, string saved = null, float normalScale = 1)
             {
                 // Saved assets keep their shader keywords in players; the runtime copy never edits the asset.
                 var asset = saved == null ? null : Resources.Load<Material>("Visual/Materials/" + saved);
@@ -59,6 +68,7 @@ namespace EmergencyVR.Environment.Presentation
                 material.SetColor("_BaseColor", color);
                 material.SetFloat("_Metallic", metallic);
                 material.SetFloat("_Smoothness", smooth);
+                material.SetFloat("_BumpScale", normalScale);
                 if (emission.maxColorComponent > 0)
                 {
                     material.EnableKeyword("_EMISSION");

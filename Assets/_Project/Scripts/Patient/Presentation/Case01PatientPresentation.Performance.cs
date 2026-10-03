@@ -11,7 +11,6 @@ namespace EmergencyVR.Patient.Presentation
     public sealed partial class Case01PatientPresentation
     {
         static readonly string[] Trunk = { "Spine", "Spine1", "Spine2", "Neck", "Head" };
-        static readonly string[] RightArm = { "R Clavicle", "R UpperArm", "R Forearm", "R Hand" };
         const string IdleClip = "m_sit_chair_idle_nervous_01", FaceClip = "m_sit_chair_idle_touch_face";
 
         Transform sampler;
@@ -26,8 +25,9 @@ namespace EmergencyVR.Patient.Presentation
         void PresentPerformance()
         {
             PresentSpeech();
+            if (!review.Manager.IsPaused) performanceTime += Time.deltaTime;
+            PresentNaturalBlink();
             if (!EnsureSampler()) return;
-            performanceTime += Time.deltaTime;
             bool seated = !busy && !risePending && !standing && !regaining && progress <= 0 && !completed;
             idleWeight = Mathf.MoveTowards(idleWeight, seated ? 1 : 0, Time.deltaTime * 1.5f);
             if (idleWeight > .001f && idle != null)
@@ -36,7 +36,7 @@ namespace EmergencyVR.Patient.Presentation
                 foreach (var name in Trunk)
                 {
                     // Attending to the learner keeps the head on them; the trunk keeps breathing and shifting.
-                    float weight = idleWeight * (name == "Head" || name == "Neck" ? .75f * (1 - attention * .7f) : .8f);
+                    float weight = idleWeight * (name == "Head" || name == "Neck" ? .32f * (1 - attention * .7f) : .38f);
                     AddDelta(name, idleReference, weight);
                 }
             }
@@ -52,7 +52,7 @@ namespace EmergencyVR.Patient.Presentation
                 {
                     float envelope = Mathf.SmoothStep(0, 1, Mathf.Clamp01(t / .8f)) * Mathf.SmoothStep(0, 1, Mathf.Clamp01((face.length - t) / .8f));
                     CharacterAnimationLibrary.Sample(face, sampler.gameObject, t);
-                    foreach (var name in RightArm) AddDelta(name, faceReference, envelope);
+                    PoseDizzyGesture(envelope);
                     AddDelta("Head", faceReference, envelope * .5f);
                 }
             }
@@ -124,7 +124,8 @@ namespace EmergencyVR.Patient.Presentation
         {
             if (sampler != null) Destroy(sampler.gameObject);
             sampler = null; liveBones.Clear(); sampledBones.Clear(); idleReference.Clear(); faceReference.Clear();
-            gestureAt = -1; nextGesture = 12; idleWeight = 0; mouth = 0;
+            gestureAt = -1; nextGesture = 12; idleWeight = 0; mouth = 0; performanceTime = 0;
+            naturalBlinkAt = -1; nextNaturalBlink = 3.1f; naturalBlinkSequence = 0;
         }
     }
 }

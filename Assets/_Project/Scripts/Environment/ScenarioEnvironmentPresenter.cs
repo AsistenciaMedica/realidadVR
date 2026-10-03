@@ -3,6 +3,7 @@ using EmergencyVR.Environment.Presentation;
 using EmergencyVR.Patient;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace EmergencyVR.Environment
 {
@@ -42,6 +43,8 @@ namespace EmergencyVR.Environment
         FogMode originalFogMode;
         Color originalFogColor;
         float originalFogDensity, originalFogStart, originalFogEnd;
+        RenderPipelineAsset pipelineBeforeGym;
+        UniversalRenderPipelineAsset gymPipeline;
 
         public string CurrentEnvironment { get; private set; }
         public Transform PortableEquipmentAnchor { get; private set; }
@@ -140,6 +143,7 @@ namespace EmergencyVR.Environment
                 id = null;
             }
             CurrentEnvironment = id;
+            RestoreGymPipeline();
             foreach (var module in modules.Values) module.SetActive(false);
             foreach (var pair in hidden)
                 if (pair.Key != null) pair.Key.SetActive(string.IsNullOrEmpty(id) && pair.Value);
@@ -162,7 +166,7 @@ namespace EmergencyVR.Environment
             if (ActiveBakedLighting != null)
             {
                 ActiveBakedLighting.Apply();
-                roomLight.enabled = false; // Full baked direct + indirect lighting also reaches moving characters via probes.
+                roomLight.enabled = false;
                 foreach (var pair in cameraClearFlags)
                     if (pair.Key != null) pair.Key.clearFlags = ActiveBakedLighting.skybox != null ? CameraClearFlags.Skybox : pair.Value;
             }
@@ -171,6 +175,7 @@ namespace EmergencyVR.Environment
                 RestoreBakedSettings();
                 ApplyLighting(id);
             }
+            if (id == "gym") ApplyGymCharacterLight();
             // Capture reflections once the module and its equipment are visible.
             foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>())
                 if (probe.mode == ReflectionProbeMode.Realtime) probe.RenderProbe();
@@ -260,6 +265,7 @@ namespace EmergencyVR.Environment
 
         void RestoreLighting()
         {
+            RestoreGymPipeline();
             ActiveBakedLighting = null;
             RestoreBakedSettings();
             if (roomLight != null)
@@ -276,6 +282,52 @@ namespace EmergencyVR.Environment
             RenderSettings.ambientGroundColor = originalAmbientGround;
             RenderSettings.ambientProbe = originalAmbientProbe;
             foreach (var pair in cameraBackgrounds) if (pair.Key != null) pair.Key.backgroundColor = pair.Value;
+        }
+
+        void ApplyGymCharacterLight()
+        {
+            // A single window key gives moving faces and bodies directional shape and
+            // actual contact shadows. The room still receives its baked ceiling/bounce light.
+            pipelineBeforeGym = QualitySettings.renderPipeline;
+            var source = (pipelineBeforeGym ?? GraphicsSettings.defaultRenderPipeline) as UniversalRenderPipelineAsset;
+            if (source != null)
+            {
+                gymPipeline = Instantiate(source);
+                gymPipeline.name = source.name + " / gym contact shadows";
+                gymPipeline.shadowDistance = 12f;
+                gymPipeline.shadowCascadeCount = 1;
+                gymPipeline.mainLightShadowmapResolution = 1024;
+                QualitySettings.renderPipeline = gymPipeline;
+            }
+            if (ownsLight) roomLight.gameObject.SetActive(true);
+            roomLight.enabled = true;
+            roomLight.type = LightType.Directional;
+            roomLight.intensity = ActiveBakedLighting != null ? .8f : 1.15f;
+            roomLight.color = new Color(1f, .96f, .89f);
+            roomLight.transform.rotation = Quaternion.Euler(36, -100, 0);
+            roomLight.shadows = LightShadows.Soft;
+            roomLight.shadowStrength = .8f;
+            roomLight.shadowBias = .025f;
+            roomLight.shadowNormalBias = .18f;
+            roomLight.shadowNearPlane = .08f;
+        }
+
+        void RestoreGymPipeline()
+        {
+            if (gymPipeline == null) return;
+            if (QualitySettings.renderPipeline == gymPipeline)
+            {
+                QualitySettings.renderPipeline = pipelineBeforeGym;
+            }
+            Destroy(gymPipeline);
+            gymPipeline = null;
+        }
+
+        void LateUpdate()
+        {
+            // Follow quality changes without ever editing the user's saved pipeline asset.
+            if (gymPipeline != null && pipelineBeforeGym is UniversalRenderPipelineAsset source)
+                gymPipeline.renderScale = source.renderScale;
         }
 
         void RestoreBakedSettings()
