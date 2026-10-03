@@ -66,11 +66,13 @@ namespace EmergencyVR.Patient.Presentation
             var target = Vector3.Lerp(SeatedHandTarget(1), temple, amount);
             SolveLimb(body.upperArms[1], body.forearms[1], body.hands[1], target,
                 body.upperArms[1].position + Right * .30f - Vector3.up * .25f + Forward * .17f);
+            OrientRightHand(Vector3.up + Forward * .2f, -Right, amount);
         }
 
         void PreserveSeatedHandContacts()
         {
-            if (busy || risePending || standing || regaining || progress > 0 || completed) return;
+            if (!HasVoluntaryPresence || busy || risePending || standing || regaining || progress > 0 || completed ||
+                review.Procedures?.CPR?.Touching == true || visual.CompressionDepthMetres > .001f) return;
             for (int side = 0; side < 2; side++)
             {
                 // During the occasional right-hand gesture the existing animation owns that hand.

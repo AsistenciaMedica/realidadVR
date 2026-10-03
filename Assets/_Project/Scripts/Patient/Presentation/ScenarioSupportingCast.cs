@@ -35,7 +35,10 @@ namespace EmergencyVR.Patient.Presentation
             if (definition.clinicalV2 != null)
             {
                 // Daniel already has a gym colleague and, later, two arriving paramedics (four total).
-                Add("Mateo", false, new Vector3(-.75f, 0, 2.5f), point);
+                var mateo = Add("Mateo", false, new Vector3(-.75f, 0, 2.5f), point);
+                var presentation = review.GetComponent<Case01PatientPresentation>();
+                if (definition.environment == "gym" && presentation != null && presentation.IsActive)
+                    mateo.gameObject.AddComponent<GymBystanderBehaviour>().Initialize(mateo, review, review.Procedures.Visuals.Rig.head);
                 return;
             }
             switch (definition.environment)
@@ -68,6 +71,99 @@ namespace EmergencyVR.Patient.Presentation
             actors.Clear(); Witness = null; scenarioId = null;
         }
         void OnDestroy() { if (review != null) review.SelectionChanged -= Clear; Clear(); }
+    }
+
+    /// <summary>Mateo observes the first gym case; he has no clinical authority or dialogue.</summary>
+    [DefaultExecutionOrder(190)]
+    internal sealed class GymBystanderBehaviour : MonoBehaviour
+    {
+        readonly Dictionary<Transform, Pose> planted = new Dictionary<Transform, Pose>();
+        SupportingActor actor;
+        ReviewCaseSession review;
+        Transform patientHead, head, learner;
+        Vector3 headForward;
+        Quaternion headBaseline, headOffset = Quaternion.identity;
+        bool wroteHead, secondIdle, gesturing;
+        float clock, nextIdle = 14.6f, nextGesture = 6.7f, gestureUntil;
+        string clinicalState;
+
+        public void Initialize(SupportingActor owner, ReviewCaseSession session, Transform patient)
+        {
+            actor = owner; review = session; patientHead = patient;
+            var model = owner.Motion.transform;
+            // These clips include captured hip translation. Preserve the planted standing pose,
+            // letting only the trunk, shoulders, arms and head express the change in attention.
+            planted[model] = new Pose(model.localPosition, model.localRotation);
+            foreach (var bone in model.GetComponentsInChildren<Transform>())
+            {
+                if (bone.name == "Bip01 Head") head = bone;
+                if (bone.name == "Bip01" || bone.name == "Bip01 Pelvis")
+                    planted[bone] = new Pose(bone.localPosition, bone.localRotation);
+                if (bone.name != "Bip01 L Thigh" && bone.name != "Bip01 R Thigh") continue;
+                foreach (var legBone in bone.GetComponentsInChildren<Transform>())
+                    planted[legBone] = new Pose(legBone.localPosition, legBone.localRotation);
+            }
+            if (head != null) headForward = head.InverseTransformDirection(transform.forward);
+            clinicalState = review.Manager.MedicalSession?.ClinicalState?.ClinicalStateId;
+        }
+
+        void Update()
+        {
+            if (actor == null || review == null || review.Manager.IsPaused) return;
+            // Remove only our previous additive gaze before the Playables animation evaluates.
+            if (wroteHead && head != null) head.localRotation = headBaseline;
+            wroteHead = false;
+            clock += Time.deltaTime;
+            string state = review.Manager.MedicalSession?.ClinicalState?.ClinicalStateId;
+            if (state != clinicalState)
+            {
+                clinicalState = state;
+                // A new symptom/support state attracts a brief acknowledgment after Daniel settles.
+                nextGesture = Mathf.Min(nextGesture, clock + 2.1f);
+            }
+            if (gesturing && clock >= gestureUntil)
+            {
+                gesturing = false;
+                actor.Motion.Play(secondIdle ? "m_idle_breathe_02" : "m_idle_breathe_01", .65f);
+            }
+            if (!gesturing && clock >= nextIdle)
+            {
+                secondIdle = !secondIdle;
+                actor.Motion.Play(secondIdle ? "m_idle_breathe_02" : "m_idle_breathe_01", 1.1f);
+                nextIdle = clock + (secondIdle ? 18.3f : 14.6f);
+            }
+            bool patientSpeaking = review.Manager.Dialogue != null && review.Manager.Dialogue.IsSpeaking;
+            if (!gesturing && !patientSpeaking && clock >= nextGesture)
+            {
+                actor.Motion.Play("m_gestic_talk_neutral_01", .65f);
+                gesturing = true; gestureUntil = clock + 3.8f;
+                nextGesture = clock + 26.4f;
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (actor == null || review == null || review.Manager.IsPaused) return;
+            foreach (var anchor in planted)
+                anchor.Key.SetLocalPositionAndRotation(anchor.Value.position, anchor.Value.rotation);
+            if (head == null || patientHead == null) return;
+            if (learner == null && Camera.main != null) learner = Camera.main.transform;
+            bool patientSpeaking = review.Manager.Dialogue != null && review.Manager.Dialogue.IsSpeaking;
+            bool learnerNear = learner != null && (learner.position - head.position).sqrMagnitude < 12.25f;
+            // Mostly watches Daniel; occasional short glances invite the nearby learner's attention.
+            bool glanceToLearner = learnerNear && !patientSpeaking && Mathf.Repeat(clock + 1.8f, 10.7f) < 3.1f;
+            var target = glanceToLearner ? learner.position : patientHead.position;
+            var direction = target - head.position;
+            if (direction.sqrMagnitude < .01f) return;
+            headBaseline = head.localRotation;
+            var correction = Quaternion.RotateTowards(Quaternion.identity,
+                Quaternion.FromToRotation(head.TransformDirection(headForward), direction.normalized), 38);
+            var desired = Quaternion.Inverse(head.parent.rotation) * correction * head.rotation;
+            var offset = Quaternion.Inverse(headBaseline) * desired;
+            headOffset = Quaternion.Slerp(headOffset, offset, 1 - Mathf.Exp(-Time.deltaTime * 3.4f));
+            head.localRotation = headBaseline * headOffset;
+            wroteHead = true;
+        }
     }
 
     [DefaultExecutionOrder(180)]

@@ -131,7 +131,7 @@ namespace EmergencyVR.Patient.Presentation
             busy = returning = held = completed = evidenceRecorded = false;
             progress = 0; ticket = null; FinalPositionValidated = false; lastSupportTime = -1;
             ResetRise();
-            attentionUntil = 0;
+            ResetPerformanceTiming();
             Instruction = "Daniel está sentado. Acércate, habla con él y comprueba el espacio antes de ayudarle.";
             ApplyPose(0); CapturePoints(previousPoints);
         }
@@ -307,39 +307,53 @@ namespace EmergencyVR.Patient.Presentation
 
         void PresentAttention()
         {
-            float time = Clinical?.SimulationTime ?? 0;
-            bool listens = time < attentionUntil || dialogue != null && dialogue.IsSpeaking || time % 7.7f < 3.2f;
-            attention = Mathf.MoveTowards(attention, listens ? 1 : 0, Time.deltaTime * .7f);
+            if (!HasVoluntaryPresence) { attention = 0; attentionRotation = Quaternion.identity; return; }
+            float time = performanceTime;
             var camera = Camera.main;
-            if (camera != null && !review.Manager.IsPaused)
+            bool nearby = camera != null && (camera.transform.position - rig.head.position).sqrMagnitude < 3.2f * 3.2f;
+            if (nearby && !learnerWasNearby && !review.Manager.IsPaused)
             {
-                var delta = camera.transform.position - rig.head.position;
+                attentionUntil = time + 4.2f;
+                acknowledgementAt = time;
+            }
+            if (!review.Manager.IsPaused) learnerWasNearby = nearby;
+            float cycle = Mathf.Repeat(time, 17.3f);
+            bool listens = time < attentionUntil || dialogue != null && dialogue.IsSpeaking || nearby && cycle < 5.4f;
+            attention = Mathf.MoveTowards(attention, listens ? 1 : 0, PerformanceDelta * 1.2f);
+            if (!review.Manager.IsPaused)
+            {
+                // Short looks toward the learner, the support hand and the colleague. No clinical decision is made here.
+                var glance = cycle < 10.2f ? SeatedHandTarget(1) + Forward * .20f : Origin + Right * .95f + Vector3.up * 1.35f;
+                var lookPoint = camera != null ? Vector3.Lerp(glance, camera.transform.position, attention) : glance;
+                var delta = lookPoint - rig.head.position;
                 var frame = Quaternion.LookRotation(Forward, Vector3.up);
                 var local = Quaternion.Inverse(frame) * delta;
-                float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -20, 20) * attention;
-                float pitch = Mathf.Clamp(-Mathf.Atan2(local.y, Mathf.Max(.1f, new Vector2(local.x, local.z).magnitude)) * Mathf.Rad2Deg, -10, 12) * attention;
+                float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -28, 28);
+                float pitch = Mathf.Clamp(-Mathf.Atan2(local.y, Mathf.Max(.1f, new Vector2(local.x, local.z).magnitude)) * Mathf.Rad2Deg, -12, 16);
                 var targetRotation = Quaternion.AngleAxis(yaw, Vector3.up) * Quaternion.AngleAxis(pitch, Right);
-                attentionRotation = Quaternion.Slerp(attentionRotation, targetRotation, 1 - Mathf.Exp(-Time.deltaTime * 4));
+                attentionRotation = Quaternion.Slerp(attentionRotation, targetRotation, 1 - Mathf.Exp(-PerformanceDelta * 3));
                 if (rig.leftEye != null) rig.leftEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.leftEye.rotation;
                 if (rig.rightEye != null) rig.rightEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.rightEye.rotation;
             }
             // While symptomatic and not attending to someone, the head droops; attention lifts it toward the speaker.
             string state = Clinical?.ClinicalStateId;
             bool symptomatic = state == "HYP_00_INITIAL_PRESYNCOPE" || state == "HYP_03_PERSISTENT_SYMPTOMS" || state == "HYP_04_RECURRENT_PRESYNCOPE";
-            float droop = symptomatic && progress <= 0 ? (1 - attention) * 16 : 0;
+            float droop = symptomatic && progress <= 0 ? (1 - attention) * 5 : 0;
             rig.head.rotation = attentionRotation * Quaternion.AngleAxis(droop, Right) * rig.head.rotation;
+            PresentAcknowledgement();
             // Existing real facial channel, never substitute a false mouth/face overlay.
             string clinical = Clinical?.ClinicalStateId;
             float expression = clinical == "HYP_02_IMPROVING" ? 4 : clinical == "HYP_03_PERSISTENT_SYMPTOMS" ? 15 :
                 clinical == "HYP_04_RECURRENT_PRESYNCOPE" ? 18 : 12;
-            discomfort = Mathf.MoveTowards(discomfort, expression, Time.deltaTime * 4);
+            discomfort = Mathf.MoveTowards(discomfort, expression, PerformanceDelta * 4);
             rig.SetBlendShape(rig.pain, discomfort);
         }
 
         void ResponsePresented(DialogueResponseDefinition response)
         {
             if (!IsActive || response == null) return;
-            attentionUntil = (Clinical?.SimulationTime ?? 0) + Mathf.Clamp((response.text ?? "").Length * .05f, 2, 7);
+            attentionUntil = performanceTime + Mathf.Clamp((response.text ?? "").Length * .05f, 2, 7);
+            acknowledgementAt = performanceTime;
         }
 
         void CapturePoints(Vector3[] destination)

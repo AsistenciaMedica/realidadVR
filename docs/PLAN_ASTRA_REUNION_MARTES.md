@@ -19,7 +19,23 @@ Preparación reproducible: `tools/Prepare-GymVisualPreview.ps1`. Compila y horne
 `C:\Users\Juan\vital-lab`, y copia el gimnasio y sus dependencias al proyecto fuente.
 Evidencia local: `TestResults/gym-visual-revision/`. Las APK/ZIP anteriores no contienen esta revisión.
 Compilación completada y horneado GPU finalizado a las 12:26 de Bogotá: 2 lightmaps,
-67 superficies y 100 probes. Recursos copiados al proyecto; pendiente únicamente la valoración visual de Juan.
+67 superficies y 100 probes. Recursos copiados al proyecto.
+
+### Actuación tras la prueba de Juan
+
+Juan sigue percibiendo los personajes inmóviles y sin iniciativa. La siguiente revisión
+se centra en su comportamiento en el primer gimnasio; la mejora de materiales no resuelve esa percepción.
+
+- Daniel inicia un gesto a los 1,6 segundos, ajusta el apoyo, alterna miradas y reconoce el acercamiento.
+  La actuación tiene reloj propio y funciona aunque falte un clip; respeta conciencia, pausa y asistencia.
+- La compañera empieza a gesticular a los 3,4 segundos, mira al paciente y al usuario, parpadea
+  y mueve la mandíbula con su audio existente.
+- Mateo tiene otra secuencia de reposos, miradas y gestos, con los pies anclados.
+- Los paramédicos diferencian la recepción del relevo y la atención visual al paciente.
+
+Para esta iteración se usa `tools/Prepare-GymVisualPreview.ps1 -CompileOnly`: sin nuevo
+horneado, pruebas automáticas ni recorrido en simulador. Log en `TestResults/gym-character-presence/`.
+Compilación aislada completada sin errores. La evaluación visual y la aceptación siguen correspondiendo a Juan.
 
 ## La situación
 

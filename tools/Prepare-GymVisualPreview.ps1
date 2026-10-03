@@ -1,9 +1,10 @@
-param()
+param([switch]$CompileOnly)
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $labRoot = 'C:\Users\Juan\vital-lab'
 $unity = 'C:\Program Files\Unity\Hub\Editor\6000.3.23f1\Editor\Unity.exe'
-$evidence = Join-Path $projectRoot 'TestResults/gym-visual-revision'
+$evidenceFolder = if ($CompileOnly) { 'TestResults/gym-character-presence' } else { 'TestResults/gym-visual-revision' }
+$evidence = Join-Path $projectRoot $evidenceFolder
 New-Item -ItemType Directory -Path $evidence -Force | Out-Null
 
 # Compile and bake only the gym in the isolated project. No test suite, player,
@@ -12,19 +13,30 @@ foreach ($relative in @('Assets/_Project/Scripts', 'Assets/_Project/Editor')) {
     & robocopy (Join-Path $projectRoot $relative) (Join-Path $labRoot $relative) /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP
     if ($LASTEXITCODE -ge 8) { throw ('Source synchronization failed: ' + $relative) }
 }
-$materials = 'Assets/_Project/Resources/Visual/Materials'
-foreach ($file in Get-ChildItem -LiteralPath (Join-Path $projectRoot $materials) -Filter 'Gym*' -File) {
-    Copy-Item -LiteralPath $file.FullName -Destination (Join-Path (Join-Path $labRoot $materials) $file.Name)
+if (-not $CompileOnly) {
+    $materials = 'Assets/_Project/Resources/Visual/Materials'
+    foreach ($file in Get-ChildItem -LiteralPath (Join-Path $projectRoot $materials) -Filter 'Gym*' -File) {
+        Copy-Item -LiteralPath $file.FullName -Destination (Join-Path (Join-Path $labRoot $materials) $file.Name)
+    }
 }
-$log = Join-Path $evidence 'compile-and-bake.log'
-$arguments = @('-batchmode', '-quit', '-force-d3d11', '-projectPath', ('"' + $labRoot + '"'),
-    '-executeMethod', 'EmergencyVR.Editor.Environment.EnvironmentLightingBaker.BakeGymVisualRevision',
-    '-logFile', ('"' + $log + '"'))
+$log = Join-Path $evidence $(if ($CompileOnly) { 'compile.log' } else { 'compile-and-bake.log' })
+$arguments = @('-batchmode', '-quit', '-projectPath', ('"' + $labRoot + '"'), '-logFile', ('"' + $log + '"'))
+if ($CompileOnly) { $arguments += '-nographics' }
+else {
+    $arguments += @('-force-d3d11', '-executeMethod', 'EmergencyVR.Editor.Environment.EnvironmentLightingBaker.BakeGymVisualRevision')
+}
 $process = Start-Process -FilePath $unity -ArgumentList $arguments -WorkingDirectory $labRoot -WindowStyle Hidden -PassThru
 $processHandle = $process.Handle
-Write-Output ('GYM_PREVIEW_BAKE_PID ' + $process.Id)
+Write-Output ('GYM_PREVIEW_UNITY_PID ' + $process.Id)
 $process.WaitForExit()
 $process.Refresh()
+if ($CompileOnly) {
+    if ($process.ExitCode -ne 0 -or (Select-String -LiteralPath $log -Pattern 'error CS\d+|Scripts have compiler errors' -Quiet)) {
+        throw ('Character compilation failed. See ' + $log)
+    }
+    Write-Output 'GYM_CHARACTER_SCRIPTS_COMPILED. No tests, simulator or bake executed.'
+    exit 0
+}
 if ($process.ExitCode -ne 0 -or -not (Select-String -LiteralPath $log -Pattern 'VITAL_GYM_VISUAL_REVISION_BAKED' -Quiet)) {
     throw ('Gym compile/bake failed. See ' + $log)
 }

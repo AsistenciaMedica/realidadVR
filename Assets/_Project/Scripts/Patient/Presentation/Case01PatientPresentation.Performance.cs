@@ -5,32 +5,48 @@ namespace EmergencyVR.Patient.Presentation
 {
     /// <summary>
     /// Daniel's performance layer, applied after the authored pose and attention: lip movement from his real voice,
-    /// additive motion-capture micro-movement while seated and an occasional hand-to-face gesture while dizzy.
-    /// Motion is added as deltas from each clip's first frame, so the validated seated/assisted pose is preserved.
+    /// optional motion-capture detail and autonomous, anatomically targeted seated gestures.
+    /// The acting clock pauses independently of physiology and does not require animation resources.
     /// </summary>
     public sealed partial class Case01PatientPresentation
     {
         static readonly string[] Trunk = { "Spine", "Spine1", "Spine2", "Neck", "Head" };
-        const string IdleClip = "m_sit_chair_idle_nervous_01", FaceClip = "m_sit_chair_idle_touch_face";
+        const string IdleClip = "m_sit_chair_idle_nervous_01";
 
         Transform sampler;
         readonly Dictionary<string, Transform> liveBones = new Dictionary<string, Transform>();
         readonly Dictionary<string, Transform> sampledBones = new Dictionary<string, Transform>();
         readonly Dictionary<string, Quaternion> idleReference = new Dictionary<string, Quaternion>();
-        readonly Dictionary<string, Quaternion> faceReference = new Dictionary<string, Quaternion>();
-        AnimationClip idle, face;
+        AnimationClip idle;
         readonly float[] voiceSamples = new float[256];
-        float mouth, idleWeight, gestureAt = -1, nextGesture = 12, performanceTime;
+        enum PresenceGesture { Settle, Temple, Speaking }
+        PresenceGesture presenceGesture;
+        static readonly float[] PresenceIntervals = { 7.2f, 9.6f, 6.7f, 10.3f };
+        float mouth, idleWeight, gestureAt = -1, nextGesture = 1.6f, performanceTime, nextSpeechGesture;
+        int presenceSequence;
+        bool samplerAttempted;
+        float PerformanceDelta => review != null && !review.Manager.IsPaused ? Time.deltaTime : 0;
+        bool HasVoluntaryPresence => visual != null && !visual.VisualState.Seizure &&
+            visual.VisualState.Consciousness != PatientConsciousness.Unresponsive &&
+            visual.VisualState.Consciousness != PatientConsciousness.Drowsy;
+        bool IsSymptomatic => Clinical?.ClinicalStateId == "HYP_00_INITIAL_PRESYNCOPE" ||
+            Clinical?.ClinicalStateId == "HYP_03_PERSISTENT_SYMPTOMS" || Clinical?.ClinicalStateId == "HYP_04_RECURRENT_PRESYNCOPE";
 
         void PresentPerformance()
         {
+            performanceTime += PerformanceDelta;
+            if (!HasVoluntaryPresence)
+            {
+                gestureAt = -1; idleWeight = 0;
+                return; // The medical layer retains closed eyes, jaw and unsupported/unresponsive signs.
+            }
             PresentSpeech();
-            if (!review.Manager.IsPaused) performanceTime += Time.deltaTime;
             PresentNaturalBlink();
-            if (!EnsureSampler()) return;
-            bool seated = !busy && !risePending && !standing && !regaining && progress <= 0 && !completed;
-            idleWeight = Mathf.MoveTowards(idleWeight, seated ? 1 : 0, Time.deltaTime * 1.5f);
-            if (idleWeight > .001f && idle != null)
+            bool seated = !busy && !risePending && !standing && !regaining && progress <= 0 && !completed &&
+                review.Procedures?.CPR?.Touching != true && visual.CompressionDepthMetres <= .001f;
+            idleWeight = Mathf.MoveTowards(idleWeight, seated ? 1 : 0, PerformanceDelta * 1.5f);
+            // Clips enrich the idle; they must never gate basic human presence or a procedural gesture.
+            if (seated && EnsureSampler() && idleWeight > .001f && idle != null && idle.length > .01f)
             {
                 CharacterAnimationLibrary.Sample(idle, sampler.gameObject, performanceTime % idle.length);
                 foreach (var name in Trunk)
@@ -40,20 +56,38 @@ namespace EmergencyVR.Patient.Presentation
                     AddDelta(name, idleReference, weight);
                 }
             }
-            string state = Clinical?.ClinicalStateId;
-            bool dizzy = state == "HYP_00_INITIAL_PRESYNCOPE" || state == "HYP_03_PERSISTENT_SYMPTOMS" || state == "HYP_04_RECURRENT_PRESYNCOPE";
+            if (!seated) { gestureAt = -1; return; }
+            PresentSupportedTorsoMotion();
             bool speaking = dialogue != null && dialogue.IsSpeaking;
-            if (gestureAt < 0 && seated && dizzy && !speaking && face != null && performanceTime >= nextGesture) gestureAt = performanceTime;
-            if (gestureAt >= 0 && face != null)
+            if (gestureAt < 0 && speaking && performanceTime >= nextSpeechGesture)
             {
+                presenceGesture = PresenceGesture.Speaking; gestureAt = performanceTime;
+                nextSpeechGesture = performanceTime + 7;
+            }
+            else if (gestureAt < 0 && !speaking && performanceTime >= nextGesture)
+            {
+                presenceGesture = IsSymptomatic && presenceSequence % 2 == 0 ? PresenceGesture.Temple : PresenceGesture.Settle;
+                gestureAt = performanceTime;
+            }
+            if (gestureAt >= 0)
+            {
+                float duration = presenceGesture == PresenceGesture.Temple ? 4.2f : 2.8f;
                 float t = performanceTime - gestureAt;
-                if (t >= face.length || !seated) { gestureAt = -1; nextGesture = performanceTime + Random.Range(15f, 25f); }
+                if (t >= duration)
+                {
+                    gestureAt = -1;
+                    nextGesture = performanceTime + PresenceIntervals[presenceSequence++ % PresenceIntervals.Length];
+                }
                 else
                 {
-                    float envelope = Mathf.SmoothStep(0, 1, Mathf.Clamp01(t / .8f)) * Mathf.SmoothStep(0, 1, Mathf.Clamp01((face.length - t) / .8f));
-                    CharacterAnimationLibrary.Sample(face, sampler.gameObject, t);
-                    PoseDizzyGesture(envelope);
-                    AddDelta("Head", faceReference, envelope * .5f);
+                    float envelope = Smooth(t / .85f) * Smooth((duration - t) / 1.05f);
+                    if (presenceGesture == PresenceGesture.Temple)
+                    {
+                        PoseDizzyGesture(envelope);
+                        rig.head.rotation = Quaternion.AngleAxis(5 * envelope, Right) * rig.head.rotation;
+                    }
+                    else if (presenceGesture == PresenceGesture.Speaking) PoseSpeakingHand(envelope, t);
+                    else PoseSettlingGesture(envelope);
                 }
             }
         }
@@ -69,7 +103,7 @@ namespace EmergencyVR.Patient.Presentation
                 float sum = 0; foreach (var v in voiceSamples) sum += v * v;
                 target = Mathf.Clamp01(Mathf.Sqrt(sum / voiceSamples.Length) * 9);
             }
-            mouth = Mathf.Lerp(mouth, target, 1 - Mathf.Exp(-Time.deltaTime * (target > mouth ? 28 : 16)));
+            mouth = Mathf.Lerp(mouth, target, 1 - Mathf.Exp(-PerformanceDelta * (target > mouth ? 28 : 16)));
             if (rig == null) return;
             rig.SetBlendShape(rig.jawOpen, mouth * 55);
             if (rig.head != null && mouth > .02f) rig.head.rotation = Quaternion.AngleAxis(mouth * 2.2f, Right) * rig.head.rotation;
@@ -85,10 +119,10 @@ namespace EmergencyVR.Patient.Presentation
         bool EnsureSampler()
         {
             if (sampler != null) return true;
-            if (model == null) return false;
+            if (model == null || samplerAttempted) return false;
+            samplerAttempted = true;
             idle = CharacterAnimationLibrary.Load(IdleClip);
-            face = CharacterAnimationLibrary.Load(FaceClip);
-            if (idle == null && face == null) return false;
+            if (idle == null) return false;
             // A transform copy receives sampled clips through a controller-free Animator in Players;
             // nothing of it renders or simulates, and only the selected deltas reach the live pose.
             sampler = CopyHierarchy(model, null);
@@ -96,7 +130,7 @@ namespace EmergencyVR.Patient.Presentation
             sampler.gameObject.SetActive(true);
             foreach (var t in model.GetComponentsInChildren<Transform>(true)) liveBones[Strip(t.name)] = t;
             foreach (var t in sampler.GetComponentsInChildren<Transform>(true)) sampledBones[Strip(t.name)] = t;
-            Capture(idle, idleReference); Capture(face, faceReference);
+            Capture(idle, idleReference);
             return true;
         }
 
@@ -123,9 +157,17 @@ namespace EmergencyVR.Patient.Presentation
         void DestroyPerformance()
         {
             if (sampler != null) Destroy(sampler.gameObject);
-            sampler = null; liveBones.Clear(); sampledBones.Clear(); idleReference.Clear(); faceReference.Clear();
-            gestureAt = -1; nextGesture = 12; idleWeight = 0; mouth = 0; performanceTime = 0;
+            sampler = null; samplerAttempted = false; liveBones.Clear(); sampledBones.Clear(); idleReference.Clear();
+            ResetPerformanceTiming();
+        }
+
+        void ResetPerformanceTiming()
+        {
+            gestureAt = -1; nextGesture = 1.6f; idleWeight = 0; mouth = 0; performanceTime = 0;
+            nextSpeechGesture = 0; presenceSequence = 0;
             naturalBlinkAt = -1; nextNaturalBlink = 3.1f; naturalBlinkSequence = 0;
+            attentionRotation = Quaternion.identity; attention = 0; attentionUntil = 0;
+            learnerWasNearby = false; acknowledgementAt = -1;
         }
     }
 }
