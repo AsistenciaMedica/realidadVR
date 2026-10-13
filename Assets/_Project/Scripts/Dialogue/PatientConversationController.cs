@@ -81,6 +81,8 @@ namespace EmergencyVR.Dialogue
                 response = new PatientConversationLine("Observación", "El paciente no responde a la pregunta.");
             else if (patient.consciousness == "Drowsy")
                 response = new PatientConversationLine("Observación", "Intenta responder, pero no consigue completar una frase.");
+            else if (SpeechBlockedByObstruction(patient))
+                response = new PatientConversationLine("Observación", "El paciente no puede hablar por el atragantamiento.");
             else if (patient.consciousness == "Confused" && question != PatientQuestion.WhatHappened)
                 response = new PatientConversationLine("Observación", "Le cuesta mantener una respuesta clara; no confirma esa información.");
             else if (question == PatientQuestion.WhatHappened && !string.IsNullOrWhiteSpace(patient.dialogue) &&
@@ -122,9 +124,14 @@ namespace EmergencyVR.Dialogue
             return response;
         }
 
-        static bool CanRespond(PatientSnapshot patient) => patient.consciousness != "Unresponsive" &&
+        bool CanRespond(PatientSnapshot patient) => patient.consciousness != "Unresponsive" &&
             patient.consciousness != "Drowsy" && patient.respiration != "absent" &&
-            patient.respiration != "agonal" && patient.circulation != "pulseless";
+            patient.respiration != "agonal" && patient.circulation != "pulseless" && !SpeechBlockedByObstruction(patient);
+
+        // Partial obstruction can retain effective cough and speech. Use the authored severe-obstruction
+        // requirement together with the current obstruction flag, so relief restores the ability to answer.
+        bool SpeechBlockedByObstruction(PatientSnapshot patient) => patient.flags.Contains("airway obstruction") &&
+            currentDefinition().actions.Any(a => a.action == "ChokingAbdominalThrusts" && a.kind == "required");
 
         static string ShortReply(string text)
         {

@@ -15806,6 +15806,7 @@
         },
         {
           "id": "Reassess",
+          "repeatPolicy": 1,
           "action": "Reassess",
           "kind": "required",
           "feedback": "Reevaluar respuesta y respiración. Registro simulado.",
@@ -15843,6 +15844,7 @@
         },
         {
           "id": "Monitor",
+          "repeatPolicy": 1,
           "action": "Monitor",
           "kind": "required",
           "feedback": "Vigilar continuamente hasta relevo. Registro simulado.",

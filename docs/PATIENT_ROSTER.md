@@ -1,5 +1,12 @@
 # Pacientes y realismo del lanzamiento
 
+Alcance vigente del 13 de octubre: **cancha, gimnasio y calle × tres pruebas**.
+Daniel (mareo), Andrés (paro cardiorrespiratorio) y Camila (atragantamiento)
+se repiten con contexto propio en los tres lugares: nueve perfiles de caso y
+tres identidades. Véase [el alcance 3 × 3](LAUNCH_SCOPE.md).
+
+El resto de este documento conserva el historial de la entrega del 1 de octubre.
+
 Actualizado: 1 de octubre de 2026. Público: **primeros intervinientes y brigadistas**.
 Se mantiene el alcance de tres escenarios y cinco casos por escenario. Las
 identidades son ficticias. El estado de revisión clínica sigue siendo

@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "football-dizziness",
+      "sourceId": "review-hypotension-v2",
+      "trainingCase": "dizziness",
+      "environment": "football",
+      "name": "1. Mareo y toma de síntomas",
+      "description": "Habla con Daniel, recoge sus síntomas, observa su respuesta y respiración, ayúdalo a mantener una posición segura y solicita ayuda.",
+      "history": "Su acompañante refiere que Daniel dejó de jugar y después notó el malestar.",
+      "incident": "Daniel está sentado con apoyo en la cancha, junto a la línea lateral. Su acompañante explica que dejó de jugar y después comenzó a encontrarse mareado.",
+      "position": "seated",
+      "symptoms": [
+        "Mareo referido por Daniel",
+        "Malestar y necesidad de apoyo"
+      ],
+      "visibleSigns": [
+        "Permanece sentado con apoyo",
+        "Responde a la conversación"
+      ]
+    },
+    {
+      "id": "arrest-witnessed",
+      "sourceId": "arrest-witnessed",
+      "trainingCase": "cardiac-arrest",
+      "environment": "football",
+      "name": "2. Paro cardiorrespiratorio y RCP",
+      "description": "Reconoce el paro cardiorrespiratorio, solicita ayuda y practica RCP con el equipo virtual y el DEA disponibles.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Andrés se ha desplomado en la cancha, junto a la línea lateral. No responde ni respira normalmente. Un testigo permanece cerca para pedir ayuda y buscar el DEA.",
+      "position": "supine",
+      "symptoms": [
+        "El paciente no puede referir síntomas",
+        "Colapso presenciado por un testigo"
+      ],
+      "visibleSigns": [
+        "No responde",
+        "No presenta respiración normal"
+      ]
+    },
+    {
+      "id": "football-choking",
+      "sourceId": "choking-complete",
+      "trainingCase": "choking",
+      "environment": "football",
+      "name": "3. Atragantamiento y desobstrucción",
+      "description": "Reconoce el atragantamiento grave y practica las maniobras de desobstrucción en el paciente virtual, con expulsión del objeto y reevaluación.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Camila estaba comiendo en la cancha, junto a la línea lateral. Permanece consciente, de pie, se lleva las manos al cuello y no puede hablar ni toser eficazmente.",
+      "position": "standing",
+      "symptoms": [
+        "El paciente no puede hablar ni toser eficazmente"
+      ],
+      "visibleSigns": [
+        "Manos al cuello",
+        "Tos ineficaz",
+        "Permanece consciente"
+      ]
+    },
+    {
+      "id": "review-hypotension-v2",
+      "sourceId": "review-hypotension-v2",
+      "trainingCase": "dizziness",
+      "environment": "gym",
+      "name": "1. Mareo y toma de síntomas",
+      "description": "Habla con Daniel, recoge sus síntomas, observa su respuesta y respiración, ayúdalo a mantener una posición segura y solicita ayuda.",
+      "history": "Su acompañante refiere que Daniel paró la cinta y después notó el malestar.",
+      "incident": "Daniel está sentado con apoyo en el gimnasio, en la zona de entrenamiento. Su acompañante explica que paró la cinta y después comenzó a encontrarse mareado.",
+      "position": "seated",
+      "symptoms": [
+        "Mareo referido por Daniel",
+        "Malestar y necesidad de apoyo"
+      ],
+      "visibleSigns": [
+        "Permanece sentado con apoyo",
+        "Responde a la conversación"
+      ]
+    },
+    {
+      "id": "gym-arrest",
+      "sourceId": "arrest-witnessed",
+      "trainingCase": "cardiac-arrest",
+      "environment": "gym",
+      "name": "2. Paro cardiorrespiratorio y RCP",
+      "description": "Reconoce el paro cardiorrespiratorio, solicita ayuda y practica RCP con el equipo virtual y el DEA disponibles.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Andrés se ha desplomado en el gimnasio, en la zona de entrenamiento. No responde ni respira normalmente. Un testigo permanece cerca para pedir ayuda y buscar el DEA.",
+      "position": "supine",
+      "symptoms": [
+        "El paciente no puede referir síntomas",
+        "Colapso presenciado por un testigo"
+      ],
+      "visibleSigns": [
+        "No responde",
+        "No presenta respiración normal"
+      ]
+    },
+    {
+      "id": "gym-choking",
+      "sourceId": "choking-complete",
+      "trainingCase": "choking",
+      "environment": "gym",
+      "name": "3. Atragantamiento y desobstrucción",
+      "description": "Reconoce el atragantamiento grave y practica las maniobras de desobstrucción en el paciente virtual, con expulsión del objeto y reevaluación.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Camila estaba comiendo en el gimnasio, en la zona de entrenamiento. Permanece consciente, de pie, se lleva las manos al cuello y no puede hablar ni toser eficazmente.",
+      "position": "standing",
+      "symptoms": [
+        "El paciente no puede hablar ni toser eficazmente"
+      ],
+      "visibleSigns": [
+        "Manos al cuello",
+        "Tos ineficaz",
+        "Permanece consciente"
+      ]
+    },
+    {
+      "id": "street-dizziness",
+      "sourceId": "review-hypotension-v2",
+      "trainingCase": "dizziness",
+      "environment": "street",
+      "name": "1. Mareo y toma de síntomas",
+      "description": "Habla con Daniel, recoge sus síntomas, observa su respuesta y respiración, ayúdalo a mantener una posición segura y solicita ayuda.",
+      "history": "Su acompañante refiere que Daniel dejó de caminar y después notó el malestar.",
+      "incident": "Daniel está sentado con apoyo en la calle, en una zona despejada de la acera. Su acompañante explica que dejó de caminar y después comenzó a encontrarse mareado.",
+      "position": "seated",
+      "symptoms": [
+        "Mareo referido por Daniel",
+        "Malestar y necesidad de apoyo"
+      ],
+      "visibleSigns": [
+        "Permanece sentado con apoyo",
+        "Responde a la conversación"
+      ]
+    },
+    {
+      "id": "street-arrest",
+      "sourceId": "arrest-witnessed",
+      "trainingCase": "cardiac-arrest",
+      "environment": "street",
+      "name": "2. Paro cardiorrespiratorio y RCP",
+      "description": "Reconoce el paro cardiorrespiratorio, solicita ayuda y practica RCP con el equipo virtual y el DEA disponibles.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Andrés se ha desplomado en la calle, en una zona despejada de la acera. No responde ni respira normalmente. Un testigo permanece cerca para pedir ayuda y buscar el DEA.",
+      "position": "supine",
+      "symptoms": [
+        "El paciente no puede referir síntomas",
+        "Colapso presenciado por un testigo"
+      ],
+      "visibleSigns": [
+        "No responde",
+        "No presenta respiración normal"
+      ]
+    },
+    {
+      "id": "street-choking",
+      "sourceId": "choking-complete",
+      "trainingCase": "choking",
+      "environment": "street",
+      "name": "3. Atragantamiento y desobstrucción",
+      "description": "Reconoce el atragantamiento grave y practica las maniobras de desobstrucción en el paciente virtual, con expulsión del objeto y reevaluación.",
+      "history": "Antecedentes no confirmados; recoger información del testigo.",
+      "incident": "Camila estaba comiendo en la calle, en una zona despejada de la acera. Permanece consciente, de pie, se lleva las manos al cuello y no puede hablar ni toser eficazmente.",
+      "position": "standing",
+      "symptoms": [
+        "El paciente no puede hablar ni toser eficazmente"
+      ],
+      "visibleSigns": [
+        "Manos al cuello",
+        "Tos ineficaz",
+        "Permanece consciente"
+      ]
+    }
+  ]
+}

@@ -56,6 +56,19 @@ namespace EmergencyVR.UI
                 block(61, 77, 140, 8, tone); block(62, 42, 17, 77, tone); block(39, 53, 17, 55, tone);
                 block(182, 42, 17, 77, tone); block(205, 53, 17, 55, tone); block(30, 137, 200, 2, Border);
             }
+            else if (id == "street")
+            {
+                block(23, 90, 214, 3, Soft); block(23, 135, 214, 3, Soft);
+                for (int i = 0; i < 4; i++) block(35 + i * 55, 112, 27, 3, tone);
+                for (int i = 0; i < 3; i++)
+                {
+                    float x = 31 + i * 76;
+                    block(x, 32 + i % 2 * 14, 53, 56 - i % 2 * 14, Border);
+                    block(x + 8, 44 + i % 2 * 14, 11, 13, tone);
+                    block(x + 33, 44 + i % 2 * 14, 11, 13, tone);
+                    block(x + 22, 69, 11, 19, Soft);
+                }
+            }
             else if (id == "dental")
             {
                 block(86, 52, 14, 48, tone); block(90, 93, 78, 15, tone); block(160, 104, 14, 27, tone);
@@ -152,7 +165,7 @@ namespace EmergencyVR.UI
             var details = IsDesktop ? new[] {
                 "W A S D  ·  Caminar\nBotón derecho  ·  Mirar\nR  ·  Volver al punto inicial\n\nHaz clic en los botones de la interfaz para navegar.",
                 "E  ·  Coger o soltar\nQ  ·  Usar el objeto\nRueda  ·  Ajustar alcance\nZ / X  ·  Orientar\nShift / Alt  ·  Cambiar eje",
-                "C  ·  Activar RCP cerca del paciente\nClic y arrastre sobre el tórax; soltar para retroceso.\n\nEsc  ·  Pausar / continuar\nAcciones  ·  Registrar decisiones"
+                "C  ·  RCP: arrastra sobre el tórax y suelta.\n\nH  ·  Desobstrucción: desde atrás, arrastra arriba sobre la zona marcada y vuelve antes de soltar.\n\nEsc  ·  Pausar / continuar"
             } : new[] {
                 "Stick hacia arriba para apuntar a una zona de teleportación; suelta para viajar.\n\nGiro lateral por pasos de 30°.\nLa cabeza mantiene seguimiento libre.",
                 "Apunta al panel y pulsa el gatillo para seleccionar.\n\nGrip para coger y soltar objetos. Utiliza el equipo sobre sus zonas de contacto.",

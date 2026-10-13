@@ -59,6 +59,7 @@ namespace EmergencyVR.Scenarios
 
         public static ScriptableObject FindPresentationAssets(string scenarioId)
         {
+            scenarioId = ReleaseCaseVariants.SourceId(scenarioId);
             var registry = Resources.Load<ClinicalScenarioV2Registry>(RegistryResource);
             if (registry?.entries == null) return null;
             foreach (var entry in registry.entries)

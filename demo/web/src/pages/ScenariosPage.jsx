@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { ScenarioArt } from '../components/GeneratedArt';
+import ScenarioPreview from '../components/ScenarioPreview';
 import useReleaseCatalog from '../data/useReleaseCatalog';
 
 export default function ScenariosPage() {
@@ -21,7 +21,7 @@ export default function ScenariosPage() {
           {scenarioCards.map((scenario) => (
             <article key={scenario.id} className={`scenario-card ${scenario.accent}`}>
               <div className="scenario-image-wrap">
-                <ScenarioArt variant={scenario.id} />
+                <ScenarioPreview environment={scenario.id} />
               </div>
               <div className="scenario-content">
                 <h3>{scenario.name}</h3>

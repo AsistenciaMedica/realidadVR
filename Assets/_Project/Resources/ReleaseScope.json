@@ -1,38 +1,32 @@
 {
   "schemaVersion": 1,
-  "releaseId": "vital-vr-mvp-3x5",
+  "releaseId": "vital-vr-mvp-3x3",
   "environments": [
+    {
+      "id": "football",
+      "name": "Cancha",
+      "scenarioIds": [
+        "football-dizziness",
+        "arrest-witnessed",
+        "football-choking"
+      ]
+    },
     {
       "id": "gym",
       "name": "Gimnasio",
       "scenarioIds": [
         "review-hypotension-v2",
-        "gym-faint",
-        "glucose-moderate",
-        "chest-pain",
-        "asthma"
+        "gym-arrest",
+        "gym-choking"
       ]
     },
     {
-      "id": "mall",
-      "name": "Centro comercial",
+      "id": "street",
+      "name": "Calle",
       "scenarioIds": [
-        "review-unconscious-breathing-v1",
-        "review-abnormal-breathing-v1",
-        "choking-partial",
-        "confusion",
-        "dehydration"
-      ]
-    },
-    {
-      "id": "football",
-      "name": "Campo de fútbol",
-      "scenarioIds": [
-        "arrest-witnessed",
-        "football-faint",
-        "football-glucose",
-        "heat-exhaustion",
-        "hypoxia"
+        "street-dizziness",
+        "street-arrest",
+        "street-choking"
       ]
     }
   ]

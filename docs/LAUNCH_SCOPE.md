@@ -1,84 +1,64 @@
-# VITAL VR — lanzamiento 3 × 5
+# VITAL VR — lanzamiento 3 × 3
 
-Decisión vigente del 30 de septiembre de 2026: **3 escenarios y 5 casos por
-escenario, 15 casos en total**, para concentrar la primera versión comercial.
-Escenarios elegidos por el usuario: **gimnasio, centro comercial y campo de fútbol**.
-Este documento sustituye el alcance de lanzamiento anterior de cuatro entornos
-y 44 variantes. No declara completada la validación clínica ni la publicación.
+Decisión vigente del **13 de octubre de 2026**, acordada por el usuario y Juan:
+**tres entornos —cancha, gimnasio y calle— con las mismas tres pruebas en cada uno**.
+Son tres tipos de ejercicio y nueve combinaciones jugables. Sustituye el alcance
+del 30 de septiembre: el centro comercial sale de la selección de lanzamiento.
 
-## Contenido incluido
+## Pruebas compartidas
 
-| Escenario | Cinco casos seleccionados |
-| --- | --- |
-| Gimnasio | Daniel: malestar después del ejercicio (V2); pérdida breve de respuesta al llegar; hipoglucemia con confusión y deglución segura; dolor torácico con disnea; crisis asmática |
-| Centro comercial | Inconsciente con respiración; sin respiración normal; obstrucción parcial con tos eficaz; paciente confuso; deshidratación con respuesta conservada |
-| Campo de fútbol | Parada presenciada con DEA; recuperación de pérdida breve de conciencia; hipoglucemia en una espectadora; agotamiento por calor del organizador; dificultad respiratoria con fatiga en un espectador |
+| Orden | Prueba | Cancha | Gimnasio | Calle |
+| --- | --- | --- | --- | --- |
+| 1 | Mareo y toma de síntomas, como Daniel | Sí | Sí | Sí |
+| 2 | Paro cardiorrespiratorio y RCP | Sí | Sí | Sí |
+| 3 | Atragantamiento y maniobras de desobstrucción | Sí | Sí | Sí |
 
-Se reutilizan casos existentes y sus interacciones. Daniel V2 conserva su motor
-de valoración y comunicación. La iteración del 1 de octubre incorpora un paciente
-distinto por caso y revisa contexto, conversación y evolución de los catorce
-casos legacy; véase [pacientes y realismo](PATIENT_ROSTER.md). El tutorial de
-controles permanece separado y no cuenta como un caso de los quince.
+Se elige primero el entorno y después una de las tres pruebas, siempre en ese
+orden. La primera reutiliza la valoración, conversación y asistencia de Daniel
+V2; la segunda reutiliza el caso de parada presenciada y sus interacciones de
+RCP/DEA; la tercera reutiliza la obstrucción grave en adulto consciente, con
+interacción de golpes dorsales y compresiones abdominales sobre el paciente
+virtual, expulsión del objeto según la evolución del guion y reevaluación.
 
-La [tabla de casos e IDs](SCENARIO_LIBRARY.md) se genera desde
-`Assets/_Project/Resources/ReleaseScope.json`. Unity selecciona sus casos del mismo
-perfil que publica el portal. Los 44 guiones originales y el registro V2 se
-conservan para autoría; la clínica dental y los demás casos quedan fuera de la
-selección de lanzamiento. Esta iteración reduce el alcance visible y el trabajo
-de validación; no acredita una reducción del tamaño del APK ni elimina assets
-compartidos de `Resources`.
+La revisión de desobstrucción toma como referencia las
+[guías de primeros auxilios de RCUK 2025](https://www.resus.org.uk/professional-library/2025-resuscitation-guidelines/first-aid-guidelines).
+La resolución programada de esta rama es una condición del ejercicio, no una
+garantía de resultado clínico.
 
-## Funciones que se cierran para la primera versión
+Daniel, Andrés y Camila se repiten en sus respectivas pruebas en los tres lugares.
+Cambian el contexto, el entorno, los testigos y las referencias de ubicación;
+las reglas de cada ejercicio proceden de una definición compartida. Las nuevas
+respuestas de Daniel en exteriores usan subtítulos cuando no existe grabación.
 
-- Bienvenida, selección de escenario y caso, preparación e inicio.
-- Práctica guiada y evaluación existentes, con controles por mandos.
-- Interacciones requeridas por los quince casos, pausa, repetición y resultados.
-- Resultado local y debrief según el motor de cada caso.
-- Portal comercial y administración con los mismos tres escenarios y quince casos.
+## Implementación y mantenimiento
 
-Las ampliaciones de escenarios, variantes, procedimientos y seguimiento de manos
-se planifican después del lanzamiento. No se añaden como requisito de esta versión.
+- `Assets/_Project/Resources/ReleaseScope.json` selecciona los nueve casos.
+- `Assets/_Project/Resources/ReleaseCases.json` define la correspondencia entre
+  cada combinación y sus tres casos fuente, con presentación y contexto propios.
+- `ReleaseCaseVariants` compone las variantes en Unity antes de validar el
+  alcance y aplicar `PatientRoster.json`; cada sesión copia sus propios datos.
+- `tools/Sync-MedicalPortal.mjs` usa las mismas variantes para generar el catálogo
+  público y [los IDs seleccionados](SCENARIO_LIBRARY.md).
+- Calle dispone de entorno procedural, acera, calzada separada, mobiliario y zona
+  de paciente despejada. El portal la representa con una ilustración identificada
+  como tal hasta disponer de una captura de esta versión.
+- Los diálogos se contextualizan por lugar. Las frases nuevas sin grabación se
+  presentan mediante subtítulos; no reutilizan una voz que describa otro lugar.
 
-## Orden de cierre
+La práctica de controles no cuenta como una de las nueve combinaciones. Los 44
+guiones originales y el caso fuente de Daniel V2 permanecen en la biblioteca de
+autoría. El centro comercial, la clínica dental y las demás pruebas quedan fuera
+del lanzamiento. El contenido conserva el estado `CLIENT_REVIEW`.
 
-1. **Fijar catálogo:** validar 3 × 5, navegación y correspondencia Unity/portal.
-2. **Cerrar los quince casos:** recorrer cada uno desde selección hasta resultado;
-   revisar contenido, instrucciones, acciones y desenlaces con el responsable
-   clínico. Mantener `CLIENT_REVIEW` hasta disponer de la revisión correspondiente.
-3. **Probar en Quest:** comprobar mandos, UI, confort, pausa del sistema,
-   recuperación del seguimiento y rendimiento en los tres ambientes.
-4. **Preparar candidato:** identidad de paquete definitiva, APK de producción
-   firmado, permisos/manifiesto comprobados y prueba de instalación limpia.
-5. **Preparar venta y envío:** precio, ficha, capturas del candidato real, política
-   de privacidad publicada y clasificación por edades; cargar en el panel Meta,
-   probar el binario distribuido y enviarlo a revisión.
+## Verificación y cierre
 
-El recorte concentra estas comprobaciones; no permite deducir una fecha de
-aprobación ni afirmar que los quince casos tienen el mismo nivel de acabado.
+La matriz de aceptación debe recorrer las nueve combinaciones desde la selección
+hasta los resultados: postura, conversación o testigo, acciones propias, pausa,
+reinicio y cambio de entorno. En desobstrucción se comprueba el contacto y el
+movimiento del control, la interrupción de la maniobra y la expulsión visual.
+Estos gestos virtuales no miden fuerza física aplicada a un paciente.
 
-## Meta: comprobaciones de publicación
-
-Fuentes oficiales consultadas el 30 de septiembre de 2026. Revisar de nuevo los
-requisitos contra el candidato que se vaya a enviar:
-
-| Comprobación | Evidencia necesaria |
-| --- | --- |
-| Funcionamiento y contenido anunciado | Recorridos de los 15 casos y ficha fiel al binario; [VRC](https://developers.meta.com/vr/resources/publish-quest-req/) |
-| Paquete de distribución | ARM64, firma APK v2 y manifiesto conforme; [empaquetado](https://developers.meta.com/vr/resources/vrc-quest-packaging-1/) |
-| Interacción, foco y seguimiento | Arranque, pausa/reanudación del sistema, mandos y recuperación en visor; [VRC funcionales](https://developers.meta.com/vr/resources/publish-quest-req/) |
-| Rendimiento | Medición en visor conforme al criterio vigente; [Performance.1](https://developers.meta.com/vr/resources/vrc-quest-performance-1/) |
-| Privacidad | Política pública HTTPS coherente con los datos tratados; [Privacy.1](https://developers.meta.com/vr/resources/vrc-quest-privacy-1/) |
-| Ficha y envío | Capturas, assets, idiomas, controles, clasificación IARC y precio; [metadatos](https://developers.meta.com/vr/resources/publish-app-metadata/) y [envío](https://developers.meta.com/vr/resources/publish-submit/) |
-
-`QuestProjectSetup.BuildDevelopmentApk` genera una **APK de desarrollo** con el
-identificador provisional `com.emergencyvr.trainingdemo`; no es evidencia de una
-versión firmada para tienda. Los informes anteriores mantienen pendiente la
-validación física en Quest. La cuenta Meta, firma de producción, precio y ficha
-pública necesitan sus propias evidencias antes del envío.
-
-## Mantener sincronizado el alcance
-
-Desde la raíz del proyecto:
+Comandos para sincronizar y verificar el catálogo y el portal:
 
 ```powershell
 node tools/Sync-MedicalPortal.mjs
@@ -88,15 +68,26 @@ npm.cmd --prefix demo/web run build
 npm.cmd --prefix demo test
 ```
 
-La sincronización comprueba existencia, unicidad, entorno y disponibilidad antes
-de escribir el catálogo. También actualiza `SCENARIO_LIBRARY.md`. La ficha pública
-de Daniel V2 usa sus metadatos reales y no duplica el motor clínico ni presenta
-lecturas inventadas. Compilar el frontend después de sincronizar evita servir
-estadísticas o tarjetas de una versión anterior.
+Verificación realizada para esta adaptación:
 
-En Unity, ejecutar las pruebas de alcance y de integración del catálogo, además
-del recorrido en visor. Las pruebas de la biblioteca completa siguen teniendo
-sentido para conservar el contenido de futuras versiones.
+- Núcleo clínico: **27/27** pruebas; alcance compartido Unity/portal: **5/5**.
+- Backend del portal: **17/17**; compilaciones del catálogo y React correctas.
+- Navegador: selección y navegación de las nueve combinaciones, escritorio y
+  móvil sin errores ni desbordes; capturas en `TestResults/release-3x3/`.
+- Unity EditMode: **297/297**, incluyendo variantes, identidades compartidas,
+  postura inicial, silencio durante la obstrucción y contexto de Daniel.
+
+En Unity ejecutar las pruebas de alcance, variantes, pacientes, entornos,
+`DizzinessEnvironmentIntegrationTests` y `ChokingInteractionTests`, además de las
+regresiones de interacción. Los resultados de esta adaptación se registran en
+`TestResults/release-3x3/`. La revisión clínica, la comprobación física en Quest y
+una nueva compilación de distribución corresponden a este alcance; las evidencias
+históricas siguientes no las sustituyen.
+
+## Historial del alcance anterior
+
+Las entregas y los resultados siguientes corresponden a **3 × 5** (gimnasio,
+centro comercial y campo de fútbol). Se conservan como historial.
 
 ## Verificación de esta reducción — 2026-09-30
 

@@ -22,7 +22,7 @@ namespace EmergencyVR.Tests
             var flow = Object.FindFirstObjectByType<EmergencyVR.UI.TrainingExperience>();
             var aed = review.Procedures.GetComponentsInChildren<MedicalPhysicalTool>(true).Single(t => t.Kind == MedicalToolKind.AED);
             var chest = review.Procedures.Visuals.ChestAnchor;
-            foreach (var environment in new[] { "gym", "mall", "football", "gym" })
+            foreach (var environment in new[] { "gym", "street", "football", "gym" })
             {
                 int index = System.Array.FindIndex(review.Catalog.entries, e => e.medical?.environment == environment && e.medical.clinicalV2 == null);
                 flow.Prepare(index);
@@ -37,7 +37,7 @@ namespace EmergencyVR.Tests
                 Assert.That(review.Procedures.GetComponentsInChildren<Transform>().Any(t => t.name == "Bedside tablet case"), Is.False);
                 Assert.That(aed.CanBeGrabbed, Is.True);
                 Assert.That(review.Procedures.Visuals.ChestAnchor, Is.SameAs(chest));
-                var shelf = module.Find(environment == "football" ? "First aid station shelf collider" : "AED cabinet shelf collider").GetComponent<Collider>();
+                var shelf = module.Find(environment == "football" || environment == "street" ? "First aid station shelf collider" : "AED cabinet shelf collider").GetComponent<Collider>();
                 var shell = aed.transform.Find("AED shell").GetComponent<Renderer>().bounds;
                 var sole = new Vector3(shell.center.x, shell.min.y, shell.center.z);
                 Physics.SyncTransforms();
@@ -64,7 +64,7 @@ namespace EmergencyVR.Tests
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");yield return null;
             var review=Object.FindFirstObjectByType<ReviewCaseSession>();
-            Assert.That(review.Catalog.entries.Length,Is.EqualTo(16));
+            Assert.That(review.Catalog.entries.Length,Is.EqualTo(10));
             Assert.That(review.Catalog.entries.Count(e=>e.medical==null),Is.EqualTo(1),"The original technical demo remains available.");
             Assert.That(review.Selected.definition,Is.SameAs(review.Manager.Scenario.defaultCase));
             Assert.That(review.Selected.definition.isTechnicalDemo,Is.True);
@@ -73,7 +73,7 @@ namespace EmergencyVR.Tests
             Assert.That(review.Catalog.entries.Count(e=>e.medical?.id=="review-hypotension-v2"),Is.EqualTo(1));
             foreach(var env in review.Scope.environments.Select(e=>e.id))
             {
-                Assert.That(review.Catalog.entries.Count(e=>e.medical?.environment==env),Is.EqualTo(5));
+                Assert.That(review.Catalog.entries.Count(e=>e.medical?.environment==env),Is.EqualTo(3));
                 int i=System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==env&&e.medical.clinicalV2==null);
                 Assert.That(review.Select(i),Is.True);review.Manager.StartCase();Assert.That(review.Select(0),Is.False);
                 review.Submit("CheckSceneSafety");Assert.That(review.Manager.MedicalSession.Completed,Does.Contain("CheckSceneSafety"));

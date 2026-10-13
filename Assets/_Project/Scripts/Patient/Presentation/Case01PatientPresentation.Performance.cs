@@ -10,7 +10,7 @@ namespace EmergencyVR.Patient.Presentation
     /// </summary>
     public sealed partial class Case01PatientPresentation
     {
-        static readonly string[] Trunk = { "Spine", "Spine1", "Spine2", "Neck", "Head" };
+        static readonly string[] Trunk = { "Spine", "Spine1", "Spine2", "L Clavicle", "R Clavicle", "Neck", "Head" };
         const string IdleClip = "m_sit_chair_idle_nervous_01";
 
         Transform sampler;
@@ -22,7 +22,10 @@ namespace EmergencyVR.Patient.Presentation
         enum PresenceGesture { Settle, Temple, Speaking }
         PresenceGesture presenceGesture;
         static readonly float[] PresenceIntervals = { 7.2f, 9.6f, 6.7f, 10.3f };
+        static readonly string[] ExpressiveChannels = { "AA_VI_10_aa", "AA_VI_11_E", "AA_VI_13_O", "AK_19_EyeSquintLeft",
+            "AK_20_EyeSquintRight", "AK_30_MouthFrownLeft", "AK_31_MouthFrownRight" };
         float mouth, idleWeight, gestureAt = -1, nextGesture = 1.6f, performanceTime, nextSpeechGesture;
+        float speechBrightness;
         int presenceSequence;
         bool samplerAttempted;
         float PerformanceDelta => review != null && !review.Manager.IsPaused ? Time.deltaTime : 0;
@@ -38,9 +41,11 @@ namespace EmergencyVR.Patient.Presentation
             if (!HasVoluntaryPresence)
             {
                 gestureAt = -1; idleWeight = 0;
+                ClearExpressiveFace();
                 return; // The medical layer retains closed eyes, jaw and unsupported/unresponsive signs.
             }
             PresentSpeech();
+            PresentExpression();
             PresentNaturalBlink();
             bool seated = !busy && !risePending && !standing && !regaining && progress <= 0 && !completed &&
                 review.Procedures?.CPR?.Touching != true && visual.CompressionDepthMetres <= .001f;
@@ -48,13 +53,25 @@ namespace EmergencyVR.Patient.Presentation
             // Clips enrich the idle; they must never gate basic human presence or a procedural gesture.
             if (seated && EnsureSampler() && idleWeight > .001f && idle != null && idle.length > .01f)
             {
-                CharacterAnimationLibrary.Sample(idle, sampler.gameObject, performanceTime % idle.length);
+                float clipTime = performanceTime % idle.length;
+                CharacterAnimationLibrary.Sample(idle, sampler.gameObject, clipTime);
+                float seamDuration = Mathf.Min(.55f, idle.length * .1f);
+                float seam = Smooth((clipTime - idle.length + seamDuration) / seamDuration);
+                if (seam > 0)
+                    foreach (var pair in sampledBones)
+                        if (idleReference.TryGetValue(pair.Key, out var start))
+                            pair.Value.localRotation = Quaternion.Slerp(pair.Value.localRotation, start, seam);
                 foreach (var name in Trunk)
                 {
                     // Attending to the learner keeps the head on them; the trunk keeps breathing and shifting.
-                    float weight = idleWeight * (name == "Head" || name == "Neck" ? .32f * (1 - attention * .7f) : .38f);
+                    float weight = idleWeight * (name == "Head" || name == "Neck" ? .42f * (1 - attention * .8f) : .72f);
                     AddDelta(name, idleReference, weight);
                 }
+                // Imported finger joints retain a relaxed captured hand pose. Leaving them in
+                // the neutral bind pose makes even a moving arm look like a rigid mannequin.
+                foreach (var pair in liveBones)
+                    if (pair.Key.Contains("Finger") && sampledBones.TryGetValue(pair.Key, out var captured))
+                        pair.Value.localRotation = Quaternion.Slerp(pair.Value.localRotation, captured.localRotation, idleWeight * .85f);
             }
             if (!seated) { gestureAt = -1; return; }
             PresentSupportedTorsoMotion();
@@ -83,6 +100,10 @@ namespace EmergencyVR.Patient.Presentation
                     float envelope = Smooth(t / .85f) * Smooth((duration - t) / 1.05f);
                     if (presenceGesture == PresenceGesture.Temple)
                     {
+                        // The shoulder and chest anticipate the reach, then settle with the hand.
+                        // Pelvis/feet remain supported and the left hand is solved back onto the bench.
+                        body.spine.rotation = Quaternion.AngleAxis(-3.5f * envelope, Vector3.up) *
+                            Quaternion.AngleAxis(2.4f * envelope, Right) * body.spine.rotation;
                         PoseDizzyGesture(envelope);
                         rig.head.rotation = Quaternion.AngleAxis(5 * envelope, Right) * rig.head.rotation;
                     }
@@ -100,13 +121,45 @@ namespace EmergencyVR.Patient.Presentation
             if (voice != null && voice.isPlaying)
             {
                 voice.GetOutputData(voiceSamples, 0);
-                float sum = 0; foreach (var v in voiceSamples) sum += v * v;
+                float sum = 0; int crossings = 0;
+                for (int i = 0; i < voiceSamples.Length; i++)
+                {
+                    sum += voiceSamples[i] * voiceSamples[i];
+                    if (i > 0 && (voiceSamples[i] >= 0) != (voiceSamples[i - 1] >= 0)) crossings++;
+                }
                 target = Mathf.Clamp01(Mathf.Sqrt(sum / voiceSamples.Length) * 9);
+                speechBrightness = Mathf.Lerp(speechBrightness, Mathf.Clamp01(crossings / 50f),
+                    1 - Mathf.Exp(-PerformanceDelta * 12));
             }
             mouth = Mathf.Lerp(mouth, target, 1 - Mathf.Exp(-PerformanceDelta * (target > mouth ? 28 : 16)));
             if (rig == null) return;
-            rig.SetBlendShape(rig.jawOpen, mouth * 55);
-            if (rig.head != null && mouth > .02f) rig.head.rotation = Quaternion.AngleAxis(mouth * 2.2f, Right) * rig.head.rotation;
+            bool hasVowels = rig.face != null && rig.face.sharedMesh.GetBlendShapeIndex("blendShape1.AA_VI_10_aa") >= 0;
+            rig.SetBlendShape(rig.jawOpen, mouth * (hasVowels ? 16 : 55));
+            // Audio-reactive articulation, not phoneme recognition: energy opens the mouth,
+            // spectral roughness varies the lip shape. All channels close when the voice stops.
+            rig.SetBlendShape("blendShape1.AA_VI_10_aa", mouth * 32 * (1 - speechBrightness));
+            rig.SetBlendShape("blendShape1.AA_VI_11_E", mouth * 26 * speechBrightness);
+            rig.SetBlendShape("blendShape1.AA_VI_13_O", mouth * 18 * (1 - speechBrightness));
+            // A phrase-level accent is slower than the jaw. Following every syllable with
+            // the entire head produces a mechanical bobbing motion.
+            if (rig.head != null && mouth > .02f)
+                rig.head.rotation = Quaternion.AngleAxis(Mathf.Sin(performanceTime * 2.1f) * mouth * 1.3f, Right) * rig.head.rotation;
+        }
+
+        void PresentExpression()
+        {
+            float tension = Mathf.Clamp01(discomfort / 18f);
+            rig.SetBlendShape(rig.fear, tension * (8 + 3 * Mathf.Sin(performanceTime * .43f)));
+            rig.SetBlendShape("blendShape1.AK_19_EyeSquintLeft", tension * 9);
+            rig.SetBlendShape("blendShape1.AK_20_EyeSquintRight", tension * 7);
+            rig.SetBlendShape("blendShape1.AK_30_MouthFrownLeft", tension * 10 * (1 - mouth));
+            rig.SetBlendShape("blendShape1.AK_31_MouthFrownRight", tension * 7 * (1 - mouth));
+        }
+
+        void ClearExpressiveFace()
+        {
+            foreach (var channel in ExpressiveChannels)
+                rig.SetBlendShape("blendShape1." + channel, 0);
         }
 
         void AddDelta(string name, Dictionary<string, Quaternion> reference, float weight)
@@ -163,7 +216,7 @@ namespace EmergencyVR.Patient.Presentation
 
         void ResetPerformanceTiming()
         {
-            gestureAt = -1; nextGesture = 1.6f; idleWeight = 0; mouth = 0; performanceTime = 0;
+            gestureAt = -1; nextGesture = 1.6f; idleWeight = 0; mouth = 0; speechBrightness = 0; performanceTime = 0;
             nextSpeechGesture = 0; presenceSequence = 0;
             naturalBlinkAt = -1; nextNaturalBlink = 3.1f; naturalBlinkSequence = 0;
             attentionRotation = Quaternion.identity; attention = 0; attentionUntil = 0;

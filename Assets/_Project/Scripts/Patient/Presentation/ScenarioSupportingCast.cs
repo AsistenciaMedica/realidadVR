@@ -34,11 +34,9 @@ namespace EmergencyVR.Patient.Presentation
             var point = review.Procedures.Visuals.Rig.head.position;
             if (definition.clinicalV2 != null)
             {
-                // Daniel already has a gym colleague and, later, two arriving paramedics (four total).
-                var mateo = Add("Mateo", false, new Vector3(-.75f, 0, 2.5f), point);
-                var presentation = review.GetComponent<Case01PatientPresentation>();
-                if (definition.environment == "gym" && presentation != null && presentation.IsActive)
-                    mateo.gameObject.AddComponent<GymBystanderBehaviour>().Initialize(mateo, review, review.Procedures.Visuals.Rig.head);
+                // Daniel already has a companion and, later, two arriving paramedics (four total).
+                string observer = definition.environment == "football" ? "Pablo" : definition.environment == "street" ? "Luis" : "Mateo";
+                Add(observer, false, new Vector3(-.75f, 0, 2.5f), point);
                 return;
             }
             switch (definition.environment)
@@ -48,6 +46,7 @@ namespace EmergencyVR.Patient.Presentation
                     Add(patient == "Mateo" ? "Daniel" : "Mateo", false, new Vector3(-.7f, 0, -.8f), point);
                     break;
                 case "mall":
+                case "street":
                     Witness = Add(patient == "Rosa" ? "Camila" : "Rosa", true, new Vector3(2.4f, 0, 3.2f), point);
                     Add(patient == "Luis" ? "Javier" : "Luis", false, new Vector3(-1.25f, 0, 2.8f), point);
                     break;
@@ -61,6 +60,7 @@ namespace EmergencyVR.Patient.Presentation
         SupportingActor Add(string appearance, bool female, Vector3 position, Vector3 look)
         {
             var actor = SupportingActor.Create(transform, appearance, female, position, look);
+            actor.gameObject.AddComponent<WitnessAttentionBehaviour>().Initialize(actor, review, review.Procedures.Visuals.Rig.head, female);
             actors.Add(actor);
             return actor;
         }
@@ -73,9 +73,9 @@ namespace EmergencyVR.Patient.Presentation
         void OnDestroy() { if (review != null) review.SelectionChanged -= Clear; Clear(); }
     }
 
-    /// <summary>Mateo observes the first gym case; he has no clinical authority or dialogue.</summary>
+    /// <summary>Planted, independent attention and gestures for civilian witnesses in every environment.</summary>
     [DefaultExecutionOrder(190)]
-    internal sealed class GymBystanderBehaviour : MonoBehaviour
+    internal sealed class WitnessAttentionBehaviour : MonoBehaviour
     {
         readonly Dictionary<Transform, Pose> planted = new Dictionary<Transform, Pose>();
         SupportingActor actor;
@@ -86,10 +86,22 @@ namespace EmergencyVR.Patient.Presentation
         bool wroteHead, secondIdle, gesturing;
         float clock, nextIdle = 14.6f, nextGesture = 6.7f, gestureUntil;
         string clinicalState;
+        string idle, gesture;
+        bool female;
+        float attentionPhase;
 
-        public void Initialize(SupportingActor owner, ReviewCaseSession session, Transform patient)
+        public void Initialize(SupportingActor owner, ReviewCaseSession session, Transform patient, bool isFemale)
         {
             actor = owner; review = session; patientHead = patient;
+            female = isFemale;
+            idle = female ? "f_idle_breathe_01" : "m_idle_breathe_01";
+            gesture = female ? "f_gestic_talk_neutral_01" : "m_gestic_talk_neutral_01";
+            // Stable per-character timing avoids synchronized looks and gestures.
+            int seed = 0;
+            foreach (char c in owner.AppearanceId) seed = (seed * 31 + c) % 997;
+            attentionPhase = seed * .013f;
+            nextGesture += seed % 7;
+            nextIdle += seed % 5;
             var model = owner.Motion.transform;
             // These clips include captured hip translation. Preserve the planted standing pose,
             // letting only the trunk, shoulders, arms and head express the change in attention.
@@ -97,7 +109,9 @@ namespace EmergencyVR.Patient.Presentation
             foreach (var bone in model.GetComponentsInChildren<Transform>())
             {
                 if (bone.name == "Bip01 Head") head = bone;
-                if (bone.name == "Bip01" || bone.name == "Bip01 Pelvis")
+                // In this imported rig the thighs are children of Spine, not Pelvis.
+                // Anchor that shared base too; Spine1/Spine2 still animate the upper trunk.
+                if (bone.name == "Bip01" || bone.name == "Bip01 Pelvis" || bone.name == "Bip01 Spine")
                     planted[bone] = new Pose(bone.localPosition, bone.localRotation);
                 if (bone.name != "Bip01 L Thigh" && bone.name != "Bip01 R Thigh") continue;
                 foreach (var legBone in bone.GetComponentsInChildren<Transform>())
@@ -124,18 +138,18 @@ namespace EmergencyVR.Patient.Presentation
             if (gesturing && clock >= gestureUntil)
             {
                 gesturing = false;
-                actor.Motion.Play(secondIdle ? "m_idle_breathe_02" : "m_idle_breathe_01", .65f);
+                actor.Motion.Play(!female && secondIdle ? "m_idle_breathe_02" : idle, .65f);
             }
             if (!gesturing && clock >= nextIdle)
             {
                 secondIdle = !secondIdle;
-                actor.Motion.Play(secondIdle ? "m_idle_breathe_02" : "m_idle_breathe_01", 1.1f);
+                actor.Motion.Play(!female && secondIdle ? "m_idle_breathe_02" : idle, 1.1f);
                 nextIdle = clock + (secondIdle ? 18.3f : 14.6f);
             }
             bool patientSpeaking = review.Manager.Dialogue != null && review.Manager.Dialogue.IsSpeaking;
             if (!gesturing && !patientSpeaking && clock >= nextGesture)
             {
-                actor.Motion.Play("m_gestic_talk_neutral_01", .65f);
+                actor.Motion.Play(gesture, .65f);
                 gesturing = true; gestureUntil = clock + 3.8f;
                 nextGesture = clock + 26.4f;
             }
@@ -150,8 +164,9 @@ namespace EmergencyVR.Patient.Presentation
             if (learner == null && Camera.main != null) learner = Camera.main.transform;
             bool patientSpeaking = review.Manager.Dialogue != null && review.Manager.Dialogue.IsSpeaking;
             bool learnerNear = learner != null && (learner.position - head.position).sqrMagnitude < 12.25f;
-            // Mostly watches Daniel; occasional short glances invite the nearby learner's attention.
-            bool glanceToLearner = learnerNear && !patientSpeaking && Mathf.Repeat(clock + 1.8f, 10.7f) < 3.1f;
+            // Speakers address the learner; quiet witnesses mostly watch the patient.
+            bool glanceToLearner = learnerNear && !patientSpeaking &&
+                (actor.Voice.isPlaying || Mathf.Repeat(clock + attentionPhase, 10.7f) < 3.1f);
             var target = glanceToLearner ? learner.position : patientHead.position;
             var direction = target - head.position;
             if (direction.sqrMagnitude < .01f) return;
@@ -236,14 +251,49 @@ namespace EmergencyVR.Patient.Presentation
             return source;
         }
 
+        float mouthWeight;
         void LateUpdate()
         {
+            if (Time.deltaTime <= 0 || AudioListener.pause) return;
             phase += Time.deltaTime;
             float time = Mathf.Repeat(phase, 4.3f);
             float blink = time < .18f ? Mathf.Sin(time / .18f * Mathf.PI) * 100 : 0;
             if (blinkLeft >= 0) skin.SetBlendShapeWeight(blinkLeft, blink);
             if (blinkRight >= 0) skin.SetBlendShapeWeight(blinkRight, blink);
-            if (mouth >= 0) skin.SetBlendShapeWeight(mouth, SpeechWeight(Voice, speech));
+            mouthWeight = Mathf.Lerp(mouthWeight, SpeechWeight(Voice, speech), 1 - Mathf.Exp(-Time.deltaTime * 24));
+            if (mouth >= 0) ApplySpeech(skin, skin.sharedMesh.GetBlendShapeName(mouth), mouthWeight, speech);
+        }
+
+        // Audio-reactive articulation, not phoneme recognition. Preserve a jaw-only fallback
+        // when a supplied character has no vowel channels.
+        public static void ApplySpeech(SkinnedMeshRenderer face, string jaw, float weight, float[] samples)
+        {
+            if (face == null || face.sharedMesh == null) return;
+            int crossings = 0;
+            for (int i = 1; i < samples.Length; i++)
+                if ((samples[i] > 0) != (samples[i - 1] > 0)) crossings++;
+            float brightness = Mathf.Clamp01(crossings / (samples.Length * .22f));
+            bool vowels = face.sharedMesh.GetBlendShapeIndex("blendShape1.AA_VI_10_aa") >= 0;
+            void Set(string name, float value)
+            {
+                int index = face.sharedMesh.GetBlendShapeIndex(name);
+                if (index >= 0) face.SetBlendShapeWeight(index, value);
+            }
+            Set(jaw, weight * (vowels ? .38f : 1));
+            Set("blendShape1.AA_VI_10_aa", weight * .75f * (1 - brightness));
+            Set("blendShape1.AA_VI_11_E", weight * .60f * brightness);
+            Set("blendShape1.AA_VI_13_O", weight * .42f * (1 - brightness));
+        }
+
+        static readonly string[] VowelChannels = { "AA_VI_10_aa", "AA_VI_11_E", "AA_VI_13_O" };
+        public static void ClearVowels(SkinnedMeshRenderer face)
+        {
+            if (face == null || face.sharedMesh == null) return;
+            foreach (var channel in VowelChannels)
+            {
+                int index = face.sharedMesh.GetBlendShapeIndex("blendShape1." + channel);
+                if (index >= 0) face.SetBlendShapeWeight(index, 0);
+            }
         }
 
         public static float SpeechWeight(AudioSource source, float[] samples)

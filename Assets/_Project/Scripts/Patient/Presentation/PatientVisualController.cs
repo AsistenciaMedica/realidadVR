@@ -298,7 +298,8 @@ namespace EmergencyVR.Patient.Presentation
         }
         void AnimateFace(float blend)
         {
-            var phase=Mathf.Repeat(elapsed,4.7f);
+            // A bounded, continuous phase modulation avoids a perfectly metronomic blink.
+            var phase=Mathf.Repeat(elapsed + Mathf.Sin(elapsed * .17f) * .8f,4.7f);
             var blink=phase<.19f?Mathf.Sin(phase/.19f*Mathf.PI):0;
             float closure=visual.Consciousness==PatientConsciousness.Unresponsive?1:visual.Consciousness==PatientConsciousness.Drowsy?.7f:blink;
             eyeClosure=Mathf.Lerp(eyeClosure,closure,1-Mathf.Exp(-Time.deltaTime*22));
@@ -309,6 +310,14 @@ namespace EmergencyVR.Patient.Presentation
             fearWeight=Mathf.Lerp(fearWeight,visual.Expression==PatientExpression.Fear?20:0,blend);
             distressWeight=Mathf.Lerp(distressWeight,visual.Expression==PatientExpression.Distress?22:0,blend);
             rig.SetBlendShape(rig.pain,painWeight);rig.SetBlendShape(rig.fear,fearWeight);rig.SetBlendShape(rig.distress,distressWeight);
+            if (!ExternalBodyPresentation)
+            {
+                float tension = Mathf.Max(painWeight, distressWeight) / 25f;
+                rig.SetBlendShape("blendShape1.AK_19_EyeSquintLeft", tension * 10);
+                rig.SetBlendShape("blendShape1.AK_20_EyeSquintRight", tension * 7);
+                rig.SetBlendShape("blendShape1.AK_30_MouthFrownLeft", tension * 9);
+                rig.SetBlendShape("blendShape1.AK_31_MouthFrownRight", tension * 6);
+            }
             if(!rig.provisionalAsset) return;
             void Lid(Transform lid,Vector3 rest)
             {

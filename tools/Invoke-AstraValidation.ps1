@@ -1,10 +1,11 @@
 param(
-    [ValidateSet('Sync','SyncSources','SyncFiles','EditMode','PlayMode','BuildDesktop','BuildBudget','Capture','CaptureBudget','Bake','ValidateGym')][string]$Task = 'EditMode',
+    [ValidateSet('Sync','SyncSources','SyncFiles','EditMode','PlayMode','BuildDesktop','BuildBudget','BuildCharacters','Capture','CaptureBudget','Bake','ValidateGym')][string]$Task = 'EditMode',
     [string]$Label = 'current',
     [string]$TestFilter = '',
     [string]$FileList = '',
     [string]$FileManifest = '',
-    [ValidateSet('Default','D3D11')][string]$GraphicsApi = 'Default'
+    [ValidateSet('Default','D3D11')][string]$GraphicsApi = 'Default',
+    [string]$PresenceDirectory = ''
 )
 $ErrorActionPreference = 'Stop'
 $sourceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -89,7 +90,9 @@ if ($Task -eq 'Capture' -or $Task -eq 'CaptureBudget') {
     }
 } else {
     $argsList = @('-batchmode','-projectPath',('"'+$labRoot+'"'),'-buildTarget','Win64','-logFile',('"'+$log+'"'))
-    if ($Task -eq 'ValidateGym') {
+    if ($Task -eq 'BuildCharacters') {
+        $argsList += @('-quit','-executeMethod','EmergencyVR.Editor.CharacterAssetBuilder.BuildReviewCharacters')
+    } elseif ($Task -eq 'ValidateGym') {
         $argsList += @('-quit','-executeMethod','EmergencyVR.Editor.QuestGymTextureSetup.ReimportAndValidate')
     } elseif ($Task -eq 'Bake') {
         $argsList += @('-quit','-executeMethod','EmergencyVR.Editor.Environment.EnvironmentLightingBaker.BakeAll')
@@ -102,6 +105,14 @@ if ($Task -eq 'Capture' -or $Task -eq 'CaptureBudget') {
         $xml = Join-Path $evidence ($Label + '-' + $Task.ToLowerInvariant() + '.xml')
         $argsList += @('-runTests','-testPlatform',$Task,'-testResults',('"'+$xml+'"'))
         if ($TestFilter) { $argsList += @('-testFilter',$TestFilter) }
+        if ($PresenceDirectory) {
+            $presencePath = [IO.Path]::GetFullPath((Join-Path $sourceRoot $PresenceDirectory))
+            if ($Task -ne 'PlayMode' -or -not $presencePath.StartsWith($sourceRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
+                throw 'Character inspection output must stay within the source project and use PlayMode.'
+            }
+            if (Test-Path -LiteralPath $presencePath) { throw 'Choose a new character inspection folder to preserve previous evidence.' }
+            $argsList += @('-vital-presence-directory', ('"' + $presencePath + '"'))
+        }
     }
     $process = Start-Process -FilePath $unity -ArgumentList $argsList -WorkingDirectory $labRoot -WindowStyle Hidden -PassThru
     Write-Output ("Unity PID: " + $process.Id)
@@ -116,7 +127,9 @@ if ($Task -eq 'Capture' -or $Task -eq 'CaptureBudget') {
         }
     }
     if ($process.ExitCode -ne 0) { throw "Unity $Task failed with exit $($process.ExitCode): $log" }
-    if ($Task -eq 'Bake') {
+    if ($Task -eq 'BuildCharacters') {
+        if (-not (Select-String -LiteralPath $log -Pattern 'VITAL_PATIENT_ROSTER_BUILT' -Quiet)) { throw "Character build failed: $log" }
+    } elseif ($Task -eq 'Bake') {
         if (-not (Select-String -LiteralPath $log -Pattern 'VITAL_ENVIRONMENTS_BAKED' -Quiet)) { throw "Bake success marker absent: $log" }
         Copy-Item -Path (Join-Path $labRoot 'TestResults/astra/bake-*.json') -Destination $evidence
     } elseif ($Task -eq 'BuildDesktop' -or $Task -eq 'BuildBudget') {

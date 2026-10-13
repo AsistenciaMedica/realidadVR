@@ -39,7 +39,12 @@ namespace EmergencyVR.Dialogue
                 return;
             }
             if(request.SmallTalk=="name") pending.Enqueue(()=>Say("DANIEL_NAME","Daniel… me llamo Daniel."));
-            if(request.SmallTalk=="place") pending.Enqueue(()=>Say("DANIEL_PLACE","En el gimnasio… estaba en la cinta."));
+            if(request.SmallTalk=="place") pending.Enqueue(()=>
+            {
+                var environment=manager.MedicalDefinition.environment;
+                Say(environment=="gym"?"DANIEL_PLACE":"DANIEL_PLACE_"+environment.ToUpperInvariant(),
+                    ClinicalScenarioLocation.PatientPlace(environment));
+            });
             foreach(var intent in request.Intents) { var asked=intent; pending.Enqueue(()=>Ask(asked)); }
         }
 

@@ -161,7 +161,14 @@ namespace EmergencyVR.Medical.Interaction
                 var position=camera.TransformPoint(new Vector3(side==0?-.24f:.24f,-.62f,.22f));
                 var rotation=camera.rotation*Quaternion.Euler(12,side==0?12:-12,side==0?-12:12);
                 var pose=MedicalHandPose.Relaxed;
-                if(compress)
+                Vector3 chokingPosition=default;Quaternion chokingRotation=Quaternion.identity;
+                bool choking=rig.Choking!=null && rig.Choking.TryHandPose(side,out chokingPosition,out chokingRotation);
+                if(choking)
+                {
+                    position=chokingPosition;rotation=chokingRotation;
+                    pose=rig.Choking.IsBackBlow?MedicalHandPose.Support:MedicalHandPose.Grip;
+                }
+                else if(compress)
                 {
                     var anchor=rig.Visuals.ChestAnchor;
                     var forward=Vector3.ProjectOnPlane(anchor.position-camera.position,anchor.up).normalized;
@@ -305,7 +312,7 @@ namespace EmergencyVR.Medical.Interaction
                 device.TryGetFeatureValue(CommonUsages.grip,out grip);
                 device.TryGetFeatureValue(CommonUsages.trigger,out trigger);
             }
-            hand.SetPose(rig.CPR.HasManualContact?MedicalHandPose.Compression:grip>.15f?MedicalHandPose.Grip:trigger>.15f?MedicalHandPose.Pinch:MedicalHandPose.Relaxed,Mathf.Max(.2f,Mathf.Max(grip,trigger)));
+            hand.SetPose(rig.CPR.HasManualContact?MedicalHandPose.Compression:rig.Choking.HasContact?(rig.Choking.IsBackBlow?MedicalHandPose.Support:MedicalHandPose.Grip):grip>.15f?MedicalHandPose.Grip:trigger>.15f?MedicalHandPose.Pinch:MedicalHandPose.Relaxed,Mathf.Max(.2f,Mathf.Max(grip,trigger)));
         }
         void OnDisable()
         {

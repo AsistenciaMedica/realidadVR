@@ -31,17 +31,17 @@ test('does not advertise a missing build', async t => {
 test('release environment and case deep links reload, excluded content returns 404', async t => {
   const { url } = await fixture(t);
   const catalog = await (await fetch(url + '/api/catalog')).json();
-  assert.equal(catalog.scenarios.length, 15);
-  assert.deepEqual(catalog.releaseScope.environments.map(environment => environment.id), ['gym', 'mall', 'football']);
+  assert.equal(catalog.scenarios.length, 9);
+  assert.deepEqual(catalog.releaseScope.environments.map(environment => environment.id), ['football', 'gym', 'street']);
   for (const environment of catalog.releaseScope.environments) {
-    assert.equal(environment.scenarioIds.length, 5);
-    assert.equal(catalog.scenarios.filter(scenario => scenario.environment === environment.id).length, 5);
+    assert.equal(environment.scenarioIds.length, 3);
+    assert.equal(catalog.scenarios.filter(scenario => scenario.environment === environment.id).length, 3);
     const page = await fetch(url + '/scenarios/' + environment.id);
     assert.equal(page.status, 200, environment.id);
     assert.match(await page.text(), /Emergency VR/);
     for (const id of environment.scenarioIds) assert.equal((await fetch(url + '/scenarios/' + id)).status, 200, id);
   }
-  for (const id of ['dental', 'dental-arrest', 'review-hypotension-v1', 'not-a-scenario']) {
+  for (const id of ['mall', 'dental', 'dental-arrest', 'review-hypotension-v1', 'not-a-scenario']) {
     assert.equal((await fetch(url + '/scenarios/' + id)).status, 404, id);
   }
 });

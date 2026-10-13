@@ -1,11 +1,14 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using EmergencyVR.Desktop;
+using EmergencyVR.Medical;
+using EmergencyVR.Scenarios;
 
 namespace EmergencyVR.UI
 {
@@ -38,7 +41,8 @@ namespace EmergencyVR.UI
             Click("Start learning"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "02-environments");
             Click("Environment gym"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "03-catalog");
             // This smoke exercises the legacy scored UI; CASE 01 has its own objective-based player validation.
-            var index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.id == "gym-faint");
+            var index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.id == "gym-arrest");
+            Require(index >= 0, "The active gym cardiac-arrest case is missing.");
             Click("Case " + Review.Catalog.entries[index].medical.id); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "04-briefing");
             Require(!Review.Manager.IsRunning && !WorldVisible, "Briefing must not start a case.");
             Click("Begin training"); yield return null; yield return new WaitForSecondsRealtime(.15f); yield return new WaitForEndOfFrame(); CaptureInterface(directory, "05-training");
@@ -75,6 +79,28 @@ namespace EmergencyVR.UI
             ExecuteEvents.Execute(button.gameObject, new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
             SettleSnapshotTransition();
         }
+        string[] ValidatedReleaseScenarioIds()
+        {
+            Require(Review.Scope != null, "Validation requires a loaded release scope.");
+            Review.Scope.Validate(new MedicalLibrary {
+                scenarios = Review.Catalog.entries.Where(entry => entry.medical != null).Select(entry => entry.medical).ToArray()
+            });
+            var ids = Review.Scope.ScenarioIds;
+            Require(ids.Length == ReleaseScope.EnvironmentCount * ReleaseScope.CasesPerEnvironment,
+                "Validation requires all nine release combinations.");
+            return ids;
+        }
+
+        static bool HasExactReleaseCoverage(IEnumerable<string> expected, IEnumerable<string> observed)
+        {
+            var expectedIds = expected.ToArray();
+            var observedIds = observed.ToArray();
+            return expectedIds.Length > 0 && observedIds.Length == expectedIds.Length &&
+                expectedIds.Distinct(StringComparer.Ordinal).Count() == expectedIds.Length &&
+                observedIds.Distinct(StringComparer.Ordinal).Count() == observedIds.Length &&
+                new HashSet<string>(expectedIds, StringComparer.Ordinal).SetEquals(observedIds);
+        }
+
         static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
         void CaptureInterface(string directory, string name)
         {

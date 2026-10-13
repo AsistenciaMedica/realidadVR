@@ -64,17 +64,18 @@ namespace EmergencyVR.UI
         void DrawVrWelcome()
         {
             Label(content, "Welcome brand", "Entrena para ayudar.", 36, 138, 928, 76, 54, Ink, true);
-            Label(content, "Welcome tagline", VitalBrand.Tagline, 36, 226, 928, 85, 32, Soft);
+            var controllerCheck = Label(content, "Controller check", "", 36, 226, 928, 85, 26, Soft);
+            Bind(controllerCheck, ControllerCheckSummary);
             Button(content, "Recommended demo", "Demo recomendada  →", 36, 335, 928, 82, StartRecommendedDemo, true);
             Button(content, "Start learning", "Elegir entrenamiento", 36, 435, 928, 76, () => Navigate(ExperiencePage.Environments));
             Button(content, "Learn controls", "Practicar los controles · 30 s", 36, 529, 928, 76, StartIntroTutorial);
-            Label(content, "Collection title", "TRES ENTORNOS · QUINCE ENTRENAMIENTOS", 36, 639, 928, 36, 25, Accent, true);
+            Label(content, "Collection title", environments.Length + " ENTORNOS · " + Review.Scope.ScenarioIds.Length + " ENTRENAMIENTOS", 36, 639, 928, 36, 25, Accent, true);
             for (int i = 0; i < environments.Length; i++)
             {
                 string id = environments[i];
                 Button(content, "Environment " + id, EnvironmentName(id), 36 + i * 315, 693, 298, 104, () => Browse(id));
             }
-            Label(content, "Welcome voice notice", "Voz sintética · tutorial opcional", 36, 837, 928, 33, 24, Soft);
+            Label(content, "Welcome voice notice", "v" + Application.version + " · Voz sintética · tutorial opcional", 36, 837, 928, 33, 24, Soft);
         }
 
         void DrawVrEnvironments()
@@ -87,7 +88,8 @@ namespace EmergencyVR.UI
                 var art = Box(card.transform, "Environment illustration", 18, 14, 158, 96, Background);
                 DrawEnvironmentSymbol(art.transform, id, 158, 96);
                 Label(card.transform, "Environment name", EnvironmentName(id), 204, 23, 690, 47, 33, Ink, true);
-                Label(card.transform, "Environment count", "5 entrenamientos  →", 205, 77, 690, 33, 25, Soft);
+                int count = Review.Scope.environments.Single(environment => environment.id == id).scenarioIds.Length;
+                Label(card.transform, "Environment count", count + " entrenamientos  →", 205, 77, 690, 33, 25, Soft);
             }
             Button(content, "Back home", "← Inicio", 36, 794, 280, 72, () => Navigate(ExperiencePage.Welcome));
             Button(content, "All scenarios", "Ver todos los entrenamientos", 336, 794, 628, 72, () => Browse(""));
@@ -177,6 +179,11 @@ namespace EmergencyVR.UI
             string[] descriptions = { "Apunta a un botón y pulsa el gatillo. Puedes usar cualquiera de los dos mandos.",
                 "Grip para coger o soltar. Stick hacia delante para elegir dónde teletransportarte; suéltalo para viajar.",
                 "El panel de consulta está a tu lado. B o Y centra el menú de pausa delante de tus ojos." };
+            if (Review.Procedures.Choking.IsChokingCase)
+            {
+                titles[0] = "Selecciona y practica";
+                descriptions[0] = "Gatillo: seleccionar. Maniobra: desde atrás, mantén ambos grips y las manos en las zonas; mueve y vuelve antes de soltar.";
+            }
             for (int i = 0; i < titles.Length; i++)
             {
                 Label(content, "Help title", titles[i], 36, 238 + i * 180, 928, 46, 33, Ink, true);

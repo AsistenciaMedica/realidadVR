@@ -14,7 +14,9 @@ namespace EmergencyVR.Editor
         public const string SourceManifest = "Assets/ThirdParty/Rocketbox/Roster/sources.json";
         const string Output = "Assets/_Project/Resources/Visual/Appearances/";
         static readonly string[] Channels = { "AK_09_EyeBlinkLeft", "AK_10_EyeBlinkRight", "AK_25_JawOpen",
-            "AU_04_BrowLowerer", "AU_01_InnerBrowRaiser", "AU_20_LipStretcher" };
+            "AU_04_BrowLowerer", "AU_01_InnerBrowRaiser", "AU_20_LipStretcher",
+            "AA_VI_10_aa", "AA_VI_11_E", "AA_VI_13_O",
+            "AK_19_EyeSquintLeft", "AK_20_EyeSquintRight", "AK_30_MouthFrownLeft", "AK_31_MouthFrownRight" };
         [Serializable] public sealed class Manifest { public string commit; public ModelSource[] models; }
         [Serializable] public sealed class ModelSource { public string id, upstreamModel, modelPath, textureDirectory; }
 
@@ -125,13 +127,15 @@ namespace EmergencyVR.Editor
                         shapes[channel].AddRange(delta.Select(matrix.MultiplyVector));
                     }
                 }
-                if (foundChannels.Any(found => !found)) throw new InvalidOperationException("Missing facial channels in " + source.id);
+                // Six clinical channels are required; extra articulation is optional on older sources.
+                if (foundChannels.Take(6).Any(found => !found)) throw new InvalidOperationException("Missing facial channels in " + source.id);
                 var mesh = new Mesh { name = source.id + "Mesh" };
                 if (vertices.Count > 65535) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
                 mesh.SetVertices(vertices); mesh.SetNormals(normals); mesh.SetTangents(tangents); mesh.SetUVs(0, uv);
                 mesh.boneWeights = weights.ToArray(); mesh.bindposes = bindposes; mesh.subMeshCount = groups.Count;
                 for (int i = 0; i < groups.Count; i++) mesh.SetTriangles(groups[i], i);
-                for (int i = 0; i < Channels.Length; i++) mesh.AddBlendShapeFrame("blendShape1." + Channels[i], 100, shapes[i].ToArray(), null, null);
+                for (int i = 0; i < Channels.Length; i++)
+                    if (foundChannels[i]) mesh.AddBlendShapeFrame("blendShape1." + Channels[i], 100, shapes[i].ToArray(), null, null);
                 var breath = new Vector3[vertices.Count]; var compression = new Vector3[vertices.Count];
                 for (int i = 0; i < vertices.Count; i++)
                 {

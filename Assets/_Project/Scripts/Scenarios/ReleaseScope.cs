@@ -11,7 +11,7 @@ namespace EmergencyVR.Scenarios
     public sealed class ReleaseScope
     {
         public const int EnvironmentCount = 3;
-        public const int CasesPerEnvironment = 5;
+        public const int CasesPerEnvironment = 3;
         public int schemaVersion;
         public string releaseId;
         public ReleaseEnvironment[] environments = Array.Empty<ReleaseEnvironment>();
@@ -42,17 +42,20 @@ namespace EmergencyVR.Scenarios
                 if (environment == null || string.IsNullOrWhiteSpace(environment.id) ||
                     string.IsNullOrWhiteSpace(environment.name) || !environmentIds.Add(environment.id))
                     throw new ArgumentException("Release environments need unique IDs and display names.");
-                if (environment.id != "gym" && environment.id != "mall" && environment.id != "football")
-                    throw new ArgumentException("This release contains only gym, mall and football environments.");
+                if (environment.id != "gym" && environment.id != "street" && environment.id != "football")
+                    throw new ArgumentException("This release contains only football, gym and street environments.");
                 if (environment.scenarioIds == null || environment.scenarioIds.Length != CasesPerEnvironment)
-                    throw new ArgumentException("Each release environment must contain exactly five cases.");
-                foreach (var id in environment.scenarioIds)
+                    throw new ArgumentException("Each release environment must contain exactly three cases.");
+                for (var index = 0; index < environment.scenarioIds.Length; index++)
                 {
+                    var id = environment.scenarioIds[index];
                     if (string.IsNullOrWhiteSpace(id) || !scenarioIds.Add(id))
                         throw new ArgumentException("Release case IDs must be non-empty and unique.");
                     var matches = library.scenarios.Where(s => s.id == id).ToArray();
                     if (matches.Length != 1 || matches[0].environment != environment.id || matches[0].availability != "AVAILABLE")
                         throw new ArgumentException("Release case is missing, unavailable or assigned to a different environment: " + id);
+                    if (matches[0].trainingCase != ReleaseCaseVariants.CaseTypes[index])
+                        throw new ArgumentException("Each environment requires dizziness, cardiac arrest and choking in that order.");
                 }
             }
         }

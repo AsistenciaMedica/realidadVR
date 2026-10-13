@@ -7,7 +7,7 @@ export const navigation = [
 
 const environmentPresentation = {
   gym: { description: 'Valoración y respuesta a emergencias durante el entrenamiento físico.', accent: 'red' },
-  mall: { description: 'Atención inicial y toma de decisiones ante emergencias en un espacio público.', accent: 'cyan' },
+  street: { description: 'Mareo, paro cardiorrespiratorio y atragantamiento en una zona de atención de la vía pública.', accent: 'cyan' },
   football: { description: 'Respuesta ante emergencias deportivas en el campo de fútbol.', accent: 'red' },
 };
 
@@ -37,9 +37,9 @@ export const procedureCards = [
   { name: 'Valoración inicial', icon: '✦', description: 'Identificación del paciente y primeras decisiones.', cta: 'Ver más' },
   { name: 'RCP', icon: '♥', description: 'Reanimación cardiopulmonar y control del ritmo.', cta: 'Ver más' },
   { name: 'DEA', icon: '⚡', description: 'Preparación y uso del desfibrilador externo automático.', cta: 'Ver más' },
-  { name: 'Tensión arterial', icon: '◌', description: 'Interpretación y registro de constantes simuladas.', cta: 'Ver más' },
-  { name: 'Saturación de oxígeno', icon: '◎', description: 'Control de oxigenación y valoración respiratoria.', cta: 'Ver más' },
-  { name: 'Glucemia', icon: '◍', description: 'Evaluación del nivel de glucosa y su impacto clínico.', cta: 'Ver más' },
+  { name: 'Toma de síntomas', icon: '◌', description: 'Conversación, observación y registro de lo que refiere el paciente.', cta: 'Ver más' },
+  { name: 'Desobstrucción', icon: '◎', description: 'Maniobras de desobstrucción y expulsión del objeto en el paciente virtual.', cta: 'Ver más' },
+  { name: 'Reevaluación', icon: '◍', description: 'Observación de la respuesta del paciente y comunicación del relevo.', cta: 'Ver más' },
 ];
 
 export const technologyFeatures = [

@@ -31,6 +31,20 @@ namespace EmergencyVR.Tests
         }
         int MedicalIndex => Array.FindIndex(flow.Review.Catalog.entries, e => e.medical != null && e.medical.clinicalV2 == null);
 
+        [UnityTest] public IEnumerator StreetKeepsDaylightBackgroundThroughPauseAndResume()
+        {
+            flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.id == "street-choking"));
+            flow.BeginTraining(); yield return null; yield return null;
+            var view = Camera.main;
+            Assert.That(view, Is.Not.Null);
+            for (int step = 0; step < 3; step++)
+            {
+                Assert.That(view.backgroundColor, Is.EqualTo(EmergencyVR.Environment.ScenarioEnvironmentPresenter.OutdoorBackground));
+                Assert.That(view.clearFlags, Is.EqualTo(CameraClearFlags.SolidColor));
+                if (step < 2) { flow.TogglePause(); yield return null; }
+            }
+        }
+
         [UnityTest] public IEnumerator FirstBriefingDefaultsToGuidedPracticeAndKeepsAnExplicitChoice()
         {
             flow.Prepare(MedicalIndex); yield return null;
@@ -81,20 +95,23 @@ namespace EmergencyVR.Tests
             Assert.That(flow.Review.Manager.MedicalSession.Completed, Is.Empty);
         }
 
-        [UnityTest] public IEnumerator ProductSelectorShowsOnlyThreeEnvironmentsWithFiveCasesEach()
+        [UnityTest] public IEnumerator ProductSelectorShowsOnlyThreeEnvironmentsWithThreeCasesEach()
         {
             var welcomeCards = flow.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Environment ")).Select(b => b.name);
-            Assert.That(welcomeCards, Is.EquivalentTo(new[] { "Environment gym", "Environment mall", "Environment football" }));
+            Assert.That(welcomeCards, Is.EquivalentTo(new[] { "Environment football", "Environment gym", "Environment street" }));
             foreach (var environment in flow.Review.Scope.environments)
             {
                 flow.Browse(environment.id); yield return null;
                 var cards = flow.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Case ")).Select(b => b.name);
                 Assert.That(cards, Is.EqualTo(environment.scenarioIds.Select(id => "Case " + id)));
+                Assert.That(cards.Count(), Is.EqualTo(3));
                 Assert.That(flow.Review.Manager.IsRunning, Is.False);
             }
             var selected = flow.SelectedEnvironment;
             flow.Browse("dental"); yield return null;
             Assert.That(flow.SelectedEnvironment, Is.EqualTo(selected), "An archived environment must not reopen through navigation.");
+            flow.Browse("mall"); yield return null;
+            Assert.That(flow.SelectedEnvironment, Is.EqualTo(selected), "The retired mall must stay outside product navigation.");
         }
 
         [UnityTest] public IEnumerator WelcomeCatalogAndBriefingDoNotStartOrChangeTheClinicalWorld()
@@ -102,7 +119,8 @@ namespace EmergencyVR.Tests
             var original = flow.Review.SelectedIndex;
             Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Welcome));
             Assert.That(flow.WorldVisible, Is.EqualTo(!flow.IsDesktop), "VR opens in the welcome room; no clinical attempt has started.");
-            Assert.That(flow.GetComponentsInChildren<Text>().Any(t => t.text == VitalBrand.Tagline), Is.True);
+            // The VR welcome shows live controller status in the tagline slot; desktop keeps the tagline.
+            Assert.That(flow.GetComponentsInChildren<Text>().Any(t => flow.IsDesktop ? t.text == VitalBrand.Tagline : t.name == "Controller check"), Is.True);
             flow.Browse("gym"); yield return null;
             flow.Prepare(MedicalIndex); yield return null;
             Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Briefing));
@@ -137,8 +155,10 @@ namespace EmergencyVR.Tests
 
         [UnityTest] public IEnumerator AssessmentReadingsAreAcquiredSnapshotsAndResetBetweenAttempts()
         {
+            using var archived = new ArchivedMedicalCaseFixture(flow.Review);
+            int perfusedPatient = archived.Add("glucose-moderate", "Mateo", "male");
             flow.Review.Procedures.TrainingMode = false;
-            flow.Prepare(MedicalIndex); flow.BeginTraining(); yield return null;
+            flow.Prepare(perfusedPatient); flow.BeginTraining(); yield return null;
             Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("—"));
             var sample = flow.Review.Manager.MedicalSession.Patient; sample.spo2 = 93;
             flow.Review.Procedures.RecordMeasurement(MedicalToolKind.Oximeter, sample);
@@ -146,7 +166,7 @@ namespace EmergencyVR.Tests
             Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("93"));
             Assert.That(flow.MonitorValue("bp"), Is.EqualTo("—"));
             flow.FinishTraining(); yield return null;
-            flow.Prepare(MedicalIndex); flow.BeginTraining(); yield return null;
+            flow.Prepare(perfusedPatient); flow.BeginTraining(); yield return null;
             Assert.That(flow.MonitorValue("spo2"), Is.EqualTo("—"));
         }
 

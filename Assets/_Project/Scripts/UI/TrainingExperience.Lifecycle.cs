@@ -70,5 +70,26 @@ namespace EmergencyVR.UI
             return device.isValid && (device.characteristics & InputDeviceCharacteristics.Controller) != 0 &&
                 device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.isTracked, out var tracked) && tracked;
         }
+
+        // Raw controller feedback is visible before any button has to work. It deliberately
+        // says only what the device reports, not that UI selection or grabbing has succeeded.
+        static string ControllerCheckSummary() => ControllerCheck(XRNode.LeftHand, "Izquierdo") + "\n" +
+            ControllerCheck(XRNode.RightHand, "Derecho");
+
+        static string ControllerCheck(XRNode hand, string label)
+        {
+            if (!ControllerTracked(hand)) return label + ": sin seguimiento · activa el mando";
+            bool trigger, grip;
+            if (QuestLookSimulation.TryGetGripTrigger(hand, out var simulatedGrip, out var simulatedTrigger))
+            { trigger = simulatedTrigger > .5f; grip = simulatedGrip > .5f; }
+            else
+            {
+                var device = InputDevices.GetDeviceAtXRNode(hand);
+                trigger = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out var pressedTrigger) && pressedTrigger;
+                grip = device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out var pressedGrip) && pressedGrip;
+            }
+            return label + ": detectado · gatillo " + (trigger ? "PULSADO" : "—") +
+                " · agarre " + (grip ? "PULSADO" : "—");
+        }
     }
 }

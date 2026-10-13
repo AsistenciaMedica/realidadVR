@@ -79,6 +79,8 @@ namespace EmergencyVR.UI
                 var procedures = result.procedures;
                 if (procedures != null)
                 {
+                    if (Review.Procedures.Choking.IsChokingCase)
+                        line($"Desobstrucción simulada\n{procedures.chokingBackBlows} gestos dorsales · {procedures.chokingAbdominalThrusts} abdominales\nObjeto expulsado: {(procedures.chokingObjectExpelled ? "sí" : "no")}\nEl gesto virtual no mide fuerza clínica.");
                     line(procedures.cpr.compressions + " compresiones · ritmo " + procedures.cpr.meanRatePerMinute.ToString("0") + "/min\nRecorrido virtual " + (procedures.cpr.meanDepthMeters * 100).ToString("0.0") + " cm");
                     line(procedures.shocks + " descargas · " + procedures.measurements + " mediciones · " + procedures.unsafeDeviceAttempts + " intentos inseguros");
                     line("El recorrido virtual no mide la profundidad sobre un maniquí instrumentado.");

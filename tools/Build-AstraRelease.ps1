@@ -1,4 +1,4 @@
-param([switch]$PreflightOnly, [switch]$VerifyExistingApk)
+param([switch]$PreflightOnly, [switch]$VerifyExistingApk, [ValidateRange(2,2147483647)][int]$VersionCode = 3)
 $ErrorActionPreference = 'Stop'
 if ($PreflightOnly -and $VerifyExistingApk) { throw 'Choose either -PreflightOnly or -VerifyExistingApk.' }
 
@@ -88,7 +88,7 @@ foreach ($name in @('VITAL_VERSION_CODE','VITAL_KEYSTORE_PATH','VITAL_KEYSTORE_P
     $savedEnvironment[$name] = [System.Environment]::GetEnvironmentVariable($name, 'Process')
 }
 try {
-    $env:VITAL_VERSION_CODE = '2'
+    $env:VITAL_VERSION_CODE = [string]$VersionCode
     $env:VITAL_KEYSTORE_PATH = $keystore
     $env:VITAL_KEYSTORE_PASS = $password
     $env:VITAL_KEY_ALIAS = $alias
@@ -108,8 +108,8 @@ try {
         }
     }
 
-    $apk = Join-Path $labRoot 'Builds/Android/VITAL-VR-0.1.1-2.apk'
-    if (-not (Test-Path -LiteralPath $apk)) { throw 'Expected version 0.1.1, code 2 APK was not created.' }
+    $apk = Join-Path $labRoot ('Builds/Android/VITAL-VR-0.1.1-' + $VersionCode + '.apk')
+    if (-not (Test-Path -LiteralPath $apk)) { throw ('Expected version 0.1.1, code ' + $VersionCode + ' APK was not created.') }
     $sdkTools = Join-Path $editorRoot 'Data/PlaybackEngines/AndroidPlayer/SDK/build-tools/36.0.0'
     $aapt = Join-Path $sdkTools 'aapt2.exe'
     $badging = & $aapt dump badging $apk
@@ -117,7 +117,7 @@ try {
     $badging | Set-Content -LiteralPath (Join-Path $evidence 'final-apk-badging.txt') -Encoding UTF8
     $packageLines = @($badging | Where-Object { $_ -cmatch '^package: ' })
     if ($packageLines.Count -ne 1 -or
-        $packageLines[0] -cnotmatch "^package: name='com\.vitalvr\.training' versionCode='2' versionName='0\.1\.1'(?:\s|$)") {
+        $packageLines[0] -cnotmatch ("^package: name='com\.vitalvr\.training' versionCode='" + $VersionCode + "' versionName='0\.1\.1'(?:\s|$)")) {
         throw 'The APK package/version differs from the approved release.'
     }
     $manifest = & $aapt dump xmltree --file AndroidManifest.xml $apk
@@ -140,10 +140,10 @@ try {
     if ($apkCertificateSha256 -cne $certificate.sha256) {
         throw 'The APK signer certificate differs from the configured release keystore alias.'
     }
-    $destination = Join-Path $projectRoot 'Builds/Astra/VITAL-VR-0.1.1-2.apk'
+    $destination = Join-Path $projectRoot ('Builds/Astra/VITAL-VR-0.1.1-' + $VersionCode + '.apk')
     New-Item -ItemType Directory -Path (Split-Path $destination) -Force | Out-Null
     Copy-Item -LiteralPath $apk -Destination $destination
-    [pscustomobject]@{ package='com.vitalvr.training'; version='0.1.1'; versionCode=2;
+    [pscustomobject]@{ package='com.vitalvr.training'; version='0.1.1'; versionCode=$VersionCode;
         apk=$destination; sha256=(Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash;
         builtUtc=(Get-Item -LiteralPath $apk).LastWriteTimeUtc.ToString('O'); verifiedUtc=[DateTime]::UtcNow.ToString('O');
         verifiedExistingApk=[bool]$VerifyExistingApk; headsetTested=$false; uploaded=$false;

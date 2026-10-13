@@ -55,7 +55,11 @@ namespace EmergencyVR.UI
                 else if (patientDrawer) DrawVrPatient();
                 else
                 {
-                    Label(content, "Consultation guidance", "Observa al paciente y utiliza el equipo.\n\nLas constantes se consultan en la pantalla de cada aparato después de medir.\n\nEste panel queda a tu lado para mantener la vista libre.", 26, 222, 548, 438, 30, Soft);
+                    var instructions = Label(content, "Consultation guidance", "", 26, 222, 548, 438, 30, Soft);
+                    Bind(instructions, () => Review.Procedures.Choking.IsChokingCase
+                        ? (showHints ? InteractionControlsHint() + "\n\n" : "") + (Review.Procedures.Choking.CanAct
+                            ? Review.Procedures.Choking.Instructions : "Comprueba respuesta y respiración; registra tus decisiones en Acciones.")
+                        : "Observa al paciente y utiliza el equipo.\n\nLas constantes se consultan en la pantalla de cada aparato después de medir.\n\nEste panel queda a tu lado para mantener la vista libre.");
                     var acquired = Label(content, "Acquired reading notice", "", 26, 683, 548, 80, 25, Accent);
                     Bind(acquired, () => readings.Count == 0 ? "Aún no has medido constantes." : "Lecturas disponibles en los instrumentos.");
                 }

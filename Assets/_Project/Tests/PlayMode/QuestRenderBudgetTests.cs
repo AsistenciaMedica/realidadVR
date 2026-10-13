@@ -48,6 +48,7 @@ namespace EmergencyVR.Tests
                 var elapsed = Stopwatch.StartNew();
 #if UNITY_EDITOR_WIN
                 var windowSize = new ChildPlayerWindowSize(process);
+                string windowReady = Path.Combine(output, "window-ready.txt");
                 double nextWindowCheck = 0;
 #endif
                 try
@@ -57,7 +58,10 @@ namespace EmergencyVR.Tests
 #if UNITY_EDITOR_WIN
                         // Unity can recreate/reset its window during startup. Recheck the exact child
                         // for a bounded startup interval; never touch the Editor or another application.
-                        if (windowSize.IsStartupWindowCheckNeeded && elapsed.Elapsed.TotalSeconds >= nextWindowCheck)
+                        // The directory is unique to this child/run. Do not read the marker
+                        // while the player still holds its write handle on Windows.
+                        if (File.Exists(windowReady) &&
+                            windowSize.IsStartupWindowCheckNeeded && elapsed.Elapsed.TotalSeconds >= nextWindowCheck)
                         {
                             windowSize.TryResize();
                             nextWindowCheck = elapsed.Elapsed.TotalSeconds + .1;
@@ -85,7 +89,7 @@ namespace EmergencyVR.Tests
                     Assert.That(report.runtimeErrors, Is.Empty, "The validation player emitted runtime errors. See " + log);
                     var scope = JsonUtility.FromJson<ReleaseScope>(Resources.Load<TextAsset>("ReleaseScope").text);
                     CollectionAssert.AreEquivalent(scope.ScenarioIds, report.samples.Select(sample => sample.scenario));
-                    Assert.That(report.samples, Has.Count.EqualTo(15));
+                    Assert.That(report.samples, Has.Count.EqualTo(scope.ScenarioIds.Length));
                     foreach (var sample in report.samples)
                     {
                         ValidationSourceFingerprint.RequireMatch(expected.sourceSha256, sample.sourceSha256);

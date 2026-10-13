@@ -42,7 +42,7 @@ namespace EmergencyVR.Tests
                 { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
         }
 
-        [UnityTest] public IEnumerator FifteenPatientsKeepNeutralTitlesUntilTheDebrief()
+        [UnityTest] public IEnumerator ReleasePatientsKeepNeutralTitlesUntilTheDebrief()
         {
             foreach (var id in flow.Review.Scope.ScenarioIds)
             {
@@ -87,7 +87,8 @@ namespace EmergencyVR.Tests
 
         [UnityTest] public IEnumerator ConversationButtonsShowAuthoredRepliesAndResetOnRepeat()
         {
-            int index = Array.FindIndex(flow.Review.Catalog.entries, e => e.medical?.id == "dehydration");
+            using var archived = new ArchivedMedicalCaseFixture(flow.Review);
+            int index = archived.Add("dehydration", "Luis", "male");
             flow.Prepare(index); flow.BeginTraining(); yield return null;
             Click("Open patient"); yield return null;
             Assert.That(TextOf("Patient details"), Does.Not.Contain(" años"));

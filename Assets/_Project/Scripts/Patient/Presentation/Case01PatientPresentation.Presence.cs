@@ -8,6 +8,35 @@ namespace EmergencyVR.Patient.Presentation
     {
         bool learnerWasNearby;
         float acknowledgementAt = -1;
+        Vector3 anatomicalHeadForward, anatomicalLeftEyeForward, anatomicalRightEyeForward;
+        Vector3 attentionPoint;
+        bool attentionCalibrated;
+
+        void CalibrateAttention()
+        {
+            anatomicalHeadForward = rig.head.InverseTransformDirection(Forward);
+            if (rig.leftEye != null) anatomicalLeftEyeForward = rig.leftEye.InverseTransformDirection(Forward);
+            if (rig.rightEye != null) anatomicalRightEyeForward = rig.rightEye.InverseTransformDirection(Forward);
+            attentionCalibrated = true;
+        }
+
+        void PresentEyeFocus()
+        {
+            if (!HasVoluntaryPresence || !attentionCalibrated) return;
+            // Resolve the residual gaze AFTER the head pose, rather than rotating the pupils
+            // again by the head's yaw. This keeps the eyes converged on the same real target.
+            FocusEye(rig.leftEye, anatomicalLeftEyeForward);
+            FocusEye(rig.rightEye, anatomicalRightEyeForward);
+        }
+
+        void FocusEye(Transform eye, Vector3 anatomicalForward)
+        {
+            if (eye == null) return;
+            var desired = attentionPoint - eye.position;
+            if (desired.sqrMagnitude < .01f) return;
+            var correction = Quaternion.FromToRotation(eye.TransformDirection(anatomicalForward), desired.normalized);
+            eye.rotation = Quaternion.RotateTowards(Quaternion.identity, correction, 12) * eye.rotation;
+        }
 
         void PresentAcknowledgement()
         {
@@ -23,10 +52,11 @@ namespace EmergencyVR.Patient.Presentation
         {
             // A discrete shoulder adjustment rather than constant whole-body swaying.
             float t = Mathf.Repeat(performanceTime + .25f, 13.7f);
-            float settle = Smooth(t / .9f) * Smooth((3.1f - t) / 1.2f);
+            float settle = Smooth(t / 1.2f) * Smooth((4.2f - t) / 1.6f);
             if (settle <= 0 || body.spine == null) return;
-            body.spine.rotation = Quaternion.AngleAxis(2.7f * settle, Forward) * body.spine.rotation;
-            rig.head.rotation = Quaternion.AngleAxis(-1.3f * settle, Forward) * rig.head.rotation;
+            body.spine.rotation = Quaternion.AngleAxis(3.6f * settle, Forward) *
+                Quaternion.AngleAxis(1.6f * settle, Right) * body.spine.rotation;
+            rig.head.rotation = Quaternion.AngleAxis(-1.8f * settle, Forward) * rig.head.rotation;
         }
 
         void PoseSettlingGesture(float amount)

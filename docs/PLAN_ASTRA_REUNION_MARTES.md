@@ -3,6 +3,115 @@
 Destinatario: **Astra**, agente que ejecuta este plan sobre `proyectovr`.
 Fecha: viernes 2 de octubre de 2026. Entrega: **lunes 5 por la noche**.
 
+## Revisión de los tres entornos — entrega del 6 de octubre
+
+Juan amplió la prioridad a los **tres entornos y los quince casos**, incluyendo la
+landing. Esta sección sustituye las prioridades históricas de limitar el trabajo
+al gimnasio que aparecen más abajo.
+
+- Centro comercial: escaparates con profundidad, estantes y productos físicos,
+  acabados de madera/piedra, columnas y luminarias de techo.
+- Campo: bordes, drenaje, postes de iluminación y césped menos saturado.
+- Conjunto: materiales a escala, luz sobre los personajes, sombras de contacto
+  calculadas desde la postura y letreros que respetan la profundidad de la escena.
+- Los quince pacientes conservan canales faciales adicionales cuando existen en
+  el modelo original. Parpadeo menos regular, expresión de malestar y articulación
+  de boca suavizada por audio. Daniel conserva su actuación más detallada; esto
+  no equivale a extender esa actuación completa a los otros catorce pacientes.
+- El ambiente baja durante las conversaciones y vuelve gradualmente después.
+- La landing y las páginas de escenarios muestran capturas de la aplicación.
+  Se comprobaron escritorio, móvil, los tres enlaces y los quince casos.
+
+La galería `Builds/Reunion-20261006/Revision/ABRIR-REVISION.html` funciona sin red:
+30 imágenes, filtros por entorno y vista general/cercana. Proceden de
+`TestResults/reunion-20261005/final-v4`; son cámaras de inspección con interfaz y
+manos del usuario ocultas. No son capturas dentro de unas Quest ni imágenes
+generadas. La carpeta `before` de esta revisión se marcó como evidencia inválida
+porque su primer capturador no cambiaba de caso correctamente; no se utiliza.
+
+Se conservan los modelos Rocketbox actuales: **no se acredita fotorealismo ni se
+han importado humanos escaneados**. La apariencia, los controles y la fluidez en
+las Meta Quest del cliente necesitan una prueba en ese visor. No se ha subido
+esta revisión a Meta. El contenido clínico continúa en revisión.
+
+Preparación reproducible: `tools/Build-MeetingReview.mjs` genera la galería y las
+imágenes de la landing; `tools/Check-MeetingWeb.js` verifica ambas en navegador.
+`tools/Package-MeetingDelivery.ps1` exige APK firmada, evidencia de validación y
+Windows de la misma revisión antes de generar el ZIP de entrega.
+
+La medición del reproductor de Windows detectó 113 llamadas de dibujo en Daniel.
+Se eliminó el pase de sombras dinámicas duplicado en la arquitectura horneada y
+se agruparon las piezas inmóviles del banco, conservando sus colisiones. La
+comprobación `allscenes-batched-final-playmode.xml` pasó en los quince casos:
+máximo 93 llamadas, 166 611 triángulos y 230,5 MiB de texturas, con una luz en
+tiempo real y MSAA 4×. Son presupuestos de carga en Windows; no FPS de Quest.
+
+Validación final de esta revisión: **304/304 EditMode y 93/93 PlayMode**, sin
+pruebas omitidas. `TestResults/astra/final-editmode.xml` y `final-playmode.xml`
+contienen los resultados; `xr-walkthrough.xml` conserva los quince recorridos
+XR aprobados extraídos de ese PlayMode, con su archivo de procedencia. La
+huella de las fuentes validadas es
+`9042b5e7828da066215cae553eaa9407b0154706f7ab9f0e60fbdd0c0fc53f80`.
+La compilación web y la comprobación del navegador con las imágenes finales
+también pasaron. Las evidencias fallidas anteriores se conservan por separado.
+El ejecutable final de Windows completó además el recorrido de quince casos
+(`TestResults/astra/meeting-windows-final/result.txt`: PASS), con capturas del
+propio reproductor y salida normal. Las mallas faciales y los horneados finales
+también están copiados al proyecto fuente.
+
+Entrega local generada y verificada el 6 de octubre:
+
+- APK `Builds/Astra/VITAL-VR-0.1.1-3.apk`: paquete `com.vitalvr.training`, versión
+  `0.1.1`, código **3**, 164 117 672 bytes. Firma comparada con el certificado de
+  la clave local existente. Evidencia final: `TestResults/astra/final-release.json`
+  y `release-postflight.json`, con estado `EVIDENCE_VERIFIED`.
+- Windows: `Builds/Astra/INICIAR-VITAL-VR.cmd` y su carpeta completa.
+- Paquete de reunión: `Builds/VITAL-VR-Reunion-20261006-v3.zip`, preparado por
+  `tools/Package-MeetingDelivery.ps1` con Windows, Android, galería y guía local.
+
+La APK **no se ha subido a Meta**; se entrega para el panel que usa Juan. La
+landing se compiló localmente, sin desplegarla. La prueba con Quest sigue pendiente.
+
+## Revisión de actuación — 5 de octubre
+
+Juan aclaró que el cliente es el dueño del proyecto y revisará los avances. La
+build existente se subió mediante el panel web de Meta. La prioridad actual es
+mejorar el realismo de los personajes antes de generar otra APK.
+
+Se revisó primero Daniel y la compañera del gimnasio:
+
+- Se conservaron siete canales faciales adicionales del modelo original de Daniel:
+  articulación de labios, párpados y comisuras. El movimiento de labios responde al
+  audio; no se presenta como reconocimiento exacto de fonemas.
+- Se amplió la actuación capturada a clavículas y dedos, con transiciones suaves
+  al repetir las tomas. Postura sentada asimétrica y gesto hacia la cara con contacto
+  de dedos, recorrido curvo y acompañamiento del tronco.
+- Se corrigió la orientación de cabeza/ojos y la atención de la compañera. Sus
+  gestos usan un tramo expresivo de la animación existente.
+- Se mantuvieron los pies apoyados después de la actuación: en este esqueleto las
+  piernas son hijas de Spine y heredaban su movimiento. Se conserva la asistencia
+  física y la presentación de estados sin respuesta.
+- Se corrigió la restauración de la configuración gráfica del gimnasio cuando
+  cambia el nivel de calidad antes de destruir la escena.
+
+**Verificación:** 16/16 PlayMode en
+`TestResults/astra/presence-final-playmode.xml` (actuación/apoyos/pausa,
+animación en ejecución, integración clínica V2 y recurrencia). Es una selección
+de pruebas correspondiente a estos cambios; no una nueva validación completa
+de los quince casos. `DanielMesh.asset` actualizado en el proyecto fuente,
+con el mismo GUID. No se reemplazaron los materiales locales del usuario.
+
+**Revisión visual:** `TestResults/presence-20261005/index.html` compara los vídeos
+`before.mp4` y `after.mp4`: 216 fotogramas reales por secuencia, a 12 pasos de
+animación por segundo (18 s), sin audio, renderizados en Unity con perfil Quest
+y cámara de inspección. No son imágenes generadas ni evidencia de FPS en visor.
+Los vídeos y resultados están excluidos de Git por las reglas existentes.
+
+Esta iteración conserva los modelos y texturas actuales y no acredita un acabado
+fotorealista. La valoración estética del resultado sigue pendiente de Juan.
+La landing, la nueva APK y la carga a Meta quedan para después de esta revisión,
+según su última indicación. No se generó ni subió una APK en esta iteración.
+
 ## Prioridad actual — revisión visual del gimnasio (3 de octubre)
 
 Por indicación de Juan, mejorar primero el gimnasio y Daniel; los demás escenarios

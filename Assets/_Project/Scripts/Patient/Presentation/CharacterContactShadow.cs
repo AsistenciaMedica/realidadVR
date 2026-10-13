@@ -11,6 +11,7 @@ namespace EmergencyVR.Patient.Presentation
         static Texture2D sharedTexture;
         static int users;
         Renderer body, shadow;
+        Transform head, leftFoot, rightFoot;
         bool ownsSharedMaterial;
         readonly RaycastHit[] hits = new RaycastHit[16];
         public bool Visible => shadow != null && shadow.enabled;
@@ -25,6 +26,14 @@ namespace EmergencyVR.Patient.Presentation
         void Start()
         {
             if (body == null) { enabled = false; return; }
+            if (body is SkinnedMeshRenderer skin)
+                foreach (var bone in skin.bones)
+                {
+                    if (bone == null) continue;
+                    if (bone.name == "Bip01 Head") head = bone;
+                    if (bone.name == "Bip01 L Foot") leftFoot = bone;
+                    if (bone.name == "Bip01 R Foot") rightFoot = bone;
+                }
             if (sharedMaterial == null)
             {
                 var shader = Resources.Load<Shader>("Visual/CharacterContactShadow");
@@ -38,7 +47,7 @@ namespace EmergencyVR.Patient.Presentation
                     for (int x = 0; x < size; x++)
                     {
                         float radius = new Vector2((x + .5f) / size * 2 - 1, (y + .5f) / size * 2 - 1).magnitude;
-                        float alpha = Mathf.Pow(Mathf.Clamp01(1 - radius), 1.8f) * .38f;
+                        float alpha = Mathf.Pow(Mathf.Clamp01(1 - radius), 1.5f) * .48f;
                         pixels[y * size + x] = new Color32(0, 0, 0, (byte)Mathf.RoundToInt(alpha * 255));
                     }
                 sharedTexture.SetPixels32(pixels);
@@ -64,6 +73,20 @@ namespace EmergencyVR.Patient.Presentation
         {
             if (body == null || shadow == null) return;
             var bounds = body.bounds;
+            // A SkinnedMeshRenderer's imported bounds describe its rest pose. Project the
+            // animated anatomical endpoints instead, so a supine patient's contact follows
+            // the actual body, and a standing witness is grounded beneath the feet.
+            if (head != null && leftFoot != null && rightFoot != null)
+            {
+                var feet = (leftFoot.position + rightFoot.position) * .5f;
+                if (head.position.y - feet.y > 1.1f)
+                    bounds = new Bounds(feet, new Vector3(.42f, .1f, .30f));
+                else
+                {
+                    bounds = new Bounds(head.position, Vector3.zero);
+                    bounds.Encapsulate(leftFoot.position); bounds.Encapsulate(rightFoot.position);
+                }
+            }
             // All authored release environments share a level ground at y=0. Ignore furniture,
             // tools and patient colliders; a contact must never float on top of an unseen object.
             var origin = new Vector3(bounds.center.x, .2f, bounds.center.z);

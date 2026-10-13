@@ -29,14 +29,26 @@ namespace EmergencyVR.Tests
             var sky = RenderSettings.skybox;
             bool fog = RenderSettings.fog;
             var reflection = RenderSettings.customReflectionTexture;
-            foreach (string id in new[] { "gym", "football", "mall", "gym" })
+            foreach (string id in new[] { "gym", "street", "football", "mall", "street", "gym" })
             {
                 presenter.Select(id); yield return null;
+                Assert.That(presenter.CurrentEnvironment, Is.EqualTo(id));
                 var data = presenter.ActiveBakedLighting;
+                if (id == "street" && Resources.Load<GameObject>("BakedEnvironments/street/Environment") == null)
+                {
+                    Assert.That(data, Is.Null, "The procedural street must release the previous environment's baked bindings.");
+                    Assert.That(LightmapSettings.lightProbes, Is.SameAs(probes));
+                    Assert.That(RenderSettings.customReflectionTexture, Is.SameAs(reflection));
+                    Assert.That(LightmapSettings.lightmaps.Length, Is.EqualTo(maps.Length));
+                    Assert.That(RenderSettings.fog, Is.True);
+                    Assert.That(presenter.PortableEquipmentAnchor, Is.Not.Null);
+                    Assert.That(presenter.PortableEquipmentAnchor.IsChildOf(presenter.transform.Find("Environment_street")), Is.True);
+                    continue;
+                }
                 Assert.That(data, Is.Not.Null);
                 Assert.That(LightmapSettings.lightProbes, Is.SameAs(data.probes));
                 Assert.That(RenderSettings.customReflectionTexture, Is.SameAs(data.reflection));
-                Assert.That(RenderSettings.fog, Is.EqualTo(id == "football"));
+                Assert.That(RenderSettings.fog, Is.EqualTo(id == "football" || id == "street"));
                 foreach (var surface in data.surfaces)
                 {
                     Assert.That(surface.renderer.lightmapIndex, Is.EqualTo(surface.lightmap));

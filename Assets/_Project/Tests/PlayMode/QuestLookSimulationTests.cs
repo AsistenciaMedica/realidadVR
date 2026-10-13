@@ -51,6 +51,59 @@ namespace EmergencyVR.Tests
         }
 
         [UnityTest]
+        public IEnumerator WelcomeReportsRawControllerInputWithoutNeedingMenuSelection()
+        {
+            Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Welcome));
+            var status = flow.GetComponentsInChildren<Text>().Single(t => t.name == "Controller check");
+            simulation.SetControllerPose(XRNode.LeftHand, Vector3.zero, Quaternion.identity, false);
+            simulation.SetControllerPose(XRNode.RightHand, simulation.View.transform.position + Vector3.down * .3f,
+                Quaternion.LookRotation(-simulation.View.transform.forward));
+            yield return new WaitForSecondsRealtime(.1f); // Point away from menu buttons while checking raw input.
+            simulation.SetTrigger(XRNode.RightHand, true);
+            simulation.SetGrip(XRNode.RightHand, true);
+            yield return new WaitForSecondsRealtime(.35f);
+            Assert.That(status.text, Does.Contain("Izquierdo: sin seguimiento"));
+            Assert.That(status.text, Does.Contain("Derecho: detectado · gatillo PULSADO · agarre PULSADO"));
+            simulation.SetControllerPose(XRNode.RightHand, Vector3.zero, Quaternion.identity, false);
+            yield return new WaitForSecondsRealtime(.35f);
+            Assert.That(status.text, Does.Contain("Derecho: sin seguimiento"));
+            Assert.That(status.text, Does.Not.Contain("PULSADO"), "Lost tracking must not leave stale successful input on screen.");
+            Assert.That(flow.Page, Is.EqualTo(ExperiencePage.Welcome));
+            Assert.That(flow.Review.Manager.IsRunning, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator ControllerGripPicksUpMovesAndReleasesTheActualAedInEachEnvironment()
+        {
+            foreach (string id in new[] { "arrest-witnessed", "gym-arrest", "street-arrest" })
+            {
+                flow.Prepare(System.Array.FindIndex(flow.Review.Catalog.entries, entry => entry.medical?.id == id));
+                flow.BeginTraining();
+                yield return new WaitForSecondsRealtime(.4f);
+                var tool = flow.Review.Procedures.GetComponentsInChildren<MedicalPhysicalTool>()
+                    .Single(t => t.Kind == MedicalToolKind.AED);
+                var grab = tool.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+                var home = tool.transform.position;
+                var controllerPosition = home + new Vector3(0, .25f, -.4f);
+                var rotation = Quaternion.LookRotation(home - controllerPosition);
+                simulation.SetHeadPose(home + new Vector3(0, .7f, -.8f), rotation);
+                simulation.SetControllerPose(XRNode.RightHand, controllerPosition, rotation);
+                yield return new WaitForSecondsRealtime(.25f);
+                simulation.SetGrip(XRNode.RightHand, true);
+                yield return new WaitForSecondsRealtime(.25f);
+                Assert.That(grab.isSelected, Is.True, id + ": grip must select the real AED through the authored XR interactor.");
+                simulation.SetControllerPose(XRNode.RightHand, controllerPosition + new Vector3(.2f, .2f, 0), rotation);
+                yield return new WaitForSecondsRealtime(.3f);
+                Assert.That(Vector3.Distance(home, tool.transform.position), Is.GreaterThan(.1f), id + ": the held device must follow the controller.");
+                simulation.SetGrip(XRNode.RightHand, false);
+                yield return new WaitForSecondsRealtime(.2f);
+                Assert.That(grab.isSelected, Is.False, id + ": releasing grip must release the equipment.");
+                flow.FinishTraining();
+                yield return null;
+            }
+        }
+
+        [UnityTest]
         public IEnumerator QuestProfileUsesAuthoredRigAndWorldSpaceUIWithoutDesktopEffects()
         {
             Assert.That(Object.FindFirstObjectByType<DesktopDemoController>(), Is.Null);

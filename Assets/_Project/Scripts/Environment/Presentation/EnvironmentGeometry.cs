@@ -14,6 +14,7 @@ namespace EmergencyVR.Environment.Presentation
         readonly Dictionary<string, List<CombineInstance>> batches = new Dictionary<string, List<CombineInstance>>();
         readonly Dictionary<string, Mesh> primitives = new Dictionary<string, Mesh>();
         readonly List<Mesh> mappedPrimitives = new List<Mesh>();
+        readonly Dictionary<Mesh, Mesh> modelMeshes = new Dictionary<Mesh, Mesh>();
         string cluster = "Architecture";
         public EnvironmentGeometry(Transform root, EnvironmentPalette palette, List<Mesh> ownedMeshes)
         {
@@ -33,7 +34,7 @@ namespace EmergencyVR.Environment.Presentation
             string key = cluster + "/" + material;
             if (!batches.TryGetValue(key, out var instances)) { instances = new List<CombineInstance>(); batches.Add(key, instances); }
             var primitive = primitives[shape];
-            if (material == "footballStand" || material == "gymWood")
+            if (material == "footballStand" || material == "gymWood" || material == "wood" || material == "plaster" || material == "displayStone")
             {
                 // World-sized UVs keep the grain vertical on timber, and concrete tiles at metre scale.
                 // A thin slat must sample a narrow part of the grain rather than stretch a whole board.
@@ -49,6 +50,76 @@ namespace EmergencyVR.Environment.Presentation
             }
             instances.Add(new CombineInstance { mesh = primitive, transform = Matrix4x4.TRS(position, rotation, size) });
         }
+        /// <summary>
+        /// Adds a licensed model (Resources path) to the current cluster with palette materials, resting on
+        /// <paramref name="position"/>. Zero components of <paramref name="size"/> follow the model's proportions.
+        /// Returns false when the model is unavailable so the caller can keep its procedural form.
+        /// </summary>
+        public bool Model(string resource, Vector3 position, float yaw, Vector3 size, System.Func<string, string> material)
+        {
+            var prefab = Resources.Load<GameObject>(resource);
+            if (prefab == null) return false;
+            var parts = new List<(Mesh mesh, Matrix4x4 local, Material[] materials)>();
+            var bounds = new Bounds(); bool any = false;
+            foreach (var filter in prefab.GetComponentsInChildren<MeshFilter>(true))
+            {
+                var mesh = filter.sharedMesh; var renderer = filter.GetComponent<MeshRenderer>();
+                // Players can only combine readable meshes; the Editor (baking, tests) always can.
+                if (mesh == null || renderer == null || (!Application.isEditor && !mesh.isReadable)) continue;
+                var local = filter.transform.localToWorldMatrix;
+                for (int i = 0; i < 8; i++)
+                {
+                    var corner = local.MultiplyPoint3x4(mesh.bounds.center + Vector3.Scale(mesh.bounds.extents,
+                        new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1)));
+                    if (!any) { bounds = new Bounds(corner, Vector3.zero); any = true; } else bounds.Encapsulate(corner);
+                }
+                parts.Add((mesh, local, renderer.sharedMaterials));
+            }
+            if (!any || bounds.size.x <= 0 || bounds.size.y <= 0 || bounds.size.z <= 0) return false;
+            var ratio = new Vector3(size.x / bounds.size.x, size.y / bounds.size.y, size.z / bounds.size.z);
+            int given = (size.x > 0 ? 1 : 0) + (size.y > 0 ? 1 : 0) + (size.z > 0 ? 1 : 0);
+            float uniform = given == 0 ? 1 : (ratio.x + ratio.y + ratio.z) / given;
+            var scale = new Vector3(size.x > 0 ? ratio.x : uniform, size.y > 0 ? ratio.y : uniform, size.z > 0 ? ratio.z : uniform);
+            var place = Matrix4x4.TRS(position, Quaternion.Euler(0, yaw, 0), scale) *
+                Matrix4x4.Translate(-new Vector3(bounds.center.x, bounds.min.y, bounds.center.z));
+            foreach (var part in parts)
+            {
+                var mesh = WithTangents(part.mesh);
+                for (int submesh = 0; submesh < mesh.subMeshCount && submesh < part.materials.Length; submesh++)
+                {
+                    string key = cluster + "/" + material(part.materials[submesh] == null ? "" : part.materials[submesh].name);
+                    if (!batches.TryGetValue(key, out var instances)) { instances = new List<CombineInstance>(); batches.Add(key, instances); }
+                    instances.Add(new CombineInstance { mesh = mesh, subMeshIndex = submesh, transform = place * part.local });
+                }
+            }
+            return true;
+        }
+
+        // Imported props may omit tangents or carry degenerate UVs; every environment mesh keeps a valid basis.
+        Mesh WithTangents(Mesh source)
+        {
+            if (modelMeshes.TryGetValue(source, out var mesh)) return mesh;
+            mesh = Object.Instantiate(source);
+            if (mesh.uv.Length != mesh.vertexCount) mesh.uv = new Vector2[mesh.vertexCount];
+            mesh.RecalculateTangents();
+            var normals = mesh.normals; var tangents = mesh.tangents;
+            if (tangents.Length != mesh.vertexCount) tangents = new Vector4[mesh.vertexCount];
+            for (int i = 0; i < tangents.Length; i++)
+            {
+                var t = new Vector3(tangents[i].x, tangents[i].y, tangents[i].z);
+                if (float.IsNaN(t.x) || float.IsNaN(t.y) || float.IsNaN(t.z) || t.sqrMagnitude < .01f)
+                {
+                    var n = i < normals.Length ? normals[i] : Vector3.up;
+                    t = Vector3.Cross(n, Mathf.Abs(n.y) > .9f ? Vector3.right : Vector3.up).normalized;
+                    if (t.sqrMagnitude < .01f) t = Vector3.right;
+                }
+                tangents[i] = new Vector4(t.x, t.y, t.z, tangents[i].w < 0 ? -1 : 1);
+            }
+            mesh.tangents = tangents;
+            modelMeshes.Add(source, mesh);
+            return mesh;
+        }
+
         public void Tube(Vector3 from, Vector3 to, float radius, string material)
         {
             var delta = to - from;
@@ -113,6 +184,9 @@ namespace EmergencyVR.Environment.Presentation
             foreach (var batch in batches)
             {
                 var mesh = new Mesh { name = "Vital environment / " + batch.Key };
+                long vertices = 0;
+                foreach (var instance in batch.Value) vertices += instance.mesh.vertexCount;
+                if (vertices > 65000) mesh.indexFormat = IndexFormat.UInt32; // dense licensed props, e.g. goal nets
                 mesh.CombineMeshes(batch.Value.ToArray(), true, true);
                 var item = new GameObject(batch.Key, typeof(MeshFilter), typeof(MeshRenderer));
                 item.transform.SetParent(root, false);
@@ -125,7 +199,8 @@ namespace EmergencyVR.Environment.Presentation
             }
             foreach (var primitive in primitives.Values) Dispose(primitive);
             foreach (var primitive in mappedPrimitives) Dispose(primitive);
-            mappedPrimitives.Clear();
+            foreach (var model in modelMeshes.Values) Dispose(model);
+            mappedPrimitives.Clear(); modelMeshes.Clear();
             batches.Clear(); primitives.Clear();
         }
 

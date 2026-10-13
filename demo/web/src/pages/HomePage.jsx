@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { BackgroundScene, HeroMedicalScene } from '../components/GeneratedArt';
+import ScenarioPreview from '../components/ScenarioPreview';
 import { highlights } from '../data/content';
 import useReleaseCatalog from '../data/useReleaseCatalog';
 
@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <Layout>
       <div className="container home-page">
-        <section className="hero-panel">
+        <section className="hero-panel" id="producto">
           <div className="hero-copy">
             <p className="eyebrow">SIMULACIÓN MÉDICA / REALIDAD VIRTUAL</p>
             <h1>
@@ -20,7 +20,7 @@ export default function HomePage() {
               <span>mañana.</span>
             </h1>
             <p className="lead">
-              Práctica la valoración inicial, la respuesta ante emergencias y la toma de decisiones en entornos reales y repetibles.
+              Practica la valoración inicial, la respuesta ante emergencias y la toma de decisiones en situaciones cotidianas, dentro de una simulación repetible.
             </p>
             <div className="hero-actions">
               <Link to="/demo" className="primary-button">
@@ -36,24 +36,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="hero-visual">
-            <div className="visor-shell">
-              <div className="scene-backdrop">
-                <BackgroundScene tone="cyan" />
-              </div>
-              <HeroMedicalScene />
-              <div className="hud-checklist">
-                <span>✓ Evaluar conciencia</span>
-                <span>○ Comprobar respiración</span>
-                <span>○ Valorar constantes</span>
-                <span>○ Preparar DEA</span>
-              </div>
-              <div className="sim-card">
-                <span className="sim-card-label">Vital VR · primera edición</span>
-                <strong>{scenarioCards.length ? `${scenarioCards.length} escenarios · ${scenarioCards[0].cases.length} casos por escenario` : 'Entrenamiento en emergencias'}</strong>
-              </div>
-            </div>
-          </div>
+          <figure className="hero-visual real-preview">
+            <ScenarioPreview environment="gym" eager />
+            <figcaption>
+              <span className="preview-kicker">DENTRO DE VITAL VR</span>
+              <strong>Acércate. Escucha. Actúa.</strong>
+              <span>Captura de la aplicación en desarrollo · vista de escritorio</span>
+            </figcaption>
+          </figure>
         </section>
 
         <section className="highlights-row" aria-label="Beneficios Vital VR">
@@ -75,6 +65,21 @@ export default function HomePage() {
           ))}
           <div className="stat-box stat-note">
             <span>Contenido médico en revisión</span>
+          </div>
+        </section>
+
+        <section className="home-environments" aria-labelledby="environments-title">
+          <div className="environment-heading">
+            <div><p className="eyebrow">TRES LUGARES. DISTINTAS DECISIONES.</p><h2 id="environments-title">Así se ve el entrenamiento.</h2></div>
+            <p>Explora los espacios y los casos de la primera edición. Imágenes capturadas en la aplicación, sin retoque visual.</p>
+          </div>
+          <div className="preview-grid">
+            {scenarioCards.map((scenario) => (
+              <Link key={scenario.id} to={`/scenarios/${scenario.id}`} className="environment-preview-card">
+                <ScenarioPreview environment={scenario.id} />
+                <span><strong>{scenario.name}</strong><span>{scenario.cases.length} casos · Explorar →</span></span>
+              </Link>
+            ))}
           </div>
         </section>
       </div>

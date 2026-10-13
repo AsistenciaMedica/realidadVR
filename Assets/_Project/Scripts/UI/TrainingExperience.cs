@@ -250,8 +250,9 @@ namespace EmergencyVR.UI
         {
             ApplyIntroWorld();
             viewer.cullingMask = WorldVisible ? originalMask : 1 << 5;
-            viewer.backgroundColor = WorldVisible ? originalBackground : Background;
-            viewer.clearFlags = WorldVisible && RenderSettings.skybox != null ? CameraClearFlags.Skybox :
+            bool street = WorldVisible && Review.Manager.IsRunning && Review.Selected.medical?.environment == "street";
+            viewer.backgroundColor = WorldVisible ? (street ? EmergencyVR.Environment.ScenarioEnvironmentPresenter.OutdoorBackground : originalBackground) : Background;
+            viewer.clearFlags = street ? CameraClearFlags.SolidColor : WorldVisible && RenderSettings.skybox != null ? CameraClearFlags.Skybox :
                 WorldVisible ? originalClear : CameraClearFlags.SolidColor;
             foreach (var pair in locomotion) if (pair.Key != null) pair.Key.enabled = !BlocksWorldInput && pair.Value;
         }

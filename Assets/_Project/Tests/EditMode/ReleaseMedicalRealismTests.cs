@@ -11,9 +11,13 @@ namespace EmergencyVR.Tests
 {
     public sealed class ReleaseMedicalRealismTests
     {
-        static MedicalLibrary Load() => JsonUtility.FromJson<MedicalLibrary>(File.ReadAllText("Assets/_Project/Resources/MedicalScenarios.json"));
-        static string[] SelectedIds() => JsonUtility.FromJson<ReleaseScope>(File.ReadAllText("Assets/_Project/Resources/ReleaseScope.json"))
-            .ScenarioIds.Where(id => id != "review-hypotension-v2").ToArray();
+        static MedicalLibrary Load() => MedicalLibraryLoader.Load();
+        static string[] SelectedIds()
+        {
+            var scope = JsonUtility.FromJson<ReleaseScope>(File.ReadAllText("Assets/_Project/Resources/ReleaseScope.json"));
+            var variants = JsonUtility.FromJson<ReleaseCaseVariants>(File.ReadAllText("Assets/_Project/Resources/ReleaseCases.json"));
+            return scope.ScenarioIds.Where(id => variants.cases.Any(v => v.id == id && v.trainingCase != "dizziness")).ToArray();
+        }
         static IEnumerable ReleaseCases() => SelectedIds().Select(id => new TestCaseData(id));
         static MedicalScenarioRuntime Runtime(string id, out MedicalScenarioDefinition definition, int seed = 42)
         {
@@ -35,8 +39,10 @@ namespace EmergencyVR.Tests
                 if (rule.action != "Monitor" && rule.action != "Reassess") continue;
                 Assert.That(rule.repeatPolicy, Is.EqualTo(ActionRepeatPolicy.RepeatableNoAdditionalCredit));
                 var before = JsonUtility.ToJson(runtime.Patient);
-                Assert.That(runtime.Submit(actionId, ++time), Is.EqualTo("Accepted"));
-                Assert.That(runtime.Submit(actionId, ++time), Is.EqualTo("Accepted"));
+                // Freeze simulation time for this assertion: a pending treatment outcome may legitimately
+                // change the patient while time advances, but the repeated observation itself must not.
+                Assert.That(runtime.Submit(actionId, time), Is.EqualTo("Accepted"));
+                Assert.That(runtime.Submit(actionId, time), Is.EqualTo("Accepted"));
                 Assert.That(JsonUtility.ToJson(runtime.Patient), Is.EqualTo(before), "Observation must not treat the patient.");
                 Assert.That(runtime.Completed.Count(x => x == actionId), Is.EqualTo(1));
             }

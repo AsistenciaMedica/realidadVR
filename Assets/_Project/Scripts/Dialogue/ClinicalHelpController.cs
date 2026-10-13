@@ -26,6 +26,7 @@ namespace EmergencyVR.Dialogue
         public bool CanPerformHandover => Ready && Status == ClinicalHelpStage.Confirmed &&
             (attempt.HelpState == HelpRequestState.Confirmed || attempt.HelpState == HelpRequestState.HandoverAvailable);
         public bool IsDelegated => delegated;
+        public string LocationSummary => ClinicalScenarioLocation.Location(manager?.MedicalDefinition?.environment);
         public string SituationSummary => SameAttempt ? SummarizeObserved(attempt.Observations) : "No hay un intento activo.";
         public event Action Changed;
         bool SameAttempt => attempt != null && attempt == manager?.MedicalSession && attemptId == attempt.ClinicalState?.AttemptId;
@@ -63,7 +64,7 @@ namespace EmergencyVR.Dialogue
             }
             if (!Ready || Status != ClinicalHelpStage.Connecting || attempt.Elapsed < contactAt) return;
             Status = ClinicalHelpStage.AwaitingLocation;
-            CurrentLine = delegated ? "Compañero (fuera de escena): «Voy a avisar. Confírmame dónde estamos»." : "Operador simulado: «Emergencias. ¿Dónde estáis?»";
+            CurrentLine = delegated ? "Compañero: «Voy a avisar. Confírmame dónde estamos»." : "Operador simulado: «Emergencias. ¿Dónde estáis?»";
             Changed?.Invoke();
         }
         public bool RequestCall(bool delegateToCompanion)
@@ -82,11 +83,7 @@ namespace EmergencyVR.Dialogue
         {
             RefreshContext();
             if (!CanCommunicateLocation) return false;
-            var environment = manager.MedicalDefinition.environment;
-            string location = environment == "gym" ? "Estamos en el gimnasio, en la zona de cardio." :
-                environment == "football" ? "Estamos en el campo de fútbol, junto a la zona de entrenamiento." :
-                environment == "mall" ? "Estamos en la zona común del centro comercial." : "Estamos en la clínica, junto al paciente.";
-            manager.PerformClinical((runtime, time) => runtime.RecordCommunication(delegated ? "Companion" : "Operator", location, time, "Player"));
+            manager.PerformClinical((runtime, time) => runtime.RecordCommunication(delegated ? "Companion" : "Operator", LocationSummary, time, "Player"));
             Status = ClinicalHelpStage.AwaitingSituation;
             CurrentLine = "Ubicación comunicada. " + (delegated ? "Compañero" : "Operador simulado") + ": «¿Qué has observado?»";
             Changed?.Invoke(); return true;

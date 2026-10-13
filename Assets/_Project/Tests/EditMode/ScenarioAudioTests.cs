@@ -36,9 +36,10 @@ namespace EmergencyVR.Tests
             try
             {
                 var ambience = root.AddComponent<ScenarioAmbience>();
-                foreach (var id in new[] { "gym", "mall", "football" })
+                foreach (var id in new[] { "gym", "mall", "football", "street" })
                 {
                     ambience.SelectEnvironment(id);
+                    Assert.That(ambience.CurrentEnvironment, Is.EqualTo(id));
                     var sources = root.GetComponentsInChildren<AudioSource>();
                     Assert.That(sources.Length, Is.EqualTo(id == "football" ? 5 : 4), id);
                     foreach (var source in sources)

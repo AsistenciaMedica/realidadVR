@@ -1,0 +1,632 @@
+{
+    "schemaVersion": 1,
+    "sourceSha256": "fb0f454f04a8eb60fc3464bb2b4a88df28a2d2c2e498c5456a7af21be0b800b3",
+    "developmentBuild": false,
+    "method": "SHA256 of ordinal relative paths and SHA256 of UTF8 source text with normalized LF; no timestamps",
+    "files": [
+        {
+            "path": "Assets/_Project/Resources/Audio/AEDVoices.json",
+            "sha256": "075119b7a20e1ff57c6ac623f8478aab4a62bd1672d7d15ccd1c9e168524aa76"
+        },
+        {
+            "path": "Assets/_Project/Resources/Audio/RosterVoices.json",
+            "sha256": "71833b79403766a0d1b8b971727891b86a30d04cd7f825137b69eba0ac6de502"
+        },
+        {
+            "path": "Assets/_Project/Resources/MedicalInteractionSettings.json",
+            "sha256": "b28c81dcfbcc8eff2151fd0549f4bf938d7f5bdfbd606159477018ce40375796"
+        },
+        {
+            "path": "Assets/_Project/Resources/MedicalScenarios.json",
+            "sha256": "71a46a429d7d94984b59c2061dd04c4ceac2b21629d75a1d01c5344148e51f37"
+        },
+        {
+            "path": "Assets/_Project/Resources/PatientRoster.json",
+            "sha256": "f53baf34d06626437be14aa84077b1c3d2289fd93605c6684ef9ba9b94b253a9"
+        },
+        {
+            "path": "Assets/_Project/Resources/ReleaseCases.json",
+            "sha256": "9732c47f8f2169b621469a123122ea77bc107ef2661d134d246c1139e6a56973"
+        },
+        {
+            "path": "Assets/_Project/Resources/ReleaseScope.json",
+            "sha256": "ea1135146118d79bba49d695a3214aa7900cd0dcd9dacdcdb9a6db43f560525a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Audio/ScenarioAmbience.cs",
+            "sha256": "964536562fea25b329c4ad9b233ff67c4f3904bfd3265ed7a8f82bcf72351ea5"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Core/CaseSession.cs",
+            "sha256": "6387679c85e16c2797d412f0671fe8456ea2ca5166cd3eb1e9789c535dc993a5"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Core/CaseSpecification.cs",
+            "sha256": "42e8a56741281d836b8547b5f34ed42527ab9d55c60d0d2da7c8747a6b30daf1"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Core/EvaluationResult.cs",
+            "sha256": "5aa960a085d7688d9311f2979b396479a2aa453d3391d0a8223d693cc2a0cf45"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Core/PatientState.cs",
+            "sha256": "342d4966837ddbc3eb3d282dc495e85f0ae92a5f822b401ab3f68d1100f29ef8"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/Case01PlayerValidation.cs",
+            "sha256": "979a865aecb118ac7d9b3f7af80600bde2b086e912fdede7f857517b1f0ca7f4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/Case01VisualTour.cs",
+            "sha256": "feb9fbdae2b6658bfccb653175a52a9ed1f2e4d3a578a31e71c7b8862aa0ac50"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/DesktopAtmosphere.cs",
+            "sha256": "944ca98f8c39cc5621913bed6aa682f3980b6b863b4bf71c9ea6d6821caa2b36"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/DesktopDemoController.cs",
+            "sha256": "3c0860a8bfaf54fc7ce611c59e64b363ac27ed6b883c5fec0a5fe3d8d0fd3a7a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/ProcedureValidation.cs",
+            "sha256": "0c8a6bbb1c400ceb8d528fc83d08353b1dd092122b5cb6ec9682301265fa5f38"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/QuestDistantAudience.cs",
+            "sha256": "7b5f4ea955e75772a9492705ca9eebf58c6a1078ae0efe3428e11675cba1dfc6"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/QuestLookSimulation.cs",
+            "sha256": "2205c08c4f06bae0faf0953e9bd3f431d1b38ed6b07f82d1f902b1bfc0531555"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/QuestQualityControl.cs",
+            "sha256": "0af7d2c25b308beeb6522199cdcb9192500e8146f8b408faead7f6cdc8ec4567"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/QuestRenderBudget.cs",
+            "sha256": "fabf8171bf07155617da0f294fd0ce49769286cf81290579b6b21cbb1c282287"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/RuntimeCapture.cs",
+            "sha256": "aeeee352b66be9a02c4c83bc3d6265c39b00e21046a4809bceed8fc8b229d4aa"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Desktop/ValidationSourceFingerprint.cs",
+            "sha256": "43a36d931e8c528ae17b4e586134f0c87a603749b29805c2bf12c0ca084607ec"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/ClinicalDialogueController.cs",
+            "sha256": "7a59d4e569cb2842bcec64d04f9f89ba6e41b355f7f81d09b6c0c0639bac5771"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/ClinicalHelpController.cs",
+            "sha256": "4047cd7a99c77379214892f5911056bba8108e90cd4168e6774d9d57b64deb0d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/ClinicalScenarioLocation.cs",
+            "sha256": "5acb86139691920e1e686a80c35119c1165c78886646ba4630881b440285e13e"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/DialogueIntent.cs",
+            "sha256": "378dfbbb766c14beb0d13f70b576587f709e34dfb814c87b246870bf6ec701a3"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/DialogueResponseDefinition.cs",
+            "sha256": "0e0b14211a429159e7be2ec03cff3e62dce9d162de5ef3a9e6e18d4737a6c86b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/PatientConversationController.cs",
+            "sha256": "a692a4c92fffc751e67e483e420619dee136d0b0fbd13683b0d85dc7a3462783"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/PhoneCallController.cs",
+            "sha256": "e2182aec69bdd6a5d7d7efe5161c6b685e7613a00071e06edb145f4d4f465c18"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/RosterConversationAudio.cs",
+            "sha256": "d03961f010ba3789121616fd6072e25d1d91d6c44f704db67a41734522ac50d4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Dialogue/SpokenIntentParser.cs",
+            "sha256": "e528a578fd274fe9cc5f584cdc7700bb200f975228ff19d62c40a679864c54e0"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/GeneratedEnvironment.cs",
+            "sha256": "b87957fe57c4916ffe78ecbd869ddc54ded6b77dba82814fb164db9915e4e62b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/BakedEnvironmentLighting.cs",
+            "sha256": "ed42f3e432888367f52c7ff05c5049591de8861aaeb50ded0d05c4f372a59627"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentBakeSource.cs",
+            "sha256": "4c0d2d96a468b3e862dfb958cb1e847f3055339f021dc475071bb4b24911c601"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentGeometry.cs",
+            "sha256": "4ca19ecdc9107b680d55e43051b97820b11e2a997a6b683978f2c510b9f91093"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentModuleBuilder.Street.cs",
+            "sha256": "1515a198b30de8329d5cad1cfffcafcb659dab38888ced77e821b8e57e3a41c5"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentModuleBuilder.cs",
+            "sha256": "39772b6deae14d5a2a662499cfed6ae6d809650da502a3199f23553e84a7a863"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentPalette.cs",
+            "sha256": "a4981ccae3295b144d05f7415f857a565fa2cf3de7e47a9e7ea8a759cfeee26c"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/EnvironmentPrefabLibrary.cs",
+            "sha256": "0977c8d98d92142826f2f756de5c32ddb15d451c65683a7e276b5e39e54fdd92"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/Presentation/GymPropSet.cs",
+            "sha256": "5f73a92d307d76f7613f1b95f92f3afdf345efa64211e287d8ec7bba3747aa91"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Environment/ScenarioEnvironmentPresenter.cs",
+            "sha256": "128419851f724aa43e4c88d92f7199622ff2719b524726c3ae7f843c1e4a7a41"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Evaluation/EvaluationManager.cs",
+            "sha256": "efc5574bd12db9be02c77de1bee031bc7a494798609755a5722a1acaf9842469"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/AEDInteractionController.cs",
+            "sha256": "2988a3c5f41ec15335c12ae45a5a39080b8df50640202919b47012978abd2f15"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/AEDVoiceController.cs",
+            "sha256": "20fa340d31acdde49d4a56dad6f06ff3e9cfe017b6d4d335081851b8c36100f6"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/ArticulatedHand.cs",
+            "sha256": "5d7ea98d31ce2c4d64e1c958e3295675c738f4d017fdf3e15f542c775dbaeb2a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/BloodPressureAcquisitionController.cs",
+            "sha256": "af455baac3cea01f6e721fabc9de33a641f86de5c4b69aef27a3cd51333ba410"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/CPRInputProviders.cs",
+            "sha256": "24e7ca7a4f0b2513680f941ce96d871e3952e202768d5c2929886486b3fef618"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/CPRInteractionController.cs",
+            "sha256": "97fcaff5426c7e5a4595a9565871edb9cef18d87f530ff1e9bc5e259bdcdb72d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/ChokingGestureEvaluator.cs",
+            "sha256": "1510a7c46edc675137f9030793ccd0ea92e19a324c0fab1ae0e2c103104c7e5d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/ChokingInputProviders.cs",
+            "sha256": "47cd674ede4609f2357671a0f6cc72e9e31c3f92d9df351bb4e2ab9ba4b2fbbe"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/ChokingInteractionController.cs",
+            "sha256": "51178faefe330ce26d05fbe112d1879fd3115bebae1ddb4bffee3ba35cd1fcab"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/MedicalDeviceTextFit.cs",
+            "sha256": "c53c300c918f7cec4f5512bc2169865cbab80102fe1d9662692adf0d62bb8311"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/MedicalPhysicalTool.cs",
+            "sha256": "a506b71e4cf80e84339a34d67babdc95a49d4d505887bf2a1bc3f45ba9f819b6"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/MedicalProcedureAudio.cs",
+            "sha256": "55d0fa62de1ff486978e97e9e25b560362c8756722235cfbba482a6f3d9f1c67"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/MedicalProcedureRig.cs",
+            "sha256": "cfed32c3ec53eb52ea7aa5cf0491cb891f825229aa28a54661ff648c012b0e2f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/NonInvasiveAcquisitionController.cs",
+            "sha256": "1101a3cca2422860878e643dfc91dbce27bce30b7868f735d8abfc42ef7042e8"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/ProcedureHandAnimator.cs",
+            "sha256": "88f58883325b87ace9f461154ce959c2aaeb79245e0caca73635c2eeeca6eb63"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/Interaction/PulseOximeterAcquisitionController.cs",
+            "sha256": "fdb8f0e856e8e1ecde928fa8a38a2ff31db140b487d889448a1cee9b7363e70f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/MedicalInteractionMetrics.cs",
+            "sha256": "d8549cb4ad5ffdb58737978bcc1cf3c144c4ec340200df73df5feb659d52a854"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/MedicalLibraryLoader.cs",
+            "sha256": "915c09f299651b3344d7bf8bb7d304229fda35e0132ecd1d330961ec975fe399"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/MedicalScenarioDefinition.cs",
+            "sha256": "5779be7f7f4bc1332825502ed869d0dd568c802d693f3d16bd7f83bca8021de6"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/MedicalScenarioRuntime.cs",
+            "sha256": "a50f16683975d5fa62df684a9a877030219719ee78ea71fe5c7f7b7fd6b3182e"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/PatientIdentity.cs",
+            "sha256": "a91dc38f0ffe3b0bc88bd007ecba4413d0df34b0ab2d6d476002d6930703caf3"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ClinicalEvent.cs",
+            "sha256": "52ea06947c705c48ac79e028a1cf2cd84912aa22d56c6076c8bf740162d309aa"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ClinicalScenarioV2Definition.cs",
+            "sha256": "a7ffad6d1f65a3e4d3059e0dc7284cb704ee991d1985622d4ceea79e297077e1"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ClinicalStateDefinition.cs",
+            "sha256": "c0865acce1338e0939e2788078b6a7646e6ee8f99177d75881bb6ec7ee0ceef2"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ClinicalStateMachine.cs",
+            "sha256": "7195ac78f46ef453b052dda31be1eea2d56f96cbcf209776ed2e36eb8008277f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ClinicalTransitionDefinition.cs",
+            "sha256": "d28a73feea0d61825da419b1f77f3c320f0e647e6c58bcf62b94245823e0dece"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/MedicalScenarioRuntime.Clinical.cs",
+            "sha256": "1f497a725a703459df0a25b9bf812aeac2ff437c34ed0d35a0d5f30621587403"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/MedicalScenarioRuntime.Training.cs",
+            "sha256": "7ee37e2faa2e92316da60198acc377201ab606b2fe3ae40447267453fc5c1069"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ObservationRecord.cs",
+            "sha256": "8fd889f075699457e6ed4fb2d0ea9906ec93ad828d1c41f2a64fc469b486b2ca"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ObservedPatientDataStore.cs",
+            "sha256": "ff40133aff77e9b155763efe5c124aea59051a7f258989261f5515f04179b930"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/PatientClinicalState.cs",
+            "sha256": "24d19045d2d4ac74f105aed27e54717f11471cf3a3fe8a14fb03669451a27ee7"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/ScenarioCapabilities.cs",
+            "sha256": "b7dce148719998624f5f336b45fbdee80312830e392e8a73359eb3cfdd85bb00"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/TrainingProfileDefinition.cs",
+            "sha256": "42eb93021844954ff547f72a7626565ab69a9cac4c6b258821353c4406b0b5e6"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Medical/V2/VitalTrajectory.cs",
+            "sha256": "b5db9537663675b2a00c8f7b34dc906eb5ed0701c2c5b4a31bc074864bd3529e"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/PatientController.cs",
+            "sha256": "34b4e96b4b50847f5acb036a8dbbb42d21856273a9321547b94eca846976969c"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/PatientPositionTransitionController.cs",
+            "sha256": "2eb1accbe448f61a0d4f1e1b31e77c23a291cdc9cc1b02a338804556b1ec9e56"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/ArticulatedPatient.cs",
+            "sha256": "5d60ec6a1182045c9d05e969102d85db6f517eadfaeae131c3075df0b9ef9796"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01Cast.Presence.cs",
+            "sha256": "fd9219e5f9232f8c841076132b2f8313cc04626deef402d3f4a2ae680ada106a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01Cast.cs",
+            "sha256": "ff4f4a9d88ad90822bb247f1fad19eee3203fbbfe37f97a8b289ff6cf7f940af"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01PatientPresentation.Detail.cs",
+            "sha256": "e4ad06bead0845bc45274c12c84e7335ee4b89ad125af44890433a22eb46ab1f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01PatientPresentation.Performance.cs",
+            "sha256": "4282f7df616819dde2092d43c548cc6b1d55e6a3ce0d5621b94a1adff8344ba4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01PatientPresentation.Presence.cs",
+            "sha256": "38f193e68a5f436b1b311d96c54d3ec006fd8ba27d54a33ecef2be133b84fe21"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01PatientPresentation.Recurrence.cs",
+            "sha256": "d300fd246d8c07efb5f61bf38bdd1257c0dc4168105ae89df2d2569b0416a561"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01PatientPresentation.cs",
+            "sha256": "1bd6e41e01501255631227d1b2976f1f0e41dda60c729b7a4916ef0e248e9206"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/Case01SportsShirt.cs",
+            "sha256": "5e46d1bf11c9ae7932c35fb261a2bd6dcece42d9a865a58f82a919a8614407de"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/CharacterAnimationLibrary.cs",
+            "sha256": "7a9c816433a1f9851fd7c29d071184c46710fdddb73428fb216cb5c4e6ddb007"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/CharacterAnimator.cs",
+            "sha256": "7bd5e3bcc281c64c56e1f03371a482826d10fd9fcbb72f73a4206d368692226d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/CharacterContactShadow.cs",
+            "sha256": "f8596f44be19f670025e390ff17fa1aec2bf20d8e40626127019bb840b02d068"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientAnatomicalProxy.cs",
+            "sha256": "899007f5a1da60692c19d1febf59eee3ebc5678504f278e9f518cb81cb632a39"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientAppearance.cs",
+            "sha256": "2cbf08a27b781654dcddcaa023e62b321f6e2faaf9cf5a98d855e502bbd85840"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientAppearanceController.cs",
+            "sha256": "01dd6bd4461adae8187b33b81245da93034de31afa41f97de30224189a79dede"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientContactVolume.cs",
+            "sha256": "c9c1ba988ee0b6a7be41abb4365035f24d63d730a856b9266b60aafd50b203e1"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientControlledRagdoll.cs",
+            "sha256": "936d7bada41e77d2bd311f4c109289bd10d1ffc3f17a50e9613fd741674ca709"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientRigAdapter.cs",
+            "sha256": "85a08f8c1a41a0d22c6999a778110ca41a222f211c87bd3648ec2e2a90eb1b5b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientSceneStaging.cs",
+            "sha256": "52b746cb3b3141f11c8c8e5e73e7a126e44f68bfcccb2d883416d66ed78962fc"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientVisualController.cs",
+            "sha256": "b1fd4aefeb7aeb9437bd64a49b2c2d8054ae75fed649d850327cb57b07e86545"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/PatientVisualState.cs",
+            "sha256": "06b35ff7586a0b4f4ec16cbe0ca350bfed4865b52bcd3df01c9faef756506dff"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Patient/Presentation/ScenarioSupportingCast.cs",
+            "sha256": "8bb3a2cf6c0bc181a17d5ae202ae2d3e09448f6c1846d4223bbbf99f802212aa"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/BootstrapLoader.cs",
+            "sha256": "5e20b631de535d5e040f6d61ec9b646b9e34dd944ca6f94ee00dc75b43406765"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/Case01HypotensionAssets.cs",
+            "sha256": "25d82a89b037f5cd39b0b449bc0bfde31921b514c7a9a5d24efd32e7514f413d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/Case01VariationController.cs",
+            "sha256": "076c5c2cd7ac5f2053c811099ebbf02881f196c62db3fca1a4dec515167ea385"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ClinicalCaseDefinition.cs",
+            "sha256": "614a90a50bd37d08cbc5059a791970a802599dbb44edc23c373a32a8b8a0ded2"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ClinicalScenarioV2Catalog.cs",
+            "sha256": "c9ac77cd087559b01ebebc8ade95ee6dcdc381b6095f33cb122f9a16626f0fcd"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ClinicalScenarioV2Registry.cs",
+            "sha256": "0cc5c10889be8e3618a604e49beafc5dd55d8729a1d61a4b8f8ec2f96b2da4af"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ClinicalV2Report.cs",
+            "sha256": "d327d5da8e186bfeefebbe8f871ab0b748c9dd8f1f87065c48b24ea9476fb776"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/PatientRoster.cs",
+            "sha256": "2dc7b29eef5b0b3db1a630be868daf973c3364794d5ff9273d55c4c30fb08ea4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ReleaseCaseVariants.cs",
+            "sha256": "f86dc7c30feb9cc7c590ec6e607fefd4bdd26192e0977a1715f863f9d2bb4b51"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ReleaseScope.cs",
+            "sha256": "9d49c847ed7c339d48213bd7ee894840d34f848defde65687ed97cc7b8845cdc"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ReviewCaseCatalog.cs",
+            "sha256": "e2cecf3fca8164cce2b52cd976d7a5d78fec6547276a0b363dbd0efdddaab7ed"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ReviewCaseSession.cs",
+            "sha256": "1150b8c3c61660e2a030bfa009ac22f122fd396b3b379626e157fe5420c50c09"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ScenarioDefinition.cs",
+            "sha256": "59cb40136fde64bcf706fa33ef3c6f79cbdd501bdc5d4d88728e8cc2166ef5a3"
+        },
+        {
+            "path": "Assets/_Project/Scripts/Scenarios/ScenarioManager.cs",
+            "sha256": "492cca5d6daaffd0937f7bbee066c0aa7414f009555fae39428c8af9f599b069"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/CaptureFrameMetadata.cs",
+            "sha256": "ce490199348001823f4afc20df7d65203e4d18b25b0cf339dbaf83dc35117d1b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/ClinicalAssistanceHold.cs",
+            "sha256": "4cc44f6f303d15c01238e823d17040c1143fba98b1528c9a08b917a9e55ab31c"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/ClinicalCaseDebrief.cs",
+            "sha256": "ba16f7e36e14c808671056086fad9778264e360ed88eb279a5fd96ed8e235a7a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/ClinicalObservationText.cs",
+            "sha256": "c9f8ed77b3c4876a5d82e9bf492786590a2fb750e475031abb0f24d38d33c054"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/DesktopVoiceInput.cs",
+            "sha256": "9dc6ba838b29fcdf208939d81d775ad6ec8f2e93241e6e510648173dc3e531a3"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/GuidedPracticeDirector.cs",
+            "sha256": "a64ee2484507620721b1fffa922eca2753f46973f2f292fc2df4fe2a9329beab"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/ReviewCasePanel.cs",
+            "sha256": "8a3583cfca5b50e0fe7179805edc3636dae98b94937f94737909ee2118ec2a8a"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Case01.cs",
+            "sha256": "5a4919aaa88629e97b3579db35dc358068c69e2f3cb7215f9b195cc20165ebc4"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Clinical.cs",
+            "sha256": "66cb80ee59aca0597449e3babfe70bd32b0c78366bc3b664498bac4d3a186320"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Feedback.cs",
+            "sha256": "456cca09af26c5e2d21f71895402a22b19404559216a4131f12f3540388d14db"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Guided.cs",
+            "sha256": "58bed1ea7ab8fb6d85139cc5fed7c7cb5f1187f495538d057eaf3ffb8ccaacbd"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Intro.cs",
+            "sha256": "6ad392e915a540bcdf33d1f650c941830e98ed9fb73fc12c4fb69b6a5b1ac55f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Layout.cs",
+            "sha256": "9447f5c988d2b5c53db41dbc69d7350ed67c13a7494510a0cfabea28ffe8795d"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Lifecycle.cs",
+            "sha256": "60d975dbc2a8953d3a1ff95ef2578f77c1a7ab559ae3cc75227a2e3f7c59ab6b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Pages.cs",
+            "sha256": "01464d61f19cc3ec9cf826c78092b573d97de2855713bf530684008caeceecc9"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Patient.cs",
+            "sha256": "3f0f5d2308713699938fb16478e3e5c8b9c4b523945523bb7ffb8c05371faa27"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.PatientValidation.cs",
+            "sha256": "4fe3000b6f0ffb97959c786620500e6e4dfd2f1a8f68912f0866cf239ab43d03"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Phone.cs",
+            "sha256": "7a76b49d38f2cfc29fa2c61e77d1b3990af0ac5f4a0a18d3e592d8d06f3a2e2f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.RenderBudget.cs",
+            "sha256": "191d3488db61abb70ad3e57004ba9e8d6e77496223305c9ebe6bdef34430fab3"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.V2.cs",
+            "sha256": "27df65506e7273b244ab15e82ce1c9214fbd84a6c845f62cf4dd66601b04df15"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Validation.cs",
+            "sha256": "e99d46c127fcce086f893541dda7cf8a16b2076a9f5e3dd6bede7bc391294f39"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.Vr.cs",
+            "sha256": "61cdcbd3a74814cceccae60483baabe0bf501005648a9fa22b8565ae6c09058c"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.VrDrawers.cs",
+            "sha256": "c886a9c2383d8c9fcccc59067d53056ede95a147a488471e412a65744e793824"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.VrResults.cs",
+            "sha256": "592a57ffcb234390e4c0705dfd74a0d0168fbb3e4e97f2a642bdc7606628db9f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.VrSession.cs",
+            "sha256": "dd43e25f2acea0162bc07b26991e83f898c62bc161797e2244773e681cb16d40"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.World.cs",
+            "sha256": "f4410effca337f7302b46d81186a583e21b21c3182347359ce3b974ce93f960f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingExperience.cs",
+            "sha256": "eb784cdda79701696c506cd026f4c2f0f5defdd22e13911fbb54d56c70e7d570"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/TrainingPanel.cs",
+            "sha256": "41c4c3e6db5f98b296709f05615a18a87541fe3adb52c549e6cec59cef5057a2"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/VRMenuFeedback.cs",
+            "sha256": "3a2aa7afdcfcd6e358e63c05e0b13133a5916b1a98bc979a9bd4cd8ec39dfb1f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/VitalBrand.cs",
+            "sha256": "7c39d89e09c7f55baed92d006b6ccec31b09f8559a7eac3ec36fc96cb83faae1"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/WorldSignage.cs",
+            "sha256": "c3711c8d8c480fde892960943225e6095d41ad7a2f5e8838dbd24832128b912b"
+        },
+        {
+            "path": "Assets/_Project/Scripts/UI/XRIntroTutorial.cs",
+            "sha256": "c2eef48b758dfe16b1f7495f49176ed29323e65d3a50e8e9c2ce960e6743a68f"
+        },
+        {
+            "path": "Assets/_Project/Scripts/XR/PatientInteraction.cs",
+            "sha256": "bda09f793b293957be9a450ddb53329e8f1d4f86a740706095e0512e53abaf56"
+        },
+        {
+            "path": "Assets/_Project/Scripts/XR/ResetDroppedObject.cs",
+            "sha256": "6086bb64abdb28dc57625b8fe9f244b82d89e403ebe584d6a8919d6630476d74"
+        },
+        {
+            "path": "Assets/_Project/Settings/QuestRenderer.asset",
+            "sha256": "d7545b15702ec8192cd8cf1bc96ad1e0e5cd5a654a30ac6be349ebcfd89f16ef"
+        },
+        {
+            "path": "Assets/_Project/Settings/QuestURP.asset",
+            "sha256": "aeb1e6588e15d9e03c825ebafff733380e8307f4a99e2455d28eced7b1e8cd09"
+        },
+        {
+            "path": "Packages/manifest.json",
+            "sha256": "bf390645b5956c9bf54169c413478ad1c2f88cdcd24915eb7a89c59b18c808a7"
+        },
+        {
+            "path": "Packages/packages-lock.json",
+            "sha256": "c020bbfe5c8168eeb7914cddef7dc4bdfe2b45b7008c3d1e5e44ee69cf96ce70"
+        },
+        {
+            "path": "ProjectSettings/GraphicsSettings.asset",
+            "sha256": "136f9f284d0d596aa581a1349c8496807ed3b3679be83f08d5d94740a147834c"
+        },
+        {
+            "path": "ProjectSettings/ProjectVersion.txt",
+            "sha256": "ccbded48add235cebc157983154aaa49ed9035f56398fcb5e2b41bae3ebd2b66"
+        },
+        {
+            "path": "ProjectSettings/QualitySettings.asset",
+            "sha256": "3380016e761d172669a54632637c17a3ec7608e69f82c0d776c8da452ff380d3"
+        }
+    ]
+}

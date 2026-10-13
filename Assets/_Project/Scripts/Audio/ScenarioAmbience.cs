@@ -10,6 +10,10 @@ namespace EmergencyVR.Audio
     public sealed class ScenarioAmbience : MonoBehaviour
     {
         readonly List<GameObject> sources = new List<GameObject>();
+        readonly List<AmbienceLoop> loops = new List<AmbienceLoop>();
+        ReviewCaseSession review;
+        EmergencyVR.Dialogue.RosterConversationAudio conversation;
+        float speechGain = 1;
         ScenarioEnvironmentPresenter environment;
         TrainingExperience experience;
         AudioSource whistle;
@@ -27,6 +31,12 @@ namespace EmergencyVR.Audio
             if (environment == null) environment = FindFirstObjectByType<ScenarioEnvironmentPresenter>();
             if (experience == null) experience = FindFirstObjectByType<TrainingExperience>();
             SelectEnvironment(experience != null && !experience.WorldVisible ? null : environment?.CurrentEnvironment);
+            if (review == null) review = GetComponent<ReviewCaseSession>();
+            if (conversation == null) conversation = GetComponent<EmergencyVR.Dialogue.RosterConversationAudio>();
+            bool speaking = review != null && review.Manager.Dialogue != null && review.Manager.Dialogue.IsSpeaking ||
+                conversation != null && conversation.ActiveVoice != null && conversation.ActiveVoice.isPlaying;
+            speechGain = Mathf.Lerp(speechGain, speaking ? .35f : 1, 1 - Mathf.Exp(-Time.unscaledDeltaTime * (speaking ? 8 : 1.8f)));
+            foreach (var loop in loops) if (loop != null) loop.Gain = speechGain;
             if (whistle != null && !AudioListener.pause && AudioSettings.dspTime >= nextWhistle)
             {
                 whistle.Play();
@@ -36,7 +46,7 @@ namespace EmergencyVR.Audio
 
         public void SelectEnvironment(string id)
         {
-            if (id != "gym" && id != "mall" && id != "football") id = null;
+            if (id != "gym" && id != "mall" && id != "football" && id != "street") id = null;
             if (id == CurrentEnvironment) return;
             Clear();
             CurrentEnvironment = id;
@@ -58,6 +68,11 @@ namespace EmergencyVR.Audio
                     whistle = Source("Distant referee whistle", "field-whistle", new Vector3(7, 1.6f, 17), .05f, 48);
                     nextWhistle = AudioSettings.dspTime + 31;
                     break;
+                case "street":
+                    Loop("Air along the street", "field-wind", new Vector3(8, 2, 12), .04f, 38);
+                    Loop("Distant pedestrians", "mall-murmur", new Vector3(-5, 1.5f, 17), .018f, 30);
+                    if (sources.Count > 1) sources[sources.Count - 1].AddComponent<AudioLowPassFilter>().cutoffFrequency = 850;
+                    break;
             }
         }
 
@@ -67,7 +82,9 @@ namespace EmergencyVR.Audio
             if (first == null) return;
             var second = first.gameObject.AddComponent<AudioSource>();
             Configure(second, first.clip, volume, distance);
-            first.gameObject.AddComponent<AmbienceLoop>().Initialize(first, second, volume);
+            var loop = first.gameObject.AddComponent<AmbienceLoop>();
+            loop.Initialize(first, second, volume);
+            loops.Add(loop);
         }
 
         AudioSource Source(string label, string resource, Vector3 position, float volume, float distance)
@@ -107,6 +124,7 @@ namespace EmergencyVR.Audio
                 if (Application.isPlaying) Destroy(source); else DestroyImmediate(source);
             }
             sources.Clear();
+            loops.Clear();
             whistle = null;
         }
 
@@ -122,6 +140,7 @@ namespace EmergencyVR.Audio
         double nextStart, duration;
         float level, overlap;
         int nextVoice;
+        public float Gain { get; set; } = 1;
 
         public void Initialize(AudioSource first, AudioSource second, float volume)
         {
@@ -148,7 +167,7 @@ namespace EmergencyVR.Audio
             {
                 float elapsed = (float)(now - starts[i]);
                 float envelope = Mathf.Min(Mathf.Clamp01(elapsed / overlap), Mathf.Clamp01(((float)duration - elapsed) / overlap));
-                voices[i].volume = level * envelope;
+                voices[i].volume = level * envelope * Mathf.Clamp01(Gain);
             }
         }
     }

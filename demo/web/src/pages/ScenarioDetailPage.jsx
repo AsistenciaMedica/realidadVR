@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { ScenarioArt } from '../components/GeneratedArt';
+import ScenarioPreview from '../components/ScenarioPreview';
 import useReleaseCatalog from '../data/useReleaseCatalog';
 
 export default function ScenarioDetailPage() {
@@ -25,7 +25,7 @@ export default function ScenarioDetailPage() {
       <div className="container page-shell narrow-page">
         <section className="scenario-detail">
           <div className="scenario-detail-visual">
-            <ScenarioArt variant={scenario.id} />
+            <ScenarioPreview environment={scenario.id} eager />
           </div>
 
           <div className="detail-header-row">

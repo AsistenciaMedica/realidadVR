@@ -10,6 +10,23 @@ namespace EmergencyVR.Patient.Presentation
         readonly Transform[] middleFingers = new Transform[2];
         readonly Transform[] indexFingers = new Transform[2];
         readonly Transform[] littleFingers = new Transform[2];
+        Transform rightMiddleTip;
+        readonly Vector3[] seatedFootContacts = new Vector3[2];
+        readonly Quaternion[] seatedFootRotations = new Quaternion[2];
+
+        void PreserveSeatedFootContacts()
+        {
+            if (busy || risePending || standing || regaining || progress > 0 || completed) return;
+            // Rocketbox attaches the thighs below Spine, not directly below Pelvis.
+            // A captured lower-spine adjustment therefore moves the legs as well. Solve
+            // them back onto their authored supports after the additive performance.
+            for (int side = 0; side < 2; side++)
+            {
+                SolveLimb(body.thighs[side], body.calves[side], body.ankles[side], seatedFootContacts[side],
+                    body.thighs[side].position + Forward * .9f + Vector3.up * .35f);
+                body.ankles[side].rotation = seatedFootRotations[side];
+            }
+        }
         float naturalBlinkAt = -1, nextNaturalBlink = 3.1f;
         int naturalBlinkSequence;
         static readonly float[] NaturalBlinkIntervals = { 4.1f, 3.2f, 5.3f, 2.8f, 4.7f };
@@ -45,6 +62,7 @@ namespace EmergencyVR.Patient.Presentation
                     if (bone.name == prefix + "Finger2") middleFingers[side] = bone;
                     if (bone.name == prefix + "Finger1") indexFingers[side] = bone;
                     if (bone.name == prefix + "Finger4") littleFingers[side] = bone;
+                    if (side == 1 && bone.name == prefix + "Finger22") rightMiddleTip = bone;
                 }
             }
         }
@@ -63,7 +81,16 @@ namespace EmergencyVR.Patient.Presentation
             var eyeLine = rig.leftEye != null && rig.rightEye != null
                 ? (rig.leftEye.position + rig.rightEye.position) * .5f : rig.head.position + Vector3.up * .10f;
             var temple = eyeLine + Right * .105f + Forward * .035f - Vector3.up * .035f;
-            var target = Vector3.Lerp(SeatedHandTarget(1), temple, amount);
+            var fingerDirection = (Vector3.up + Forward * .2f).normalized;
+            float handLength = rightMiddleTip == null ? .13f :
+                Mathf.Clamp(Vector3.Distance(body.hands[1].position, rightMiddleTip.position), .10f, .17f);
+            // The fingertips touch the temple. Targeting the wrist at the temple made
+            // the fingers point above the scalp like a salute.
+            var wrist = temple - fingerDirection * handLength;
+            // A reach passes in front of the chest on a shallow arc, not along a straight
+            // line through the torso. The endpoint is still derived from the actual eyes.
+            var target = Vector3.Lerp(SeatedHandTarget(1), wrist, amount) +
+                (Forward * .12f + Right * .045f) * Mathf.Sin(amount * Mathf.PI);
             SolveLimb(body.upperArms[1], body.forearms[1], body.hands[1], target,
                 body.upperArms[1].position + Right * .30f - Vector3.up * .25f + Forward * .17f);
             OrientRightHand(Vector3.up + Forward * .2f, -Right, amount);
@@ -97,7 +124,7 @@ namespace EmergencyVR.Patient.Presentation
         void RefineCloseRangeSurfaces()
         {
             // Fine neutral upholstery reflects the room lighting without the old teal plastic appearance.
-            benchMaterial.SetColor("_BaseColor", new Color(.24f, .25f, .255f));
+            benchMaterial.SetColor("_BaseColor", IsGym ? new Color(.24f, .25f, .255f) : new Color(.28f, .23f, .18f));
             benchMaterial.SetFloat("_Smoothness", .23f);
             benchMaterial.SetTexture("_BaseMap", UpholsteryGrain());
             metalMaterial.SetColor("_BaseColor", new Color(.12f, .135f, .145f));

@@ -130,8 +130,9 @@ namespace EmergencyVR.Dialogue
             if (reception != null && deskPhone == null)
             {
                 // Lives under the case assembly, so it disappears with it when another case is selected.
-                deskPhone = EmergencyVR.Environment.Presentation.GymPropSet.Spawn("desk_phone", .23f, reception);
-                if (deskPhone != null) { deskPhone.localPosition = Vector3.zero; deskPhone.localRotation = Quaternion.Euler(0, 180, 0); deskPhone.name = "Reception desk phone"; }
+                bool indoors = review.Selected.medical.environment == "gym";
+                deskPhone = EmergencyVR.Environment.Presentation.GymPropSet.Spawn(indoors ? "desk_phone" : "smartphone", indoors ? .23f : .146f, reception);
+                if (deskPhone != null) { deskPhone.localPosition = Vector3.zero; deskPhone.localRotation = Quaternion.Euler(0, 180, 0); deskPhone.name = indoors ? "Reception desk phone" : "Companion mobile phone"; }
             }
             bool paused = review.Manager.IsPaused || !review.Manager.IsRunning;
             if (paused != pausedAudio)
@@ -227,7 +228,7 @@ namespace EmergencyVR.Dialogue
             Current = new Question { Id = "delegate", Text = "Compañero: «¿Qué les digo?»" };
             Current.Options.Add(new Option
             {
-                Text = "Dale la ubicación y lo que has observado: " + help.SituationSummary,
+                Text = "Dale la ubicación y lo que has observado: " + help.LocationSummary + " " + help.SituationSummary,
                 Recommended = () => true,
                 Chosen = () =>
                 {
@@ -287,18 +288,20 @@ namespace EmergencyVR.Dialogue
         {
             script.Clear();
             var observations = Runtime.Observations;
+            string environment = review.Selected.medical.environment;
             bool Observed(string type) => observations.Physical.Any(x => x.type == type && x.valid);
             bool Asked(DialogueIntent intent) => observations.Interviews.Any(x => x.intent == intent);
 
             var greeting = Q("greeting", "OP_GREETING", "Operadora 112: «Emergencias, 112. ¿Qué le ocurre?»");
-            greeting.Options.Add(Next("Hay un hombre que se encuentra mal en un gimnasio. Está muy mareado."));
+            greeting.Options.Add(Next(ClinicalScenarioLocation.Incident(environment)));
             greeting.Options.Add(Repeat(greeting, "Hola, quería hacer una consulta.", "OP_CLARIFY",
                 "Operadora 112: «Entiendo. Si hay una persona que se encuentra mal, dígame qué le pasa y dónde está».", false));
 
             var location = Q("location", "OP_LOCATION", "Operadora 112: «¿Dónde se encuentran exactamente? Necesito la dirección».");
-            location.Options.Add(Next("Gimnasio Vital, calle Mayor 12, planta baja. Estamos en la zona de cardio.", () => help.CommunicateLocation()));
-            location.Options.Add(Repeat(location, "En el gimnasio.", "OP_LOCATION_MORE",
-                "Operadora 112: «Necesito la dirección completa para enviar la ambulancia. ¿En qué calle está el gimnasio?»", false));
+            location.Options.Add(Next(help.LocationSummary, () => help.CommunicateLocation()));
+            location.Options.Add(Repeat(location, ClinicalScenarioLocation.ShortLocation(environment), environment == "gym" ? "OP_LOCATION_MORE" : null,
+                environment == "gym" ? "Operadora 112: «Necesito la dirección completa para enviar la ambulancia. ¿En qué calle está el gimnasio?»" :
+                "Operadora 112: «Necesito la dirección completa y una referencia del lugar para enviar la ambulancia».", false));
 
             var conscious = Q("conscious", "OP_CONSCIOUS", "Operadora 112: «¿La persona está consciente? ¿Le contesta cuando le habla?»");
             conscious.Options.Add(Next("Sí, está consciente y me contesta.", null, () => Observed("PatientResponsive")));

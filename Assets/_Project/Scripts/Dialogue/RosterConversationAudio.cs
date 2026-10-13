@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using EmergencyVR.Patient.Presentation;
 using EmergencyVR.Scenarios;
 using EmergencyVR.UI;
@@ -11,15 +12,23 @@ namespace EmergencyVR.Dialogue
     public sealed class RosterConversationAudio : MonoBehaviour
     {
         [Serializable] public sealed class Line { public string scenarioId, speaker, text, resource, voice; }
-        [Serializable] public sealed class Manifest { public Line[] lines = Array.Empty<Line>(); }
+        [Serializable] public sealed class Manifest
+        {
+            public Line[] lines = Array.Empty<Line>();
+            public Line FindExact(string scenarioId, PatientConversationLine response) => response == null ||
+                (!response.SpokenByPatient && response.Speaker != "Testigo") ? null :
+                lines.FirstOrDefault(entry => entry.scenarioId == scenarioId && entry.speaker == response.Speaker && entry.text == response.Text);
+        }
         ReviewCaseSession review;
         ScenarioSupportingCast cast;
         PatientConversationController conversation;
         AudioSource patientVoice, activeVoice;
         Manifest manifest;
         readonly float[] speech = new float[128];
+        float mouthWeight;
         public string LastSpokenText { get; private set; } = "";
         public AudioSource ActiveVoice => activeVoice;
+        public bool SubtitleOnly { get; private set; }
 
         public static void Attach(ReviewCaseSession owner, ScenarioSupportingCast cast)
         {
@@ -43,7 +52,11 @@ namespace EmergencyVR.Dialogue
 
         void Presented(PatientConversationLine line)
         {
-            if (line == null || (!line.SpokenByPatient && line.Speaker != "Testigo")) return;
+            if (line == null) return;
+            // A new subtitle replaces any older recording, including observations and unrecorded variants.
+            Stop();
+            SubtitleOnly = true;
+            if (!line.SpokenByPatient && line.Speaker != "Testigo") return;
             if (line.SpokenByPatient && !conversation.CanAskPatient) return;
             var source = line.SpokenByPatient ? patientVoice : cast.Witness?.Voice;
             if (source == null) return;
@@ -53,27 +66,33 @@ namespace EmergencyVR.Dialogue
                 if (data == null) return;
                 manifest = JsonUtility.FromJson<Manifest>(data.text);
             }
-            foreach (var entry in manifest.lines)
-            {
-                if (entry.scenarioId != review.Selected.medical?.id || entry.speaker != line.Speaker || entry.text != line.Text) continue;
-                var clip = Resources.Load<AudioClip>(entry.resource);
-                if (clip == null) { Debug.LogError("Missing roster speech clip: " + entry.resource); return; }
-                Stop(); activeVoice = source; source.clip = clip; source.Play(); LastSpokenText = line.Text;
-                return;
-            }
+            var entry = manifest.FindExact(review.Selected.medical?.id, line);
+            if (entry == null) return;
+            var clip = Resources.Load<AudioClip>(entry.resource);
+            if (clip == null) { Debug.LogError("Missing roster speech clip: " + entry.resource); return; }
+            activeVoice = source; source.clip = clip; source.Play(); LastSpokenText = line.Text;
+            SubtitleOnly = false;
         }
 
         void LateUpdate()
         {
-            if (activeVoice != patientVoice || patientVoice == null || !patientVoice.isPlaying) return;
+            if (review == null || review.Procedures.Visuals.ExternalBodyPresentation || Time.deltaTime <= 0 || AudioListener.pause) return;
             var rig = review.Procedures.Visuals.Rig;
-            rig.SetBlendShape(rig.jawOpen, SupportingActor.SpeechWeight(patientVoice, speech));
+            float target = activeVoice == patientVoice ? SupportingActor.SpeechWeight(patientVoice, speech) : 0;
+            mouthWeight = Mathf.Lerp(mouthWeight, target, 1 - Mathf.Exp(-Time.deltaTime * 24));
+            if (target > 0 || mouthWeight > .05f)
+                SupportingActor.ApplySpeech(rig.face, rig.jawOpen, mouthWeight, speech);
+            else SupportingActor.ClearVowels(rig.face);
         }
 
         void Stop()
         {
             if (activeVoice != null) { activeVoice.Stop(); activeVoice.clip = null; }
             activeVoice = null; LastSpokenText = "";
+            SubtitleOnly = false;
+            mouthWeight = 0;
+            if (review != null && review.Procedures != null && !review.Procedures.Visuals.ExternalBodyPresentation)
+                SupportingActor.ClearVowels(review.Procedures.Visuals.Rig.face);
         }
         void OnDestroy()
         {

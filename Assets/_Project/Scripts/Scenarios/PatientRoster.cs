@@ -25,10 +25,14 @@ namespace EmergencyVR.Scenarios
             if (library == null || scope == null) throw new ArgumentNullException("Patient roster requires a library and release scope.");
             var ids = scope.ScenarioIds;
             if (schemaVersion != 1 || profiles == null || profiles.Length != ids.Length ||
-                profiles.Any(p => p == null) || profiles.Select(p => p.id).Distinct().Count() != profiles.Length ||
+                profiles.Any(p => p == null) ||
                 profiles.Select(p => p.scenarioId).Distinct().Count() != profiles.Length ||
                 profiles.Any(p => !ids.Contains(p.scenarioId)))
-                throw new ArgumentException("The release needs one distinct patient per case.");
+                throw new ArgumentException("The release needs one patient profile per case.");
+            foreach (var person in profiles.GroupBy(p => p.id))
+                if (person.Any(p => p.displayName != person.First().displayName || p.age != person.First().age ||
+                    p.sex != person.First().sex || p.appearanceResource != person.First().appearanceResource))
+                    throw new ArgumentException("A recurring patient must retain the same identity in every environment.");
             // Validate every row before changing the composed library.
             foreach (var profile in profiles)
             {

@@ -10,15 +10,15 @@ namespace EmergencyVR.Tests
     public sealed class PatientRosterTests
     {
         [Test]
-        public void EveryReleaseCaseHasADistinctIdentityAndAppearanceWithoutChangingTheArchive()
+        public void SharedExercisesKeepTheirPatientIdentityAcrossEnvironments()
         {
             var library = MedicalLibraryLoader.Load();
             var scope = ReleaseScope.Load(library);
             var release = scope.ScenarioIds.Select(id => library.scenarios.Single(s => s.id == id)).ToArray();
-            Assert.That(release.Length, Is.EqualTo(15));
+            Assert.That(release.Length, Is.EqualTo(9));
             Assert.That(release.All(s => s.patientIdentity != null), Is.True);
-            Assert.That(release.Select(s => s.patientIdentity.id).Distinct().Count(), Is.EqualTo(15));
-            Assert.That(release.Select(s => s.patientIdentity.appearanceResource).Distinct().Count(), Is.EqualTo(15));
+            Assert.That(release.Select(s => s.patientIdentity.id).Distinct().Count(), Is.EqualTo(3));
+            Assert.That(release.Select(s => s.patientIdentity.appearanceResource).Distinct().Count(), Is.EqualTo(3));
             Assert.That(release.Select(s => s.patientIdentity.sex).Distinct().Count(), Is.EqualTo(2));
             Assert.That(library.scenarios.Where(s => !scope.ScenarioIds.Contains(s.id)).All(s => s.patientIdentity == null), Is.True);
             foreach (var scenario in release)
@@ -60,12 +60,12 @@ namespace EmergencyVR.Tests
         [Test]
         public void DefinitionCopiesDoNotShareMutableInterviewData()
         {
-            var scenario = MedicalLibraryLoader.Load().scenarios.Single(s => s.id == "gym-faint");
+            var scenario = MedicalLibraryLoader.Load().scenarios.Single(s => s.id == "football-dizziness");
             var copy = scenario.Copy();
             copy.patientIdentity.witnessLines[0] = "Changed only in this copy";
             copy.initialState.patientName = "Different";
             Assert.That(scenario.patientIdentity.witnessLines[0], Is.Not.EqualTo(copy.patientIdentity.witnessLines[0]));
-            Assert.That(scenario.initialState.patientName, Is.EqualTo("Lucía"));
+            Assert.That(scenario.initialState.patientName, Is.EqualTo("Daniel"));
         }
 
         [TestCase("duplicate-person")]
@@ -83,8 +83,8 @@ namespace EmergencyVR.Tests
                 case "duplicate-person": roster.profiles[1].id = roster.profiles[0].id; break;
                 case "missing-case": roster.profiles[1].scenarioId = "not-in-release"; break;
                 case "wrong-appearance": roster.profiles[1].appearanceResource = "Visual/Patient"; break;
-                case "v2-age": roster.profiles.Single(p => p.id == "Daniel").age++; break;
-                case "unresponsive-speech": roster.profiles.Single(p => p.id == "Rosa").patientOpeningLine = "I can talk"; break;
+                case "v2-age": roster.profiles.First(p => p.id == "Daniel").age++; break;
+                case "unresponsive-speech": roster.profiles.First(p => p.id == "Andres").patientOpeningLine = "I can talk"; break;
             }
             Assert.Throws<ArgumentException>(() => roster.Apply(library, ReleaseScope.Load(library)));
             Assert.That(JsonUtility.ToJson(library), Is.EqualTo(before));

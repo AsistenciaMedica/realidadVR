@@ -8,6 +8,7 @@ using EmergencyVR.Desktop;
 using EmergencyVR.Medical;
 using EmergencyVR.Medical.Interaction;
 using EmergencyVR.Patient.Presentation;
+using EmergencyVR.Scenarios;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -70,6 +71,7 @@ namespace EmergencyVR.UI
 
         IEnumerator PatientRosterSmokeSteps(string directory, PatientRosterSmokeReport report)
         {
+            string[] ids = ValidatedReleaseScenarioIds();
             Application.targetFrameRate = 60;
             // Preserve the first-visit default in baseline menu evidence before the
             // assessment-only roster probe deliberately hides unacquired readings.
@@ -93,8 +95,6 @@ namespace EmergencyVR.UI
             }
             Review.Procedures.TrainingMode = false;
             yield return null;
-            string[] ids = Review.Scope.ScenarioIds.ToArray();
-            Require(ids.Length == 15, "The patient smoke requires the release roster of 15 cases.");
             var firstLegacy = ids.First(id => Review.Catalog.entries.Single(e => e.medical?.id == id).medical.clinicalV2 == null);
             for (int i = 0; i < ids.Length + 2; i++)
             {
@@ -102,7 +102,7 @@ namespace EmergencyVR.UI
                 int index = Array.FindIndex(Review.Catalog.entries, e => e.medical?.id == id);
                 var definition = Review.Catalog.entries[index].medical;
                 var identity = definition.patientIdentity;
-                bool captureUi = QuestLookSimulation.Enabled ? i < ids.Length : i == 0 || i == 1 || i == 5 || i == 10;
+                bool captureUi = i < ids.Length && (QuestLookSimulation.Enabled || i % ReleaseScope.CasesPerEnvironment == 0);
                 string prefix = (i + 1).ToString("00") + "-" + id;
                 Prepare(index); yield return null; yield return new WaitForSecondsRealtime(.4f); yield return new WaitForEndOfFrame();
                 string title = pageRoot.GetComponentsInChildren<Text>().Single(t => t.name == "Page title").text;
@@ -170,8 +170,10 @@ namespace EmergencyVR.UI
                     sample.transcript = PatientConversation.Transcript;
                     sample.patientAnswered = PatientConversation.Lines.Any(line => line.SpokenByPatient);
                     bool cannotSpeak = runtime.Patient.consciousness == "Unresponsive" || runtime.Patient.consciousness == "Drowsy" ||
-                        runtime.Patient.respiration == "absent" || runtime.Patient.respiration == "agonal" || runtime.Patient.circulation == "pulseless";
-                    Require(!cannotSpeak || !sample.patientAnswered, "An unresponsive patient spoke: " + id);
+                        runtime.Patient.respiration == "absent" || runtime.Patient.respiration == "agonal" || runtime.Patient.circulation == "pulseless" ||
+                        (runtime.Patient.flags.Contains("airway obstruction") &&
+                            definition.actions.Any(action => action.action == "ChokingAbdominalThrusts" && action.kind == "required"));
+                    Require(!cannotSpeak || !sample.patientAnswered, "A patient unable to speak answered: " + id);
                     Require(runtime.Completed.Length == 0, "Conversation incorrectly submitted clinical actions: " + id);
                 }
                 else
@@ -193,7 +195,17 @@ namespace EmergencyVR.UI
                 if (i == ids.Length) report.danielRestored = true;
                 else if (i > ids.Length) report.legacyRestored = true;
             }
-            Require(report.patients.Select(p => p.patientId).Distinct().Count() == 15, "Patient identities are not distinct.");
+            Require(HasExactReleaseCoverage(ids, report.patients.Select(patient => patient.scenarioId)),
+                "Patient captures must cover every release combination exactly once.");
+            var patientGroups = report.patients.GroupBy(patient => patient.patientId).ToArray();
+            Require(patientGroups.Length == ReleaseCaseVariants.CaseTypes.Length,
+                "The release requires three shared patient identities.");
+            foreach (var group in patientGroups)
+                Require(group.Count() == ReleaseScope.EnvironmentCount &&
+                    group.Select(patient => Review.Scope.environments.Single(environment => environment.scenarioIds.Contains(patient.scenarioId)).id)
+                        .Distinct(StringComparer.Ordinal).Count() == ReleaseScope.EnvironmentCount &&
+                    group.Select(patient => patient.appearanceResource).Distinct(StringComparer.Ordinal).Count() == 1,
+                    "Patient identity must retain its appearance across all three environments: " + group.Key);
         }
 
         IEnumerator CapturePatientPortrait(string directory, string name, bool side = false)

@@ -67,14 +67,14 @@ function Get-AstraReleaseEvidence([string]$ProjectRoot, [string]$LabRoot, [switc
     }
 
     $xrClass = 'EmergencyVR.Tests.QuestXRWalkthroughTests'
-    $expectedMethods = @('Daniel_Hypotension', 'Gym_Faint', 'Gym_Glucose', 'Gym_ChestPain', 'Gym_Asthma',
-        'Mall_UnconsciousBreathing', 'Mall_AbnormalBreathing', 'Mall_Choking', 'Mall_Confusion', 'Mall_Dehydration',
-        'Andres_Arrest', 'Football_Faint', 'Football_Glucose', 'Football_HeatExhaustion', 'Football_Hypoxia')
+    $expectedMethods = @('Gym_Dizziness', 'Gym_Arrest', 'Gym_Choking',
+        'Street_Dizziness', 'Street_Arrest', 'Street_Choking',
+        'Football_Dizziness', 'Football_Arrest', 'Football_Choking')
     $play = $xmlDocuments['final-playmode.xml']
     $xr = $xmlDocuments['xr-walkthrough.xml']
     $originalCases = @($play.SelectNodes('//test-case') | Where-Object { $_.classname -eq $xrClass })
     $extractedCases = @($xr.SelectNodes('//test-case'))
-    if ($originalCases.Count -ne 15 -or $extractedCases.Count -ne 15) { throw 'Exactly fifteen original and extracted XR cases are required.' }
+    if ($originalCases.Count -ne $expectedMethods.Count -or $extractedCases.Count -ne $expectedMethods.Count) { throw 'Exactly nine original and extracted XR cases are required.' }
     foreach ($method in $expectedMethods) {
         $fullName = $xrClass + '.' + $method
         $original = @($originalCases | Where-Object { $_.fullname -eq $fullName -and $_.methodname -eq $method })
@@ -165,18 +165,26 @@ function Get-AstraBudgetEvidence([string]$ProjectRoot, [string]$LabRoot, [switch
     $scopeRecord = Get-AstraEvidenceRecord (Join-Path $ProjectRoot 'Assets/_Project/Resources/ReleaseScope.json')
     $scope = Get-Content -LiteralPath $scopeRecord.path -Raw -Encoding UTF8 | ConvertFrom-Json
     $expectedIds = @($scope.environments | ForEach-Object { $_.scenarioIds })
-    if ($expectedIds.Count -ne 15 -or @($expectedIds | Sort-Object -Unique).Count -ne 15) { throw 'ReleaseScope must identify fifteen distinct cases.' }
+    $environmentIds = @($scope.environments | ForEach-Object { $_.id })
+    if ($scope.schemaVersion -ne 1 -or [string]::IsNullOrWhiteSpace($scope.releaseId) -or
+        $environmentIds.Count -ne 3 -or @(Compare-Object -CaseSensitive @('football', 'gym', 'street') $environmentIds).Count -ne 0 -or
+        @($scope.environments | Where-Object { @($_.scenarioIds).Count -ne 3 }).Count -ne 0 -or
+        $expectedIds.Count -ne 9 -or @($expectedIds | Sort-Object -Unique).Count -ne 9 -or
+        @($expectedIds | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count -ne 0) {
+        throw 'ReleaseScope must identify nine distinct cases, three each in football, gym and street.'
+    }
     $summaryRecord = Get-AstraEvidenceRecord (Join-Path $evidenceRoot 'budget-result.json')
     $summary = Get-Content -LiteralPath $summaryRecord.path -Raw -Encoding UTF8 | ConvertFrom-Json
     $summaryIds = @($summary.samples | ForEach-Object { $_.scenario })
     if ($summary.result -ne 'PASS' -or $summary.sourceSha256 -cne $built.sourceSha256 -or
         [string]::IsNullOrWhiteSpace($summary.runId) -or -not [string]::IsNullOrEmpty($summary.failure) -or
-        @($summary.runtimeErrors).Count -ne 0 -or $summaryIds.Count -ne 15 -or
-        @(Compare-Object $expectedIds $summaryIds).Count -ne 0) {
-        throw 'The budget summary must pass all fifteen release cases from the current laboratory player in one run.'
+        @($summary.runtimeErrors).Count -ne 0 -or $summaryIds.Count -ne $expectedIds.Count -or
+        @($summaryIds | Sort-Object -Unique).Count -ne $expectedIds.Count -or
+        @(Compare-Object -CaseSensitive $expectedIds $summaryIds).Count -ne 0) {
+        throw 'The budget summary must pass all nine release cases from the current laboratory player in one run.'
     }
     $budgetFiles = @(Get-ChildItem -LiteralPath $evidenceRoot -Filter 'budget-*.json' -File | Where-Object { $_.Name -ne 'budget-result.json' })
-    if ($budgetFiles.Count -ne 15) { throw 'Exactly fifteen per-case budget files are required; remove no evidence automatically.' }
+    if ($budgetFiles.Count -ne $expectedIds.Count) { throw 'Exactly nine per-case budget files are required; remove no evidence automatically.' }
     $budgetRecords = @()
     foreach ($id in $expectedIds) {
         $record = Get-AstraEvidenceRecord (Join-Path $evidenceRoot ('budget-' + $id + '.json'))

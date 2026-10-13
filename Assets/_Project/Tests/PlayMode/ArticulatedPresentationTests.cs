@@ -69,11 +69,15 @@ namespace EmergencyVR.Tests
             Assert.That(review.Procedures.Hands.HasArticulatedHands,Is.True);
             foreach(var environment in review.Scope.environments.Select(e=>e.id))
             {
-                Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries,e=>e.medical?.environment==environment)),Is.True);
+                int arrest = System.Array.FindIndex(review.Catalog.entries, e => e.medical?.environment == environment &&
+                    e.medical.initialState.consciousness == "Unresponsive" && e.medical.actions.Any(a => a.action == "StartCPR"));
+                Assert.That(review.Select(arrest),Is.True);
                 yield return null;
                 Assert.That(review.Procedures.Visuals,Is.SameAs(visual));
                 Assert.That(visual.Rig.face.enabled&&visual.Rig.face.gameObject.activeInHierarchy,Is.True);
                 Assert.That(visual.IsPatientContact(visual.Rig.head.position),Is.True);
+                Assert.That(visual.ExternalBodyPresentation, Is.False, "Compression geometry is verified on the shared supine arrest presentation.");
+                Assert.That(visual.EffectivePosture, Is.EqualTo(PatientPosture.Supine));
             }
             visual.SetCompressionDepth(.055f);yield return null;yield return null;
             int index=visual.Rig.face.sharedMesh.GetBlendShapeIndex("VitalCompression");

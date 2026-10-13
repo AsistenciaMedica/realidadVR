@@ -469,7 +469,7 @@ namespace EmergencyVR.Editor.Environment
         public static string Fingerprint()
         {
             var paths = new List<string>();
-            foreach (var directory in new[] { "Assets/_Project/Scripts/Environment", "Assets/_Project/Editor/Environment", "Assets/_Project/Resources/Visual/Materials", "Assets/_Project/Resources/Visual/Textures", "Assets/ThirdParty/GymModels/Resources/Gym" })
+            foreach (var directory in new[] { "Assets/_Project/Scripts/Environment", "Assets/_Project/Editor/Environment", "Assets/_Project/Resources/Visual/Materials", "Assets/_Project/Resources/Visual/Textures", "Assets/ThirdParty/GymModels/Resources/Gym", "Assets/ThirdParty/FieldModels/Resources/Field" })
                 if (Directory.Exists(directory)) paths.AddRange(Directory.GetFiles(directory, "*", SearchOption.AllDirectories).Where(p => !p.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)));
             using (var hash = SHA256.Create())
             {

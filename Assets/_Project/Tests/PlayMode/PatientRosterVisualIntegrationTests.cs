@@ -35,7 +35,8 @@ namespace EmergencyVR.Tests
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
-            Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries, e => e.medical?.id == "football-glucose")), Is.True);
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            Assert.That(review.Select(archived.Add("football-glucose", "Elena")), Is.True);
             var visual = review.Procedures.Visuals;
             var body = visual.Rig.GetComponent<ArticulatedPatient>();
             var staging = review.GetComponent<PatientSceneStaging>();
@@ -62,6 +63,9 @@ namespace EmergencyVR.Tests
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            archived.Add("football-glucose", "Elena");
+            archived.Add("gym-faint", "Lucia");
             var visual = review.Procedures.Visuals;
             var body = visual.Rig.GetComponent<ArticulatedPatient>();
             var target = new GameObject("Attention test learner");
@@ -114,6 +118,11 @@ namespace EmergencyVR.Tests
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            archived.Add("chest-pain", "Ricardo", "male");
+            archived.Add("asthma", "Sara");
+            archived.Add("choking-partial", "Camila");
+            archived.Add("hypoxia", "Sergio", "male");
             var visual = review.Procedures.Visuals;
             var body = visual.Rig.GetComponent<ArticulatedPatient>();
             foreach (var id in new[] { "chest-pain", "asthma", "choking-partial", "hypoxia" })
@@ -137,7 +146,7 @@ namespace EmergencyVR.Tests
         }
 
         [UnityTest]
-        public IEnumerator AllFifteenSkinsReuseTheRigAndDanielRestoresCleanly()
+        public IEnumerator EveryReleasePatientReusesTheRigAndDanielRestoresCleanly()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom"); yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
@@ -194,7 +203,7 @@ namespace EmergencyVR.Tests
                 }
                 finally { Application.logMessageReceived -= collect; }
             }
-            foreach (var id in new[] { "review-hypotension-v2", "gym-faint", "review-hypotension-v2" })
+            foreach (var id in new[] { "review-hypotension-v2", "gym-choking", "street-dizziness", "arrest-witnessed", "football-dizziness" })
             {
                 Assert.That(review.Select(System.Array.FindIndex(review.Catalog.entries, e => e.medical?.id == id)), Is.True);
                 yield return null;

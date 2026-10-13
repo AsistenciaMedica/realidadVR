@@ -14,11 +14,50 @@ namespace EmergencyVR.Tests
     public sealed class PatientSceneStagingTests
     {
         [UnityTest]
-        public IEnumerator ReleaseSeatedPatientsHavePelvisAndShoeSupportWithoutMovingTheRootOrAnchors()
+        public IEnumerator ReleaseDizzinessOwnsItsSeatAndStandingOrSupineCasesNeedNoGenericSeat()
         {
             yield return SceneManager.LoadSceneAsync("TrainingRoom");
             yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            var staging = PatientSceneStaging.Attach(review);
+            var dizziness = review.GetComponent<Case01PatientPresentation>();
+            int supported = 0, standing = 0, supine = 0;
+            foreach (var id in review.Scope.ScenarioIds)
+            {
+                Assert.That(review.Select(Array.FindIndex(review.Catalog.entries, e => e.medical?.id == id)), Is.True);
+                yield return null; yield return null;
+                Assert.That(staging.SupportVisible, Is.False, id + " must not acquire an unrelated generic bench.");
+                if (review.Selected.medical.clinicalV2 != null)
+                {
+                    supported++;
+                    Assert.That(dizziness.IsActive, Is.True, id);
+                    Assert.That(dizziness.ValidateCurrentPose(), Is.True, id + ": " + dizziness.LastValidationFailure);
+                }
+                else
+                {
+                    Assert.That(dizziness.IsActive, Is.False, id + " must release the previous assistance assembly.");
+                    var posture = PatientVisualState.FromSnapshot(review.Selected.medical.initialState).Posture;
+                    if (posture == PatientPosture.Standing) standing++;
+                    else if (posture == PatientPosture.Supine) supine++;
+                    else Assert.Fail(id + " has an unexpected release posture: " + posture);
+                }
+            }
+            Assert.That(supported, Is.EqualTo(3));
+            Assert.That(standing, Is.EqualTo(3));
+            Assert.That(supine, Is.EqualTo(3));
+        }
+
+        [UnityTest]
+        public IEnumerator ArchivedSeatedPatientsHavePelvisAndShoeSupportWithoutMovingTheRootOrAnchors()
+        {
+            yield return SceneManager.LoadSceneAsync("TrainingRoom");
+            yield return null;
+            var review = Object.FindFirstObjectByType<ReviewCaseSession>();
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            archived.Add("asthma", "Sara");
+            archived.Add("chest-pain", "Ricardo", "male");
+            archived.Add("football-glucose", "Elena");
+            archived.Add("choking-partial", "Camila");
             var staging = PatientSceneStaging.Attach(review);
             Assert.That(PatientSceneStaging.Attach(review), Is.SameAs(staging), "Attaching twice must not create a second support or subscription.");
             var visual = review.Procedures.Visuals;
@@ -27,7 +66,7 @@ namespace EmergencyVR.Tests
             var finger = visual.FingerAnchor;
             var rightPad = visual.AedRightPadAnchor;
             int seated = 0;
-            foreach (var id in review.Scope.ScenarioIds)
+            foreach (var id in new[] { "asthma", "chest-pain", "football-glucose", "choking-partial" })
             {
                 Assert.That(review.Select(Array.FindIndex(review.Catalog.entries, e => e.medical?.id == id)), Is.True);
                 Assert.That(staging.SupportVisible, Is.False, id + " must immediately withdraw the previous patient's furniture.");
@@ -67,7 +106,7 @@ namespace EmergencyVR.Tests
                     Assert.That(staging.SupportVisible, Is.False, id + " owns no generic seated support.");
                 }
             }
-            Assert.That(seated, Is.EqualTo(7), "Release posture changes require deliberate support review.");
+            Assert.That(seated, Is.EqualTo(4), "Archived seated poses must retain their support coverage outside release selection.");
         }
 
         [UnityTest]
@@ -78,7 +117,8 @@ namespace EmergencyVR.Tests
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
             var staging = PatientSceneStaging.Attach(review);
             var visual = review.Procedures.Visuals;
-            int index = Array.FindIndex(review.Catalog.entries, e => e.medical?.id == "asthma");
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            int index = archived.Add("asthma", "Sara");
             Assert.That(review.Select(index), Is.True);
             yield return WaitForSeat(staging);
             Assert.That(staging.SupportVisible, Is.True, staging.LastValidationFailure);

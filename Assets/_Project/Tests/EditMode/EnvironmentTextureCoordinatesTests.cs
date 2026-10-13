@@ -9,6 +9,7 @@ namespace EmergencyVR.Tests
     {
         [TestCase("football", "Pitch and treatment sideline/grass", 2f)]
         [TestCase("mall", "Room shell/mallFloor", 1f)]
+        [TestCase("street", "Safe pedestrian pavement/displayStone", 1f)]
         public void ProceduralMeshesCarryNormalMapTangentsAndSquareFloorTexels(string environment, string floorName, float metresPerTile)
         {
             var root = EnvironmentBakeSource.Create(environment);
@@ -45,6 +46,25 @@ namespace EmergencyVR.Tests
                     Assert.That(31 / stripe.GetTextureScale("_BaseMap").x, Is.EqualTo(metresPerTile));
                     Assert.That(4 / stripe.GetTextureScale("_BaseMap").y, Is.EqualTo(metresPerTile));
                     Assert.That(stripe.GetTextureOffset("_BaseMap").x, Is.EqualTo(.25f));
+                }
+                if (environment == "street")
+                {
+                    Physics.SyncTransforms();
+                    var colliders = root.GetComponentsInChildren<BoxCollider>();
+                    var pavement = colliders.Single(c => c.transform.localPosition == new Vector3(-1, -.10f, 8));
+                    var treatmentSpace = new Bounds(new Vector3(.5f, 1.4f, .1f), new Vector3(3, 2.7f, 3.8f));
+                    foreach (var collider in colliders)
+                        Assert.That(collider.bounds.Intersects(treatmentSpace), Is.False,
+                            collider.name + " must leave the shared seated, standing and supine patient area clear.");
+                    foreach (float x in new[] { -1f, .5f, 2f })
+                        foreach (float z in new[] { -1.5f, .1f, 1.9f })
+                        {
+                            Assert.That(pavement.Raycast(new Ray(new Vector3(x, 1, z), Vector3.down), out var hit, 2), Is.True);
+                            Assert.That(hit.point.y, Is.EqualTo(0).Within(.001f), "Every patient posture must have level pavement support.");
+                        }
+                    Assert.That(filters.Any(f => f.name == "Road and curbs/streetAsphalt"), Is.True);
+                    Assert.That(filters.Any(f => f.name == "Street frontage/streetBrick"), Is.True);
+                    Assert.That(filters.Any(f => f.name == "Room shell/mallFloor"), Is.False, "Street must never use the mall fallback.");
                 }
             }
             finally

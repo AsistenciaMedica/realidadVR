@@ -51,11 +51,11 @@ namespace EmergencyVR.UI
             {
                 int index = actionPage * 5 + i; if (index >= ids.Length) break;
                 string id = ids[index]; bool physical = Review.Procedures.IsPhysicalAction(id);
-                string title = Review.ActionLabel(id) + (physical ? "\nUtiliza el equipo" : "  ✓");
+                string title = Review.ActionLabel(id) + (physical ? "\n" + PhysicalActionHint(id) : "");
                 var button = VrStackButton(body, "Action " + id, title, ref y, () => Review.Submit(id));
                 button.interactable = !physical;
                 Bind(button.GetComponentInChildren<Text>(), () => Review.ActionLabel(id) +
-                    (physical ? "\nUtiliza el equipo" : Review.Manager.MedicalSession?.Completed.Contains(id) == true ? "  ✓" : ""));
+                    (Review.Manager.MedicalSession?.Completed.Contains(id) == true ? "  ✓" : physical ? "\n" + PhysicalActionHint(id) : ""));
             }
             ((RectTransform)body).sizeDelta = new Vector2(530, Mathf.Max(446, y));
             VrDrawerPaging("actions", actionPage, pages, () => { actionPage--; redraw = true; }, () => { actionPage++; redraw = true; });

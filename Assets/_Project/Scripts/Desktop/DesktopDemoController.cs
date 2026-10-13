@@ -99,7 +99,7 @@ namespace EmergencyVR.Desktop
             if(keys.escapeKey.wasPressedThisFrame) experience?.TogglePause();
             if(WorldInputBlocked) return;
             if(keys.rKey.wasPressedThisFrame) ResetPosition();
-            if(mouse.rightButton.isPressed && !PointerOverInterface)
+            if(mouse.rightButton.isPressed && !PointerOverInterface && Review?.Procedures?.Choking.HasContact!=true)
             {
                 var delta=mouse.delta.ReadValue(); transform.Rotate(Vector3.up,delta.x*.09f);
                 pitch=Mathf.Clamp(pitch-delta.y*.09f,-70,70); View.transform.localRotation=Quaternion.Euler(pitch,0,0);
@@ -110,7 +110,7 @@ namespace EmergencyVR.Desktop
             Body.Move((transform.right*move.x*1.6f+transform.forward*move.y*1.6f+Vector3.up*verticalSpeed)*Mathf.Min(Time.deltaTime,.05f));
             if(transform.position.y< -1.5f) ResetPosition();
             bool overMenu=PointerOverInterface;
-            if(mouse.leftButton.wasPressedThisFrame && !overMenu && Review?.Procedures?.CPR.WindowsEngaged!=true) TryInspect(View.ScreenPointToRay(mouse.position.ReadValue()));
+            if(mouse.leftButton.wasPressedThisFrame && !overMenu && Review?.Procedures?.CPR.WindowsEngaged!=true && Review?.Procedures?.Choking.WindowsEngaged!=true) TryInspect(View.ScreenPointToRay(mouse.position.ReadValue()));
             if(keys.eKey.wasPressedThisFrame && !overMenu) { if(held!=null) Release(); else TryGrab(View.ScreenPointToRay(mouse.position.ReadValue())); }
             if(keys.qKey.wasPressedThisFrame && !overMenu)
             {

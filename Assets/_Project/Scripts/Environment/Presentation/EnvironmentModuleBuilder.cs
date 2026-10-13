@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EmergencyVR.Environment.Presentation
 {
     /// <summary>Reusable structural/secondary props; hero furniture remains replaceable by licensed assets.</summary>
-    internal sealed class EnvironmentModuleBuilder
+    internal sealed partial class EnvironmentModuleBuilder
     {
         readonly EnvironmentGeometry g;
         readonly Transform root;
@@ -15,6 +15,7 @@ namespace EmergencyVR.Environment.Presentation
         public void Build(string id)
         {
             if (id == "football") Football();
+            else if (id == "street") Street();
             else
             {
                 Interior(id);
@@ -23,21 +24,22 @@ namespace EmergencyVR.Environment.Presentation
                 else Mall();
             }
             FirstAidStation(id);
+            if (id == "gym" || id == "mall") PublicInteriorDetails(id);
             g.Finish();
         }
 
         void FirstAidStation(string id)
         {
             if (id == "dental") return; // The preserved technical dental room still owns its clinical furniture.
-            g.Cluster(id == "football" ? "Organizer first aid station" : "Public first aid station");
+            g.Cluster(id == "street" ? "Portable street assistance table" : id == "football" ? "Organizer first aid station" : "Public first aid station");
             var centre = new Vector3(-1.8f, 0, 3.75f);
-            float width = id == "football" ? 1.85f : 1.25f;
+            float width = id == "football" || id == "street" ? 1.85f : 1.25f;
             B(centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f), id == "gym" ? "gymWood" : "wood");
             foreach (float x in new[] { -.43f * width, .43f * width })
                 foreach (float z in new[] { -.20f, .20f })
                     B(centre + new Vector3(x, .445f, z), new Vector3(.045f, .89f, .045f), id == "gym" ? "gymSteel" : "metal");
             g.Solid("First aid station shelf", centre + new Vector3(0, .92f, 0), new Vector3(width, .06f, .55f));
-            if (id == "football")
+            if (id == "football" || id == "street")
             {
                 return;
             }
@@ -318,16 +320,38 @@ namespace EmergencyVR.Environment.Presentation
                 float x = side * 3.46f;
                 foreach (float z in new[] { -.6f, 3.13f })
                 {
-                    B(new Vector3(x, 1.4f, z), new Vector3(.07f, 2.35f, 2.92f), "navy");
-                    g.Surface("Illuminated shop interior", new Vector3(x - side * .05f, 1.33f, z),
-                        Quaternion.Euler(0, side < 0 ? -90 : 90, 0), new Vector2(2.61f, 1.87f), "shopInterior");
-                    foreach (float offset in new[] { -1.25f, 0, 1.25f }) B(new Vector3(x - side * .08f, 1.31f, z + offset), new Vector3(.035f, 1.97f, .046f), "metal");
-                    B(new Vector3(x - side * .08f, 2.36f, z), new Vector3(.06f, .33f, 2.75f), "wood");
-                    g.Text(z < 1 ? "ATELIER" : "CASA  /  OBJETOS", new Vector3(x - side * .13f, 2.36f, z), .022f, side < 0 ? -90 : 90, true);
-                    B(new Vector3(x - side * .08f, .30f, z), new Vector3(.035f, .22f, 2.73f), "stone");
-                    // Opaque display panels and shelving sit behind facade framing rather than pretending to be transparent glass.
-                    B(new Vector3(x - side * .085f, 1.13f, z + .58f), new Vector3(.035f, .59f, .72f), "blue");
-                    g.Text("NUEVA\nCOLECCIÓN", new Vector3(x - side * .11f, 1.13f, z + .58f), .012f, side < 0 ? -90 : 90, true);
+                    // Real shallow display volumes: the eye sees parallax, shelves and object shadows
+                    // when walking past, instead of a flat illustration stretched across the window.
+                    B(new Vector3(x, 1.35f, z), new Vector3(.045f, 2.30f, 2.92f), "plaster");
+                    foreach (float offset in new[] { -1.38f, 1.38f })
+                        B(new Vector3(x - side * .22f, 1.35f, z + offset), new Vector3(.48f, 2.30f, .065f), "wood");
+                    foreach (float y in new[] { .27f, 2.43f })
+                        B(new Vector3(x - side * .22f, y, z), new Vector3(.48f, .10f, 2.78f), "wood");
+                    B(new Vector3(x - side * .20f, 2.35f, z), new Vector3(.14f, .022f, 2.48f), "ceilingLamp");
+                    B(new Vector3(x - side * .46f, 2.58f, z), new Vector3(.06f, .25f, 2.92f), "navy");
+                    g.Text(z < 1 ? "ATELIER" : "CASA  /  OBJETOS", new Vector3(x - side * .50f, 2.58f, z), .022f, side < 0 ? -90 : 90, true);
+                    for (int shelf = 0; shelf < 2; shelf++)
+                    {
+                        float y = .68f + shelf * .72f;
+                        B(new Vector3(x - side * .23f, y, z), new Vector3(.38f, .045f, 2.54f), "wood");
+                        for (int item = 0; item < 4; item++)
+                        {
+                            var p = new Vector3(x - side * .24f, y + .025f, z - .91f + item * .60f);
+                            if (z < 1)
+                            {
+                                Soft(p + Vector3.up * .11f, new Vector3(.19f, .22f, .30f), item % 2 == 0 ? "blue" : "gymUpholstery");
+                                T(p + new Vector3(0, .20f, -.075f), p + new Vector3(0, .31f, -.075f), .008f, "wood");
+                                T(p + new Vector3(0, .20f, .075f), p + new Vector3(0, .31f, .075f), .008f, "wood");
+                                T(p + new Vector3(0, .31f, -.075f), p + new Vector3(0, .31f, .075f), .008f, "wood");
+                            }
+                            else
+                            {
+                                float h = .21f + (item % 3) * .07f;
+                                S(p + Vector3.up * h * .46f, new Vector3(.19f, h * .90f, .19f), item % 2 == 0 ? "white" : "blue");
+                                R(p + Vector3.up * h * .87f, new Vector3(.09f, h * .25f, .09f), item % 2 == 0 ? "white" : "blue");
+                            }
+                        }
+                    }
                 }
             }
             g.Cluster("Public seating and planting");
@@ -410,12 +434,96 @@ namespace EmergencyVR.Environment.Presentation
             B(new Vector3(-11, 1.58f, 33.8f), new Vector3(8.5f, .16f, 2.1f), "navy");
             g.BrandLockup(new Vector3(-11, 1.04f, 32.90f), 3.1f);
             g.Text("CAMPO DE ENTRENAMIENTO", new Vector3(-11, .53f, 32.90f), .027f, light: true);
-            // Low draw-cost stepped seating across the far edge gives scale without an NPC crowd.
-            for (int i = 0; i < 3; i++)
+            g.Cluster("Spectator bleachers");
+            // Aluminium bleachers behind the right touchline rail give scale without an NPC crowd.
+            bool bleachers = true;
+            foreach (float z in new[] { 3.5f, 16.5f })
+                bleachers &= g.Model("Field/bleachers", new Vector3(20.6f, 0, z), -90, new Vector3(7.5f, 0, 0), _ => "metal");
+            if (!bleachers)
+                for (int i = 0; i < 3; i++)
+                {
+                    B(new Vector3(10.8f, .20f + i * .3f, 33 + i * .5f), new Vector3(7.5f, .3f, .60f), "footballStand");
+                    for (int seat = 0; seat < 10; seat++) Soft(new Vector3(7.55f + seat * .72f, .378f + i * .3f, 33 + i * .5f), new Vector3(.50f, .065f, .39f), "blue");
+                }
+            FootballGroundDetails();
+            FootballTreeLine();
+        }
+
+        void PublicInteriorDetails(string id)
+        {
+            g.Cluster("Public interior fittings");
+            // Physical-scale fittings establish scale without encroaching on the treatment space.
+            foreach (float x in new[] { -.78f, .78f })
             {
-                B(new Vector3(10.8f, .20f + i * .3f, 33 + i * .5f), new Vector3(7.5f, .3f, .60f), "footballStand");
-                for (int seat = 0; seat < 10; seat++) Soft(new Vector3(7.55f + seat * .72f, .378f + i * .3f, 33 + i * .5f), new Vector3(.50f, .065f, .39f), "blue");
+                Soft(new Vector3(x, 1.16f, -2.972f), new Vector3(.075f, .12f, .026f), "white");
+                B(new Vector3(x, 1.16f, -2.952f), new Vector3(.04f, .068f, .012f), "gymTrim");
             }
+            g.Cluster("Wall clock");
+            var c = new Vector3(1.48f, 2.38f, -2.94f);
+            g.Shape("cylinder", c, new Vector3(.30f, .032f, .30f), "metal", Quaternion.Euler(90, 0, 0));
+            g.Shape("cylinder", c + Vector3.forward * .02f, new Vector3(.27f, .008f, .27f), "white", Quaternion.Euler(90, 0, 0));
+            for (int i = 0; i < 12; i++)
+            {
+                float a = i * Mathf.PI / 6;
+                var v = new Vector3(Mathf.Sin(a), Mathf.Cos(a), 0);
+                T(c + v * .105f + Vector3.forward * .026f, c + v * .119f + Vector3.forward * .026f, .003f, "navy");
+            }
+            T(c + Vector3.forward * .029f, c + new Vector3(.068f, .039f, .029f), .004f, "navy");
+            T(c + Vector3.forward * .030f, c + new Vector3(-.053f, .091f, .030f), .003f, "navy");
+            if (id != "mall") return;
+            g.Cluster("Mall ceiling coffers");
+            foreach (float x in new[] { -2.15f, 2.15f })
+            {
+                B(new Vector3(x, 2.91f, 1), new Vector3(.48f, .17f, 7.9f), "plaster");
+                B(new Vector3(x - Mathf.Sign(x) * .26f, 2.99f, 1), new Vector3(.045f, .018f, 7.8f), "ceilingLamp");
+            }
+            foreach (float z in new[] { -2.3f, 1.2f, 4.7f })
+                foreach (float x in new[] { -3.27f, 3.27f })
+                    B(new Vector3(x, 1.46f, z), new Vector3(.40f, 2.92f, .15f), "displayStone");
+        }
+
+        // Poplar windbreak outside the rail: closes the horizon and gives the pitch a sense of place.
+        void FootballTreeLine()
+        {
+            g.Cluster("Perimeter trees");
+            string Material(string source) => source.Contains("001") ? "fieldFoliage" : "fieldBark";
+            int index = 0;
+            void Tree(float x, float z)
+            {
+                // Deterministic variation: no two neighbours share height or facing.
+                float height = 10.5f + (index * 37 % 11) * .32f;
+                g.Model("Field/poplar", new Vector3(x, 0, z), index * 67 % 360, new Vector3(0, height, 0), Material);
+                index++;
+            }
+            for (int i = 0; i < 5; i++) Tree(-22.5f - (i % 2) * 1.4f, -8 + i * 10.5f);
+            for (int i = 0; i < 4; i++) Tree(26.5f + (i % 2) * 1.6f, -9 + i * 13.5f);
+            for (int i = 0; i < 5; i++) Tree(-14 + i * 7f, 40.5f + (i % 2) * 1.5f);
+            for (int i = 0; i < 3; i++) Tree(-13 + i * 12.5f, -20.5f - (i % 2) * 1.5f);
+        }
+
+        void FootballGroundDetails()
+        {
+            g.Cluster("Ground edging and drainage");
+            foreach (float x in new[] { -16.6f, 16.6f })
+            {
+                B(new Vector3(x, .008f, 10), new Vector3(1.65f, .028f, 51), "footballStand");
+                B(new Vector3(x - Mathf.Sign(x) * .83f, .02f, 10), new Vector3(.08f, .05f, 51), "displayStone");
+                for (int z = -14; z <= 34; z += 6)
+                    B(new Vector3(x, .025f, z), new Vector3(.65f, .008f, .16f), "gymTrim");
+            }
+            g.Cluster("Pitch floodlight columns");
+            foreach (float x in new[] { -17.2f, 17.2f })
+                foreach (float z in new[] { -10f, 29f })
+                {
+                    R(new Vector3(x, .16f, z), new Vector3(.48f, .32f, .48f), "footballStand");
+                    T(new Vector3(x, .15f, z), new Vector3(x, 7.5f, z), .075f, "metal");
+                    B(new Vector3(x, 7.42f, z), new Vector3(1.8f, .09f, .10f), "metal");
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        Soft(new Vector3(x + i * .60f, 7.62f, z), new Vector3(.48f, .36f, .16f), "gymTrim");
+                        B(new Vector3(x + i * .60f, 7.62f, z - .09f), new Vector3(.39f, .27f, .018f), "white");
+                    }
+                }
         }
 
         void Goal(Vector3 origin, float yaw)
@@ -423,17 +531,21 @@ namespace EmergencyVR.Environment.Presentation
             g.Cluster("Goal " + yaw);
             var q = Quaternion.Euler(0, yaw, 0);
             Vector3 P(float x, float y, float z) => origin + q * new Vector3(x, y, z);
-            foreach (float x in new[] { -3.66f, 3.66f })
+            // Licensed goal with a modelled net, fitted to the regulation 7.32 x 2.44 m mouth.
+            if (!g.Model("Field/goal", P(0, 0, .94f), yaw, new Vector3(7.44f, 2.50f, 2), _ => "white"))
             {
-                T(P(x, 0, 0), P(x, 2.44f, 0), .055f, "white");
-                T(P(x, 2.44f, 0), P(x, .08f, 1.35f), .032f, "metal");
-                T(P(x, .08f, 0), P(x, .08f, 1.35f), .032f, "metal");
+                foreach (float x in new[] { -3.66f, 3.66f })
+                {
+                    T(P(x, 0, 0), P(x, 2.44f, 0), .055f, "white");
+                    T(P(x, 2.44f, 0), P(x, .08f, 1.35f), .032f, "metal");
+                    T(P(x, .08f, 0), P(x, .08f, 1.35f), .032f, "metal");
+                }
+                T(P(-3.66f, 2.44f, 0), P(3.66f, 2.44f, 0), .055f, "white");
+                T(P(-3.66f, .08f, 1.35f), P(3.66f, .08f, 1.35f), .032f, "metal");
+                // Fixed sparse net topology, not physics chains, alpha cards or per-frame splines.
+                for (int i = 0; i <= 14; i++) { float x = -3.66f + i * (7.32f / 14); T(P(x, 2.39f, .04f), P(x, .09f, 1.32f), .007f, "white"); }
+                for (int i = 1; i < 7; i++) { float t = i / 7f; T(P(-3.65f, 2.39f * (1 - t), 1.32f * t), P(3.65f, 2.39f * (1 - t), 1.32f * t), .007f, "white"); }
             }
-            T(P(-3.66f, 2.44f, 0), P(3.66f, 2.44f, 0), .055f, "white");
-            T(P(-3.66f, .08f, 1.35f), P(3.66f, .08f, 1.35f), .032f, "metal");
-            // Fixed sparse net topology, not physics chains, alpha cards or per-frame splines.
-            for (int i = 0; i <= 14; i++) { float x = -3.66f + i * (7.32f / 14); T(P(x, 2.39f, .04f), P(x, .09f, 1.32f), .007f, "white"); }
-            for (int i = 1; i < 7; i++) { float t = i / 7f; T(P(-3.65f, 2.39f * (1 - t), 1.32f * t), P(3.65f, 2.39f * (1 - t), 1.32f * t), .007f, "white"); }
             foreach (float x in new[] { -3.66f, 3.66f }) g.Solid("Goal post", P(x, 1.22f, 0), new Vector3(.14f, 2.44f, .14f));
         }
 

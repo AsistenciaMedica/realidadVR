@@ -11,9 +11,12 @@ namespace EmergencyVR.Environment.Presentation
 
         public EnvironmentPalette(Material template)
         {
-            Add("plaster", new Color(.77f, .81f, .80f));
+            Add("plaster", new Color(.88f, .87f, .83f), map: "plastered_wall", tiling: Vector2.one, saved: "SharedPlaster", normalScale: .18f);
             Add("white", new Color(.88f, .91f, .90f));
             Add("stone", new Color(.49f, .53f, .51f), smooth: .18f);
+            Add("streetAsphalt", new Color(.14f, .16f, .17f), smooth: .035f);
+            Add("streetBrick", new Color(.51f, .28f, .19f), smooth: .07f);
+            Add("streetPaint", new Color(.88f, .78f, .43f), smooth: .08f);
             Add("footballStand", new Color(.77f, .78f, .75f), smooth: .12f,
                 map: "concrete_floor_02", tiling: Vector2.one, saved: "FootballStand");
             Add("shopInterior", Color.white, smooth: .1f, saved: "MallShopInterior");
@@ -21,18 +24,22 @@ namespace EmergencyVR.Environment.Presentation
             Add("blue", new Color(.19f, .34f, .39f), smooth: .22f);
             Add("rubber", new Color(.065f, .071f, .073f), smooth: .05f);
             Add("metal", new Color(.46f, .51f, .54f), metallic: .45f, smooth: .35f);
-            Add("wood", new Color(.42f, .30f, .19f), smooth: .18f);
+            Add("wood", new Color(.79f, .72f, .61f), smooth: .24f, map: "wood_floor", tiling: new Vector2(.5f, 1), saved: "SharedWood", normalScale: .22f);
+            Add("displayStone", new Color(.84f, .82f, .75f), smooth: .2f, map: "concrete_floor_02", tiling: Vector2.one, saved: "DisplayStone", normalScale: .18f);
             Add("glass", new Color(.23f, .37f, .42f), metallic: .15f, smooth: .48f);
             Add("green", new Color(.14f, .28f, .12f), smooth: .04f);
             Add("grass", new Color(.54f, .95f, .55f), smooth: .03f,
-                map: "aerial_grass_rock", tiling: new Vector2(18, 26), saved: "FootballGrass");
+                map: "pitch_turf", tiling: new Vector2(18, 26), saved: "FootballGrass");
             Add("grassStripe", new Color(.54f, .95f, .55f), smooth: .03f,
-                map: "aerial_grass_rock", tiling: new Vector2(15.5f, 2), saved: "FootballGrass");
+                map: "pitch_turf", tiling: new Vector2(15.5f, 2), saved: "FootballGrass");
             // Both the 36x52m pitch and its 31x4m cut strips repeat every two metres.
             // Keep the UV origin continuous where the two surfaces meet.
             materials["grassStripe"].SetTextureScale("_BaseMap", new Vector2(15.5f, 2));
             materials["grassStripe"].SetTextureOffset("_BaseMap", new Vector2(.25f, 0));
-            materials["grassStripe"].SetColor("_BaseColor", new Color(.45f, .80f, .46f));
+            materials["grassStripe"].SetColor("_BaseColor", new Color(.48f, .56f, .44f));
+            // Licensed field models (Assets/ThirdParty/FieldModels) share these two photographs.
+            Add("fieldBark", new Color(.78f, .76f, .72f), smooth: .05f, map: "poplar_bark", tiling: Vector2.one, saved: "FieldBark");
+            Add("fieldFoliage", new Color(.80f, .86f, .74f), smooth: .08f, map: "poplar_leaves", tiling: Vector2.one, saved: "FieldFoliage");
             Add("mallFloor", Color.white, smooth: .55f,
                 map: "terrazzo_tiles", tiling: new Vector2(7, 8), saved: "MallFloor");
             Add("accent", new Color(.60f, .15f, .13f), smooth: .17f);

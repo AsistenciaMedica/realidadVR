@@ -18,7 +18,9 @@ namespace EmergencyVR.Editor
         const string Characters = "Assets/_Project/Resources/Visual/Characters/";
         const string Appearances = "Assets/_Project/Resources/Visual/Appearances/";
         static readonly string[] FacialChannels =
-            { "AK_09_EyeBlinkLeft", "AK_10_EyeBlinkRight", "AK_25_JawOpen", "AU_04_BrowLowerer", "AU_01_InnerBrowRaiser", "AU_20_LipStretcher" };
+            { "AK_09_EyeBlinkLeft", "AK_10_EyeBlinkRight", "AK_25_JawOpen", "AU_04_BrowLowerer", "AU_01_InnerBrowRaiser", "AU_20_LipStretcher",
+              "AA_VI_10_aa", "AA_VI_11_E", "AA_VI_13_O", "AK_19_EyeSquintLeft", "AK_20_EyeSquintRight",
+              "AK_30_MouthFrownLeft", "AK_31_MouthFrownRight" };
 
         [MenuItem("Emergency VR/Art/Build case characters")]
         public static void Build()
@@ -31,6 +33,12 @@ namespace EmergencyVR.Editor
             BuildAnimationLibrary();
             AssetDatabase.SaveAssets();
             Debug.Log("VITAL_CASE_CHARACTERS_BUILT");
+        }
+
+        public static void BuildReviewCharacters()
+        {
+            Build();
+            PatientRosterAssetBuilder.Build();
         }
 
         static void BuildDanielAppearance()

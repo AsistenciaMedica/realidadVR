@@ -45,7 +45,7 @@ namespace EmergencyVR.Tests
         }
         void Begin()
         {
-            flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, entry => entry.medical?.id == "gym-faint"));
+            flow.Prepare(Array.FindIndex(flow.Review.Catalog.entries, entry => entry.medical?.id == "gym-arrest"));
             flow.BeginTraining();
         }
 

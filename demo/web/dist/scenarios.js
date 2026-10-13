@@ -1,4 +1,4 @@
-const env={gym:'Gimnasio',mall:'Centro comercial',dental:'Clínica dental',football:'Campo de fútbol'};
+const env={football:'Cancha',gym:'Gimnasio',street:'Calle'};
 const el=(tag,text,cls)=>{const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e;};
 const controls=['query','category','environment','difficulty','validation','procedure','availability'].map(id=>document.getElementById(id));
 const dialog=document.querySelector('#scenario-detail'),content=document.querySelector('#detail-content');

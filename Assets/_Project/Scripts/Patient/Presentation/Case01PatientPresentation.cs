@@ -54,6 +54,7 @@ namespace EmergencyVR.Patient.Presentation
         public bool CanAssist => IsActive && review != null && review.Manager.AcceptsInput && !busy && (!completed || standing) && NearPatient();
         public Transform AssistanceAnchor { get; private set; }
         public Transform PhoneAnchor { get; private set; }
+        bool IsGym => review?.Selected?.medical?.environment == "gym";
         public Vector3 PelvisPosition => body != null ? body.pelvis.position : Origin;
         public Vector3 HeadPosition => rig != null ? rig.head.position : Origin;
         public Vector3 LeftFootPosition => body != null ? body.ankles[0].position : Origin;
@@ -107,9 +108,13 @@ namespace EmergencyVR.Patient.Presentation
             if (dialogue != null) dialogue.ResponsePresented += ResponsePresented;
             BuildAssembly();
             RefineCloseRangeSurfaces();
+            // Furniture never moves within an attempt. Batch its repeated materials
+            // after rounding the meshes; retain the individual physical colliders.
+            StaticBatchingUtility.Combine(assembly);
             CacheHandLandmarks();
             ResetNeutral();
             body.skeleton.rotation = Quaternion.LookRotation(Forward, Vector3.up);
+            CalibrateAttention();
             for (int i = 0; i < 2; i++) restingFeet[i] = body.ankles[i].rotation;
             // Daniel wears real gym clothes (Rocketbox Sports_Male_04 skin on the shared skeleton); the procedural
             // shirt remains only as a fallback when that appearance has not been built.
@@ -153,6 +158,8 @@ namespace EmergencyVR.Patient.Presentation
             else ApplyPose(progress);
             PresentAttention();
             PresentPerformance();
+            PresentEyeFocus();
+            PreserveSeatedFootContacts();
             PreserveSeatedHandContacts();
             SyncInteractionColliders();
         }
@@ -266,9 +273,13 @@ namespace EmergencyVR.Patient.Presentation
                 float sign = side == 0 ? -1 : 1;
                 var lateral = Right * sign;
                 var foot = Origin + lateral * .13f + Forward * Mathf.Lerp(.43f, 1.89f, Smooth(value / .78f)) + Vector3.up * .085f;
+                foot += Forward * (sign * .035f * (1 - Smooth(value / .25f)));
                 SolveLimb(body.thighs[side], body.calves[side], body.ankles[side], foot,
                     body.thighs[side].position + Forward * .9f + Vector3.up * .35f);
-                body.ankles[side].rotation = Quaternion.AngleAxis(-80 * recline, Right) * restingFeet[side];
+                body.ankles[side].rotation = Quaternion.AngleAxis(-80 * recline, Right) *
+                    Quaternion.AngleAxis(sign * 6 * (1 - Smooth(value / .25f)), Vector3.up) * restingFeet[side];
+                seatedFootContacts[side] = body.ankles[side].position;
+                seatedFootRotations[side] = body.ankles[side].rotation;
                 var benchHand = SeatedHandTarget(side);
                 var assistedHand = body.pelvis.position + lateral * .29f + up * .30f + front * .12f;
                 var restingHand = body.pelvis.position + lateral * .29f - up * .16f + front * .04f;
@@ -325,15 +336,16 @@ namespace EmergencyVR.Patient.Presentation
                 // Short looks toward the learner, the support hand and the colleague. No clinical decision is made here.
                 var glance = cycle < 10.2f ? SeatedHandTarget(1) + Forward * .20f : Origin + Right * .95f + Vector3.up * 1.35f;
                 var lookPoint = camera != null ? Vector3.Lerp(glance, camera.transform.position, attention) : glance;
+                attentionPoint = lookPoint;
                 var delta = lookPoint - rig.head.position;
                 var frame = Quaternion.LookRotation(Forward, Vector3.up);
                 var local = Quaternion.Inverse(frame) * delta;
                 float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -28, 28);
                 float pitch = Mathf.Clamp(-Mathf.Atan2(local.y, Mathf.Max(.1f, new Vector2(local.x, local.z).magnitude)) * Mathf.Rad2Deg, -12, 16);
-                var targetRotation = Quaternion.AngleAxis(yaw, Vector3.up) * Quaternion.AngleAxis(pitch, Right);
+                var direction = Quaternion.AngleAxis(yaw, Vector3.up) * Quaternion.AngleAxis(pitch, Right) * Forward;
+                var targetRotation = Quaternion.RotateTowards(Quaternion.identity,
+                    Quaternion.FromToRotation(rig.head.TransformDirection(anatomicalHeadForward), direction), 38);
                 attentionRotation = Quaternion.Slerp(attentionRotation, targetRotation, 1 - Mathf.Exp(-PerformanceDelta * 3));
-                if (rig.leftEye != null) rig.leftEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.leftEye.rotation;
-                if (rig.rightEye != null) rig.rightEye.rotation = Quaternion.AngleAxis(yaw * .20f, Vector3.up) * rig.rightEye.rotation;
             }
             // While symptomatic and not attending to someone, the head droops; attention lifts it toward the speaker.
             string state = Clinical?.ClinicalStateId;
@@ -460,7 +472,7 @@ namespace EmergencyVR.Patient.Presentation
 
         void BuildAssembly()
         {
-            assembly = new GameObject("CASE 01 cardio assistance area");
+            assembly = new GameObject("CASE 01 assistance area / " + review.Selected.medical.environment);
             benchMaterial = Surface("CASE 01 upholstered navy", new Color(.04f, .15f, .20f));
             metalMaterial = Surface("CASE 01 bench frame", new Color(.24f, .28f, .30f));
             matMaterial = Surface("CASE 01 clean exercise mat", new Color(.045f, .29f, .32f));
@@ -472,11 +484,11 @@ namespace EmergencyVR.Patient.Presentation
             floor = Box("Clear assistance mat", Origin + Forward * 1.04f + Vector3.up * .012f, new Vector3(1.34f, .024f, 2.17f), matMaterial).GetComponent<Collider>();
             AssistanceAnchor = new GameObject("AssistanceAnchor").transform;
             AssistanceAnchor.SetParent(assembly.transform, false); AssistanceAnchor.position = Origin + Vector3.right * .95f + Vector3.up * 1.4f + Forward * .60f;
-            var reception = Box("Cardio reception shelf", new Vector3(-1.8f, .86f, 2.8f), new Vector3(.64f, .07f, .43f), benchMaterial);
-            Box("Reception support", new Vector3(-1.8f, .43f, 2.8f), new Vector3(.11f, .86f, .11f), metalMaterial);
+            var reception = Box(IsGym ? "Cardio reception shelf" : "Portable assistance table", new Vector3(-1.8f, .86f, 2.8f), new Vector3(.64f, .07f, .43f), benchMaterial);
+            Box(IsGym ? "Reception support" : "Assistance table support", new Vector3(-1.8f, .43f, 2.8f), new Vector3(.11f, .86f, .11f), metalMaterial);
             PhoneAnchor = new GameObject("PhoneAnchor").transform;
             PhoneAnchor.SetParent(reception.transform, true); PhoneAnchor.position = new Vector3(-1.8f, .91f, 2.8f);
-            var environment = GameObject.Find("Environment_gym");
+            var environment = GameObject.Find("Environment_" + review.Selected.medical.environment);
             if (environment != null)
             {
                 foreach (var t in environment.GetComponentsInChildren<Transform>(true))
@@ -505,7 +517,9 @@ namespace EmergencyVR.Patient.Presentation
             foreach (var pair in original) if (pair.Key != null) pair.Key.SetLocalPositionAndRotation(pair.Value.position, pair.Value.rotation);
             if (body != null) body.enabled = bodyWasEnabled;
             foreach (var pair in hidden) if (pair.Key != null) pair.Key.SetActive(pair.Value);
-            if (assembly != null) Destroy(assembly); if (shirt != null) Destroy(shirt);
+            if (assembly != null) { assembly.SetActive(false); Destroy(assembly); }
+            AssistanceAnchor = PhoneAnchor = null;
+            if (shirt != null) Destroy(shirt);
             if (defaultMesh != null && rig != null && rig.face != null) { rig.face.sharedMesh = defaultMesh; rig.face.sharedMaterials = defaultMaterials; }
             defaultMesh = null; defaultMaterials = null;
             foreach (var asset in owned) if (asset != null) Destroy(asset); owned.Clear();

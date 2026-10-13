@@ -28,8 +28,13 @@ namespace EmergencyVR.Editor
             // Import native images first, then each dependent GLB synchronously and reject missing bindings.
             QuestGymTextureSetup.ReimportAndValidate();
             ConfigureGymMaterials();
-            Lit("FootballGrass", "aerial_grass_rock", new Vector2(18, 26), new Color(.54f, .95f, .55f), .03f);
-            Lit("MallFloor", "terrazzo_tiles", new Vector2(7, 8), Color.white, .55f);
+            Lit("FootballGrass", "pitch_turf", new Vector2(18, 26), new Color(.55f, .63f, .50f), .03f, .5f);
+            Lit("FieldBark", "poplar_bark", Vector2.one, new Color(.78f, .76f, .72f), .05f);
+            Cutout("FieldFoliage", "poplar_leaves", new Color(.80f, .86f, .74f), .08f);
+            Lit("MallFloor", "terrazzo_tiles", new Vector2(7, 8), new Color(.92f, .94f, .95f), .35f, .28f);
+            Lit("SharedPlaster", "plastered_wall", Vector2.one, new Color(.88f, .87f, .83f), .1f, .18f);
+            Lit("SharedWood", "wood_floor", new Vector2(.5f, 1), new Color(.79f, .72f, .61f), .24f, .22f);
+            Lit("DisplayStone", "concrete_floor_02", Vector2.one, new Color(.84f, .82f, .75f), .2f, .18f);
             Lit("FootballStand", "concrete_floor_02", Vector2.one, new Color(.77f, .78f, .75f), .12f);
             ShopInterior();
             ConfigureQuestTextures();
@@ -101,6 +106,24 @@ namespace EmergencyVR.Editor
             var normal = Texture(map + "_normal.jpg");
             if (albedo != null) { material.SetTexture("_BaseMap", albedo); material.SetTextureScale("_BaseMap", tiling); }
             if (normal != null) { material.SetTexture("_BumpMap", normal); material.EnableKeyword("_NORMALMAP"); }
+            EditorUtility.SetDirty(material);
+        }
+
+        // Alpha-tested, two-sided foliage: opaque queue with depth writes, so leaf cards need no sorting.
+        static void Cutout(string name, string map, Color color, float smoothness)
+        {
+            var material = Material(name, "Universal Render Pipeline/Lit");
+            material.SetColor("_BaseColor", color);
+            material.SetFloat("_Smoothness", smoothness);
+            var albedo = Texture(map + "_color.png");
+            if (albedo != null) material.SetTexture("_BaseMap", albedo);
+            material.SetFloat("_AlphaClip", 1);
+            material.SetFloat("_Cutoff", .4f);
+            material.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            material.EnableKeyword("_ALPHATEST_ON");
+            material.SetOverrideTag("RenderType", "TransparentCutout");
+            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            material.enableInstancing = true;
             EditorUtility.SetDirty(material);
         }
 
@@ -185,6 +208,11 @@ namespace EmergencyVR.Editor
             bool hdr = path.EndsWith(".hdr", System.StringComparison.OrdinalIgnoreCase);
             importer.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
             importer.sRGBTexture = !normal && !hdr;
+            // Leaf cut-outs: bleed colour under the mask and keep coverage in distant mips.
+            bool cutout = path.EndsWith("_leaves_color.png");
+            importer.alphaIsTransparency = cutout;
+            importer.mipMapsPreserveCoverage = cutout;
+            if (cutout) importer.alphaTestReferenceValue = .4f;
             ConfigureCompression(importer, hdr);
         }
 

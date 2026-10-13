@@ -34,7 +34,8 @@ namespace EmergencyVR.UI
             string directory = Path.GetFullPath(args[outputIndex + 1]);
             Directory.CreateDirectory(directory);
             var report = new RenderBudgetReport { runId = runIndex >= 0 && runIndex + 1 < args.Length ? args[runIndex + 1] : Guid.NewGuid().ToString("N") };
-            var steps = RenderBudgetSteps(directory, report);
+            var expectedIds = new List<string>();
+            var steps = RenderBudgetSteps(directory, report, expectedIds);
             bool success = true;
             Application.LogCallback onLog = (message, trace, type) => {
                 if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
@@ -53,7 +54,10 @@ namespace EmergencyVR.UI
                 }
             }
             finally { (steps as IDisposable)?.Dispose(); Application.logMessageReceived -= onLog; }
-            report.result = success && report.runtimeErrors.Count == 0 && report.samples.Count == 15 && report.samples.All(sample => sample.passed) ? "PASS" : "FAIL";
+            bool completeCoverage = HasExactReleaseCoverage(expectedIds, report.samples.Select(sample => sample.scenario));
+            if (!completeCoverage && string.IsNullOrEmpty(report.failure))
+                report.failure = "Render budget must cover every release combination exactly once.";
+            report.result = success && report.runtimeErrors.Count == 0 && completeCoverage && report.samples.All(sample => sample.passed) ? "PASS" : "FAIL";
             File.WriteAllText(Path.Combine(directory, "budget-report.json"), JsonUtility.ToJson(report, true));
             WriteRenderBudgetMarkdown(directory, report);
             File.WriteAllText(Path.Combine(directory, "result.txt"), report.result + "\n" + (report.failure ?? ""));
@@ -61,11 +65,12 @@ namespace EmergencyVR.UI
             Application.Quit(report.result == "PASS" ? 0 : 1);
         }
 
-        IEnumerator RenderBudgetSteps(string directory, RenderBudgetReport report)
+        IEnumerator RenderBudgetSteps(string directory, RenderBudgetReport report, List<string> expectedIds)
         {
             Require(!Application.isEditor && Debug.isDebugBuild, "Render budgets require a Development player.");
             Require(QuestLookSimulation.Enabled && !IsDesktop, "Render budgets require -vital-quest-look.");
             Require(!File.Exists(Path.Combine(directory, "budget-report.json")), "Use a fresh output directory for each budget run.");
+            expectedIds.AddRange(ValidatedReleaseScenarioIds());
             var fingerprint = ValidationSourceFingerprint.LoadBuilt();
             Require(fingerprint.developmentBuild, "Fingerprint must belong to a validation Development build.");
             report.sourceSha256 = fingerprint.sourceSha256;
@@ -74,6 +79,9 @@ namespace EmergencyVR.UI
             simulation.ManualControlsEnabled = false;
             yield return new WaitForSecondsRealtime(.45f);
             Display.main.SetRenderingResolution(QuestLookSimulation.CaptureWidth, QuestLookSimulation.CaptureHeight);
+            // Resize only after Unity has finished applying its startup resolution. A
+            // cold assembly load can otherwise consume the native-window retry interval.
+            File.WriteAllText(Path.Combine(directory, "window-ready.txt"), report.runId);
             // A windowed player may initially be clamped to the host monitor. The test
             // resizes only its own child window; wait for the real camera/backbuffer to follow.
             float sizeDeadline = Time.realtimeSinceStartup + 15;
@@ -84,8 +92,7 @@ namespace EmergencyVR.UI
                 ", screen=" + Screen.width + "x" + Screen.height + ", display=" + Display.main.renderingWidth + "x" + Display.main.renderingHeight);
             // Let URP retire the temporary attachments from the initial window size.
             for (int frame = 0; frame < 120; frame++) yield return new WaitForEndOfFrame();
-            Require(Review.Scope.ScenarioIds.Length == 15, "The validation release must have 15 cases.");
-            foreach (string id in Review.Scope.ScenarioIds)
+            foreach (string id in expectedIds)
             {
                 Prepare(Array.FindIndex(Review.Catalog.entries, entry => entry.medical?.id == id));
                 yield return null;

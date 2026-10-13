@@ -15,6 +15,9 @@ namespace EmergencyVR.Environment
         readonly Dictionary<Renderer, bool> hiddenTechnicalRenderers = new Dictionary<Renderer, bool>();
         readonly Dictionary<Camera, Color> cameraBackgrounds = new Dictionary<Camera, Color>();
         readonly Dictionary<Camera, CameraClearFlags> cameraClearFlags = new Dictionary<Camera, CameraClearFlags>();
+        readonly Dictionary<Camera, float> cameraFarPlanes = new Dictionary<Camera, float>();
+        /// <summary>Open-air modules extend past the rig's indoor far plane: the far goal line is 38 m away.</summary>
+        public const float OutdoorFarPlane = 90;
         readonly List<Mesh> meshes = new List<Mesh>();
         GeneratedEnvironment original;
         PatientController patient;
@@ -45,8 +48,10 @@ namespace EmergencyVR.Environment
         float originalFogDensity, originalFogStart, originalFogEnd;
         RenderPipelineAsset pipelineBeforeGym;
         UniversalRenderPipelineAsset gymPipeline;
+        int gymQualityLevel;
 
         public string CurrentEnvironment { get; private set; }
+        public static Color OutdoorBackground => new Color(.50f, .67f, .77f);
         public Transform PortableEquipmentAnchor { get; private set; }
         public int CachedEnvironmentCount => modules.Count;
         public BakedEnvironmentLighting ActiveBakedLighting { get; private set; }
@@ -92,6 +97,7 @@ namespace EmergencyVR.Environment
             {
                 cameraBackgrounds[camera] = camera.backgroundColor;
                 cameraClearFlags[camera] = camera.clearFlags;
+                cameraFarPlanes[camera] = camera.farClipPlane;
             }
             // Reuse the directional already lighting TrainingRoom; no light per cached module.
             foreach (var source in FindObjectsByType<Light>(FindObjectsSortMode.None))
@@ -137,12 +143,15 @@ namespace EmergencyVR.Environment
         public void Select(string id)
         {
             if (!initialized) return;
-            if (!string.IsNullOrEmpty(id) && id != "gym" && id != "football" && id != "mall" && id != "dental")
+            if (!string.IsNullOrEmpty(id) && id != "gym" && id != "football" && id != "street" && id != "mall" && id != "dental")
             {
                 Debug.LogWarning("Unknown environment '" + id + "'; showing the original TrainingRoom.");
                 id = null;
             }
             CurrentEnvironment = id;
+            bool openAir = id == "football" || id == "street";
+            foreach (var pair in cameraFarPlanes)
+                if (pair.Key != null) pair.Key.farClipPlane = openAir ? Mathf.Max(pair.Value, OutdoorFarPlane) : pair.Value;
             RestoreGymPipeline();
             foreach (var module in modules.Values) module.SetActive(false);
             foreach (var pair in hidden)
@@ -175,7 +184,7 @@ namespace EmergencyVR.Environment
                 RestoreBakedSettings();
                 ApplyLighting(id);
             }
-            if (id == "gym") ApplyGymCharacterLight();
+            if (id == "gym" || id == "mall" || id == "football" || id == "street") ApplyCharacterLight(id);
             // Capture reflections once the module and its equipment are visible.
             foreach (var probe in root.GetComponentsInChildren<ReflectionProbe>())
                 if (probe.mode == ReflectionProbeMode.Realtime) probe.RenderProbe();
@@ -188,18 +197,24 @@ namespace EmergencyVR.Environment
             {
                 var instance = Instantiate(baked, transform, false);
                 instance.name = "Environment_" + id;
+                instance.AddComponent<EmergencyVR.UI.WorldSignage>();
                 var lighting = instance.GetComponent<BakedEnvironmentLighting>();
                 if (lighting == null || !lighting.HasVerifiedData(out _))
                 {
                     Destroy(instance);
                     throw new System.InvalidOperationException("Invalid baked environment: " + id + ". Regenerate its lighting before building.");
                 }
+                // Static architecture already has its shadows baked. Keep the realtime
+                // key's shadow pass for moving actors instead of drawing the whole room twice.
+                foreach (var renderer in instance.GetComponentsInChildren<MeshRenderer>(true))
+                    renderer.shadowCastingMode = ShadowCastingMode.Off;
                 return instance;
             }
             var root = new GameObject("Environment_" + id);
             root.transform.SetParent(transform, false);
             var builder = new EnvironmentModuleBuilder(root.transform, palette, meshes);
             builder.Build(id);
+            root.AddComponent<EmergencyVR.UI.WorldSignage>();
             ReuseEquipment(root.transform, id);
             var anchor = new GameObject("PortableEquipmentAnchor").transform;
             anchor.SetParent(root.transform, false);
@@ -239,7 +254,7 @@ namespace EmergencyVR.Environment
 
         void ApplyLighting(string id)
         {
-            var outdoor = id == "football";
+            var outdoor = id == "football" || id == "street";
             BakedEnvironmentLighting.ApplyDistanceFog(outdoor);
             if (ownsLight) roomLight.gameObject.SetActive(true);
             // Restrained hemispherical fill provides depth without extra realtime lights or transparent surfaces.
@@ -252,7 +267,13 @@ namespace EmergencyVR.Environment
             probe.AddAmbientLight(outdoor ? new Color(.46f, .53f, .58f) : new Color(.48f, .51f, .52f));
             RenderSettings.ambientProbe = probe;
             foreach (var pair in cameraBackgrounds)
-                if (pair.Key != null) pair.Key.backgroundColor = outdoor ? new Color(.50f, .67f, .77f) : pair.Value;
+                if (pair.Key != null)
+                {
+                    pair.Key.backgroundColor = outdoor ? OutdoorBackground : pair.Value;
+                    // The procedural street has no baked skybox. Do not inherit the technical
+                    // room's dark sky or a previously selected environment's panorama.
+                    if (id == "street") pair.Key.clearFlags = CameraClearFlags.SolidColor;
+                }
             bool gym = id == "gym";
             roomLight.intensity = outdoor ? .92f : gym ? 1.5f : .7f;
             roomLight.color = outdoor ? new Color(1, .96f, .87f) : gym ? new Color(1, .95f, .86f) : new Color(.94f, .98f, 1);
@@ -284,16 +305,19 @@ namespace EmergencyVR.Environment
             foreach (var pair in cameraBackgrounds) if (pair.Key != null) pair.Key.backgroundColor = pair.Value;
         }
 
-        void ApplyGymCharacterLight()
+        void ApplyCharacterLight(string id)
         {
-            // A single window key gives moving faces and bodies directional shape and
-            // actual contact shadows. The room still receives its baked ceiling/bounce light.
+            // One restrained key gives moving faces directional shape in every public environment.
+            // Interiors retain their baked ceiling/bounce light; the enclosed mall uses the
+            // existing contact-shadow system so its ceiling cannot occlude this small fill.
             pipelineBeforeGym = QualitySettings.renderPipeline;
+            gymQualityLevel = QualitySettings.GetQualityLevel();
             var source = (pipelineBeforeGym ?? GraphicsSettings.defaultRenderPipeline) as UniversalRenderPipelineAsset;
             if (source != null)
             {
                 gymPipeline = Instantiate(source);
-                gymPipeline.name = source.name + " / gym contact shadows";
+                // Preserve the quality profile's identity; this owned clone only tunes shadows.
+                gymPipeline.name = source.name;
                 gymPipeline.shadowDistance = 12f;
                 gymPipeline.shadowCascadeCount = 1;
                 gymPipeline.mainLightShadowmapResolution = 1024;
@@ -302,10 +326,11 @@ namespace EmergencyVR.Environment
             if (ownsLight) roomLight.gameObject.SetActive(true);
             roomLight.enabled = true;
             roomLight.type = LightType.Directional;
-            roomLight.intensity = ActiveBakedLighting != null ? .8f : 1.15f;
-            roomLight.color = new Color(1f, .96f, .89f);
-            roomLight.transform.rotation = Quaternion.Euler(36, -100, 0);
-            roomLight.shadows = LightShadows.Soft;
+            roomLight.intensity = id == "gym" ? (ActiveBakedLighting != null ? .8f : 1.15f) : id == "street" ? .92f : id == "mall" ? .48f : .38f;
+            roomLight.color = id == "mall" ? new Color(1f, .97f, .93f) : new Color(1f, .96f, .89f);
+            roomLight.transform.rotation = id == "football" || id == "street" ? Quaternion.Euler(48, -38, 0) :
+                id == "mall" ? Quaternion.Euler(55, -30, 0) : Quaternion.Euler(36, -100, 0);
+            roomLight.shadows = id == "mall" ? LightShadows.None : LightShadows.Soft;
             roomLight.shadowStrength = .8f;
             roomLight.shadowBias = .025f;
             roomLight.shadowNormalBias = .18f;
@@ -315,10 +340,16 @@ namespace EmergencyVR.Environment
         void RestoreGymPipeline()
         {
             if (gymPipeline == null) return;
-            if (QualitySettings.renderPipeline == gymPipeline)
+            // Simulation teardown may switch quality before the scene is destroyed.
+            // Restore the slot we changed, not whichever quality happens to be active now.
+            // Otherwise that slot retains a destroyed runtime asset on the next visit.
+            int currentQuality = QualitySettings.GetQualityLevel();
+            try
             {
-                QualitySettings.renderPipeline = pipelineBeforeGym;
+                if (currentQuality != gymQualityLevel) QualitySettings.SetQualityLevel(gymQualityLevel, false);
+                if (QualitySettings.renderPipeline == gymPipeline) QualitySettings.renderPipeline = pipelineBeforeGym;
             }
+            finally { if (currentQuality != gymQualityLevel) QualitySettings.SetQualityLevel(currentQuality, false); }
             Destroy(gymPipeline);
             gymPipeline = null;
         }
@@ -347,6 +378,12 @@ namespace EmergencyVR.Environment
 
         public static void GetCaptureView(string id, out Vector3 position, out Vector3 lookAt)
         {
+            if (id == "street")
+            {
+                position = new Vector3(-3.2f, 2.1f, -3.5f);
+                lookAt = new Vector3(3.2f, 1.2f, 7);
+                return;
+            }
             position = id == "football" ? new Vector3(-3.2f, 2.3f, -3.9f) : new Vector3(-2.8f, 1.9f, -2.55f);
             lookAt = id == "football" ? new Vector3(1.4f, 1.3f, 6) : new Vector3(.5f, 1.1f, 2.25f);
         }
@@ -366,4 +403,3 @@ namespace EmergencyVR.Environment
         }
     }
 }
-

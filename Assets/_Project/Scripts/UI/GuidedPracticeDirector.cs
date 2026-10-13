@@ -93,7 +93,7 @@ namespace EmergencyVR.UI
             var steps = new List<(Step step, bool done)>
             {
                 (new Step { Id = "approach", Title = "Acércate a Daniel", Target = Target.Patient,
-                    Detail = "Sigue las flechas del suelo. Comprueba que el espacio alrededor es seguro: la cinta está parada y no hay pesas en el paso." },
+                    Detail = "Sigue las flechas del suelo. " + ClinicalScenarioLocation.SceneSafety(review.Selected.medical.environment) },
                     approached || interviews.Count > 0 || physical.Count > 0),
                 (new Step { Id = "greet", Title = "Preséntate y habla con él", Target = Target.Patient,
                     Detail = "Dile quién eres y que vas a ayudarle. Mírale y pulsa E (o mantén M y dilo en voz alta: «Hola, vengo a ayudarte»).",
@@ -108,7 +108,7 @@ namespace EmergencyVR.UI
                     Controls = new[] { "Action ObserveBreathing", "Open actions" } },
                     Observed("BreathingNormal")),
                 (new Step { Id = "history", Title = "Pregunta qué le pasa y cuándo empezó", Target = Target.Patient,
-                    Detail = "Saber si empezó durante o después del ejercicio cambia el riesgo. Pulsa E y pregunta «¿Qué te pasa?» y «¿Cuándo empezó?» (o dilo con M).",
+                    Detail = "Pregunta qué estaba haciendo cuando empezó el malestar. Pulsa E y pregunta «¿Qué te pasa?» y «¿Cuándo empezó?» (o dilo con M).",
                     Controls = new[] { Asked(DialogueIntent.MAIN_SYMPTOM) ? "Intent ONSET" : "Intent MAIN_SYMPTOM", "Previous dialogue", "Open dialogue" } },
                     Asked(DialogueIntent.MAIN_SYMPTOM) && Asked(DialogueIntent.ONSET)),
                 (new Step { Id = "red-flags", Title = "Busca señales de alarma", Target = Target.Patient,

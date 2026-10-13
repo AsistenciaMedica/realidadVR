@@ -1,0 +1,57 @@
+{
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "assets": [
+    {
+      "file": "Assets/ThirdParty/FieldModels/Resources/Field/goal.glb",
+      "title": "Gary Fixter Football Goal",
+      "author": "garyfixter",
+      "source": "https://sketchfab.com/3d-models/3001e42d65d3486ba56da3a36d6e5219",
+      "license": "CC-BY-4.0",
+      "sha256": "d709efd24827afcdbde6ac02eb2908840adf8ffa1f2b3267e4a2d7eaa244039d",
+      "originalSha256": "8a5abb72b0cd3d955da333a43302dc31887b8c1119c5061a8b87d6e8d79a2c78",
+      "textures": [],
+      "derivation": "Embedded images removed; base colours saved as environment textures at reduced size. Geometry, UVs, normals and material names unchanged. tools/Prepare-FieldModels.py"
+    },
+    {
+      "file": "Assets/ThirdParty/FieldModels/Resources/Field/bleachers.glb",
+      "title": "Sports Bleachers",
+      "author": "justice2free",
+      "source": "https://sketchfab.com/3d-models/10a22c724d1a4083bab2d64cdbac6f01",
+      "license": "CC-BY-4.0",
+      "sha256": "44cd7afe7053eb3fc46c558bb6d6b76089bfa9ee0d9c0dbd1c9407da19b1edcf",
+      "originalSha256": "ada1565e976b8064f065d2b74217fa196930bc9743bf91566a95828ae4420bfc",
+      "textures": [],
+      "derivation": "Embedded images removed; base colours saved as environment textures at reduced size. Geometry, UVs, normals and material names unchanged. tools/Prepare-FieldModels.py"
+    },
+    {
+      "file": "Assets/ThirdParty/FieldModels/Resources/Field/poplar.glb",
+      "title": "POPLAR TREE - HIGHT TEXTURE LOW-POLY MODEL",
+      "author": "evseevdaniil0011",
+      "source": "https://sketchfab.com/3d-models/ec7c1d301bbc43dca5fe5f0650148d13",
+      "license": "CC-BY-4.0",
+      "sha256": "818d67147d0e9ae87668f2fdf20d20f5bce79710bc00c30c1586f5a8a3e2829d",
+      "originalSha256": "85401b2ed3cf15552fdaa6e6637a4a9155ccce5dc22ad83c21964ee57c463d93",
+      "textures": [
+        "Assets/_Project/Resources/Visual/Textures/poplar_bark_color.jpg",
+        "Assets/_Project/Resources/Visual/Textures/poplar_leaves_color.png"
+      ],
+      "derivation": "Embedded images removed; base colours saved as environment textures at reduced size. Geometry, UVs, normals and material names unchanged. tools/Prepare-FieldModels.py"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/pitch_turf_color.jpg",
+      "title": "Grass005",
+      "author": "ambientCG",
+      "source": "https://ambientcg.com/view?id=Grass005",
+      "license": "CC0-1.0",
+      "sha256": "ad1f66e7b92e1d7f5acbdd6ceadb83667b033b3cae02b6cbe493608bc508b0c4"
+    },
+    {
+      "file": "Assets/_Project/Resources/Visual/Textures/pitch_turf_normal.jpg",
+      "title": "Grass005",
+      "author": "ambientCG",
+      "source": "https://ambientcg.com/view?id=Grass005",
+      "license": "CC0-1.0",
+      "sha256": "1b41053cd1a8c1119e9236bed553aa64b9bc9f8124bbb5c330f8557c4efd2411"
+    }
+  ]
+}

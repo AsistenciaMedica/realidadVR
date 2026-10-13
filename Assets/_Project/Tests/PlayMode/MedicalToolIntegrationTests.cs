@@ -17,7 +17,8 @@ namespace EmergencyVR.Tests
             yield return SceneManager.LoadSceneAsync("TrainingRoom");
             yield return null;
             var review = Object.FindFirstObjectByType<ReviewCaseSession>();
-            int index = System.Array.FindIndex(review.Catalog.entries, e => e.medical?.id == "glucose-moderate");
+            using var archived = new ArchivedMedicalCaseFixture(review);
+            int index = archived.Add("glucose-moderate", "Mateo", "male");
             Assert.That(index, Is.GreaterThanOrEqualTo(0));
             Assert.That(review.Select(index), Is.True);
             var rig = review.Procedures;

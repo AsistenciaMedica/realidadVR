@@ -92,7 +92,7 @@ namespace EmergencyVR.UI
             {
                 Box(content, "Interaction hint surface", 560, 623, 464, 111, Background);
                 var hint = Label(content, "Interaction hint", "", 576, 638, 432, 85, 18, Soft);
-                Bind(hint, () => Review.Procedures.TrainingMode ? (IsDesktop ? Review.Procedures.Hint : "Grip: coger / soltar · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar") : (IsDesktop ? "E: coger · Q: usar · C: RCP\nEsc: pausa · Acciones: registrar decisiones" : "Grip: equipo · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar"));
+                Bind(hint, InteractionControlsHint);
             }
         }
         void DrawActions()
@@ -107,7 +107,7 @@ namespace EmergencyVR.UI
                 var b = Button(content, "Action " + id, Review.ActionLabel(id), 44, 267 + i * 75, 473, 62, () => Review.Submit(id));
                 b.interactable = !physical;
                 var label = b.GetComponentInChildren<Text>(); label.fontSize = 19;
-                Bind(label, () => Review.ActionLabel(id) + (physical ? "\nUtiliza el equipo" : Review.Manager.MedicalSession?.Completed.Contains(id) == true ? "  ✓" : ""));
+                Bind(label, () => Review.ActionLabel(id) + (Review.Manager.MedicalSession?.Completed.Contains(id) == true ? "  ✓" : physical ? "\n" + PhysicalActionHint(id) : ""));
             }
             Button(content, "Previous actions", "←", 44, 666, 87, 49, () => { actionPage--; redraw = true; }).interactable = actionPage > 0;
             Label(content, "Action page", $"Acciones  {actionPage + 1} / {pages}", 159, 680, 233, 28, 19, Soft);
@@ -135,6 +135,20 @@ namespace EmergencyVR.UI
             });
         }
         string ActionName(string id) => Review.ActionIds.Contains(id) ? Review.ActionLabel(id) : "Observación de la sesión";
+        string PhysicalActionHint(string id)
+        {
+            var action = Review.Selected.medical?.actions.FirstOrDefault(a => a.id == id)?.action;
+            return action == "ChokingBackBlows" || action == "ChokingAbdominalThrusts"
+                ? (IsDesktop ? "Maniobra sobre el paciente · H" : "Maniobra con las manos sobre el paciente") : "Utiliza el equipo";
+        }
+        string InteractionControlsHint()
+        {
+            if (Review.Procedures.Choking.IsChokingCase)
+                return IsDesktop ? "H: maniobra detrás del paciente\nArrastra arriba; vuelve antes de soltar."
+                    : "Detrás: mantén ambos grips.\nColoca las manos, mueve y vuelve antes de soltar.";
+            return Review.Procedures.TrainingMode ? (IsDesktop ? Review.Procedures.Hint : "Grip: coger / soltar · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar")
+                : (IsDesktop ? "E: coger · Q: usar · C: RCP\nEsc: pausa · Acciones: registrar decisiones" : "Grip: equipo · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar");
+        }
 
         // IDs remain unchanged in the medical DTO/export. Only learner-facing text is formatted here.
         public string DisplayClinicalText(string text)
@@ -220,6 +234,11 @@ namespace EmergencyVR.UI
                 var p = result.procedures;
                 if (p != null)
                 {
+                    if (Review.Procedures.Choking.IsChokingCase)
+                    {
+                        line("Desobstrucción simulada", true);
+                        line($"{p.chokingBackBlows} gestos dorsales · {p.chokingAbdominalThrusts} gestos abdominales\nObjeto expulsado en esta rama: {(p.chokingObjectExpelled ? "sí" : "no")}\nSe registra movimiento virtual, sin medir fuerza clínica.", false);
+                    }
                     line("RCP virtual", true);
                     line($"{p.cpr.compressions} compresiones · ritmo medio {p.cpr.meanRatePerMinute:0}/min\nRecorrido virtual medio {p.cpr.meanDepthMeters * 100:0.0} cm\nMayor pausa entre compresiones {p.cpr.longestPauseSeconds:0.0} s", false);
                     line($"Recorrido en rango: {p.cpr.depthInRange}\nRitmo en rango: {p.cpr.rateInRange}\nColocación correcta: {p.cpr.correctPlacement}\nLiberaciones completas: {p.cpr.fullReleases}", false);

@@ -54,6 +54,9 @@ namespace EmergencyVR.Patient.Presentation
         {
             readonly Transform root, head, chest, leftEye, rightEye, leftTop, leftBottom, rightTop, rightBottom;
             readonly Transform leftBrow, rightBrow, jaw;
+            readonly SkinnedMeshRenderer face;
+            readonly Vector3 headForward, leftEyeForward, rightEyeForward;
+            Quaternion gaze = Quaternion.identity;
             readonly List<Transform> bones = new List<Transform>();
             readonly List<Pose> baseline = new List<Pose>();
             readonly float seed;
@@ -76,6 +79,11 @@ namespace EmergencyVR.Patient.Presentation
                 leftTop = Bone("LEyeBlinkTop"); leftBottom = Bone("LEyeBlinkBottom");
                 rightTop = Bone("REyeBlinkTop"); rightBottom = Bone("REyeBlinkBottom");
                 leftBrow = Bone("LInnerEyebrow"); rightBrow = Bone("RInnerEyebrow"); jaw = Bone("MJaw");
+                if (head != null) headForward = head.InverseTransformDirection(root.forward);
+                if (leftEye != null) leftEyeForward = leftEye.InverseTransformDirection(root.forward);
+                if (rightEye != null) rightEyeForward = rightEye.InverseTransformDirection(root.forward);
+                foreach (var renderer in root.GetComponentsInChildren<SkinnedMeshRenderer>())
+                    if (renderer.sharedMesh != null && (face == null || renderer.sharedMesh.blendShapeCount > face.sharedMesh.blendShapeCount)) face = renderer;
             }
 
             public void Restore()
@@ -104,21 +112,44 @@ namespace EmergencyVR.Patient.Presentation
                     chest.rotation = Quaternion.AngleAxis(Mathf.Sin(t * .72f) * .65f + concern * 1.3f, root.right) * chest.rotation;
                     chest.rotation = Quaternion.AngleAxis(yaw * .12f, root.up) * chest.rotation;
                 }
-                var headTurn = Quaternion.AngleAxis(yaw * .78f, root.up) * Quaternion.AngleAxis(-pitch + nod, root.right);
-                head.rotation = headTurn * head.rotation;
-                var eyeTurn = Quaternion.AngleAxis(Mathf.Clamp(desiredYaw - yaw * .9f, -10, 10), root.up);
-                if (leftEye != null) leftEye.rotation = eyeTurn * leftEye.rotation;
-                if (rightEye != null) rightEye.rotation = eyeTurn * rightEye.rotation;
+                var headDirection = root.TransformDirection(Quaternion.Euler(-pitch + nod, yaw * .85f, 0) * Vector3.forward);
+                var correction = Quaternion.RotateTowards(Quaternion.identity,
+                    Quaternion.FromToRotation(head.TransformDirection(headForward), headDirection), 48);
+                gaze = Quaternion.Slerp(gaze, correction, blend);
+                head.rotation = gaze * head.rotation;
+                FocusEye(leftEye, leftEyeForward, target);
+                FocusEye(rightEye, rightEyeForward, target);
                 float blinkTime = Mathf.Repeat(t, 3.8f + seed * .13f);
                 float blink = blinkTime < .17f ? Mathf.Sin(blinkTime / .17f * Mathf.PI) : 0;
                 CloseLids(leftTop, leftBottom, blink); CloseLids(rightTop, rightBottom, blink);
                 if (leftBrow != null) leftBrow.position += root.up * (.003f * concern);
                 if (rightBrow != null) rightBrow.position += root.up * (.0025f * concern);
-                if (jaw != null && speech > 0)
+                bool expressive = Shape("AK_25_JawOpen", speech * 32);
+                Shape("AK_32_MouthFunnel", speech * 12);
+                Shape("AU_01_InnerBrowRaiser", concern * 16);
+                Shape("AK_19_EyeSquintLeft", concern * 8);
+                Shape("AK_20_EyeSquintRight", concern * 6);
+                if (!expressive && jaw != null && speech > 0)
                 {
                     jaw.rotation = Quaternion.AngleAxis(speech * 7, root.right) * jaw.rotation;
                     jaw.position -= root.up * (.002f * speech);
                 }
+            }
+
+            bool Shape(string name, float weight)
+            {
+                if (face == null) return false;
+                int index = face.sharedMesh.GetBlendShapeIndex("blendShape1." + name);
+                if (index < 0) return false;
+                face.SetBlendShapeWeight(index, weight);
+                return true;
+            }
+
+            static void FocusEye(Transform eye, Vector3 forward, Vector3 target)
+            {
+                if (eye == null || (target - eye.position).sqrMagnitude < .01f) return;
+                var turn = Quaternion.FromToRotation(eye.TransformDirection(forward), (target - eye.position).normalized);
+                eye.rotation = Quaternion.RotateTowards(Quaternion.identity, turn, 10) * eye.rotation;
             }
 
             static void CloseLids(Transform top, Transform bottom, float weight)

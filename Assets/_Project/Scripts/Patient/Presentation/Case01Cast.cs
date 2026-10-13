@@ -6,7 +6,7 @@ using UnityEngine;
 namespace EmergencyVR.Patient.Presentation
 {
     /// <summary>
-    /// CASE 01 supporting cast (Rocketbox, MIT): a gym colleague beside Daniel who can phone 112 when asked,
+    /// CASE 01 supporting cast (Rocketbox, MIT): a companion beside Daniel who can phone 112 when asked,
     /// and two paramedics who walk in from the entrance when the simulated ambulance arrives.
     /// Presentation only: every clinical event still comes from the runtime and PhoneCallController.
     /// </summary>
@@ -57,6 +57,8 @@ namespace EmergencyVR.Patient.Presentation
                 colleague = Spawn("GymStaff", new Vector3(1.45f, 0, 1.25f));
                 if (colleague != null)
                 {
+                    colleague.gameObject.name = review.Selected.medical.environment == "gym" ? "Gym companion" :
+                        review.Selected.medical.environment == "football" ? "Training companion" : "Passer-by companion";
                     Face(colleague.transform, body.HeadPosition);
                     colleaguePresence = new ActorPresence(colleague.transform, 1.7f);
                 }
@@ -68,9 +70,9 @@ namespace EmergencyVR.Patient.Presentation
             {
                 bool reassuring = !body.IsAssisting && stage != PhoneCallStage.Delegated &&
                     ((stage == PhoneCallStage.EnRoute && presenceTime - stageChangedAt < 3.8f) ||
-                    (stage == PhoneCallStage.Idle && Mathf.Repeat(presenceTime - 3.4f, 19) < 2.5f));
+                    (stage == PhoneCallStage.Idle && Mathf.Repeat(presenceTime - 2.2f, 21.7f) < 5.4f));
                 colleague.Play(stage == PhoneCallStage.Delegated ? "f_cell_phone_talk_02" :
-                    reassuring ? "f_gestic_talk_neutral_01" : "f_idle_breathe_01", .65f);
+                    reassuring ? "f_gestic_talk_neutral_01" : "f_idle_breathe_01", .85f, reassuring ? .16f : .08f);
             }
 
             if (phone != null && (phone.Stage == PhoneCallStage.Arrived || phone.Stage == PhoneCallStage.Done) && paramedics.Count == 0)

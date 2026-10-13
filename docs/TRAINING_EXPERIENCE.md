@@ -2,7 +2,11 @@
 
 Identidad: **VITAL VR**. Portada: **Simulación y entrenamiento clínico inmersivo**.
 
-Actualización 2026-09-30: [alcance de lanzamiento 3 × 5](LAUNCH_SCOPE.md).
+Alcance vigente del 13 de octubre de 2026: cancha, gimnasio y calle; en cada
+uno, mareo y toma de síntomas, paro cardiorrespiratorio con RCP y atragantamiento
+con desobstrucción. Nueve combinaciones; véase [lanzamiento 3 × 3](LAUNCH_SCOPE.md).
+
+Historial de la experiencia anterior — actualización 2026-09-30: [alcance de lanzamiento 3 × 5](LAUNCH_SCOPE.md).
 `ReviewCaseSession` conserva la práctica de controles y selecciona quince casos
 desde `ReleaseScope.json`, incluida la versión V2 de Daniel. La biblioteca completa
 permanece disponible para autoría. Las referencias al catálogo anterior más abajo

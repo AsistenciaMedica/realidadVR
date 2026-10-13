@@ -36,10 +36,16 @@ namespace EmergencyVR.Tests
                 var field = root.GetComponentsInChildren<AudioSource>();
                 Assert.That(field, Has.Length.EqualTo(5), "Two loop pairs and the scheduled whistle must be covered.");
                 foreach (var source in field) source.PlayScheduled(AudioSettings.dspTime + .1);
+                ambience.SelectEnvironment("street");
+                Assert.That(field.All(source => !source.gameObject.activeInHierarchy && !source.isPlaying), Is.True,
+                    "Entering the street must stop the football whistle and both previous loop pairs immediately.");
+                var street = root.GetComponentsInChildren<AudioSource>();
+                Assert.That(street, Has.Length.EqualTo(4), "The street has two ambient loop pairs and no referee whistle.");
                 Object.Destroy(ambience);
                 yield return null;
                 yield return null;
                 Assert.That(field.All(source => source == null), Is.True, "Removing only the ambience component must also release its child sources.");
+                Assert.That(street.All(source => source == null), Is.True);
                 Assert.That(root.GetComponentsInChildren<AudioSource>(true), Is.Empty);
             }
             finally { Object.Destroy(root); }

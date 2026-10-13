@@ -1,11 +1,35 @@
+using System.IO;
 using System.Linq;
 using EmergencyVR.Dialogue;
 using EmergencyVR.Medical;
+using EmergencyVR.Scenarios;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace EmergencyVR.Tests
 {
+    // Retained authoring data keeps archived conversation/audio regressions independent of release selection.
+    // The JSON fixture stays outside Resources and never expands the selectable product catalog.
+    internal static class ArchivedPatientFixtures
+    {
+        public static MedicalLibrary LoadLibrary()
+        {
+            var library = JsonUtility.FromJson<MedicalLibrary>(Resources.Load<TextAsset>("MedicalScenarios").text);
+            ClinicalScenarioV2Catalog.LoadInto(library);
+            var roster = JsonUtility.FromJson<PatientRoster>(File.ReadAllText("Assets/_Project/Tests/EditMode/Fixtures/ArchivedPatientRoster.json"));
+            var historicalScope = new ReleaseScope
+            {
+                schemaVersion = 1, releaseId = "archived-patient-regression-fixtures",
+                environments = roster.profiles.GroupBy(p => library.scenarios.Single(s => s.id == p.scenarioId).environment)
+                    .Select(group => new ReleaseEnvironment { id = group.Key, name = group.Key,
+                        scenarioIds = group.Select(p => p.scenarioId).ToArray() }).ToArray()
+            };
+            roster.Apply(library, historicalScope);
+            library.Validate();
+            return library;
+        }
+    }
+
     public sealed class PatientConversationTests
     {
         MedicalLibrary library;
@@ -16,7 +40,7 @@ namespace EmergencyVR.Tests
 
         [SetUp] public void SetUp()
         {
-            library = MedicalLibraryLoader.Load();
+            library = ArchivedPatientFixtures.LoadLibrary();
             definition = library.scenarios.Single(s => s.id == "dehydration").Copy();
             definition.initialState.consciousness = "Conscious";
             definition.initialState.respiration = "normal";

@@ -10,14 +10,24 @@ namespace EmergencyVR.Tests
     public sealed class PatientRosterVisualTests
     {
         [Test]
-        public void EveryReleaseIdentityHasADistinctCompleteSkinnedAppearance()
+        public void ThreeCompleteSkinnedCharactersAreReusedAcrossNineReleaseContexts()
         {
             var library = MedicalLibraryLoader.Load();
             var scope = ReleaseScope.Load(library);
             var identities = scope.ScenarioIds.Select(id => library.scenarios.Single(s => s.id == id).patientIdentity).ToArray();
             var appearances = identities.Select(p => Resources.Load<PatientAppearance>(p.appearanceResource)).ToArray();
+            Assert.That(identities, Has.Length.EqualTo(9));
+            Assert.That(identities.Select(p => p.id).Distinct().Count(), Is.EqualTo(3));
             Assert.That(appearances.All(a => a != null && a.mesh != null), Is.True, "Generate the roster assets before running visual tests.");
-            Assert.That(appearances.Select(a => a.mesh).Distinct().Count(), Is.EqualTo(15));
+            Assert.That(appearances.Select(a => a.mesh).Distinct().Count(), Is.EqualTo(3));
+            foreach (var contexts in identities.GroupBy(p => p.id))
+            {
+                Assert.That(contexts.Count(), Is.EqualTo(3), contexts.Key + " must be represented in every environment.");
+                Assert.That(contexts.Select(p => p.appearanceResource).Distinct().Count(), Is.EqualTo(1),
+                    contexts.Key + " must reuse the same authored skin when changing environment.");
+                Assert.That(contexts.Select(p => library.scenarios.Single(s => s.id == p.scenarioId).environment),
+                    Is.EquivalentTo(new[] { "football", "gym", "street" }));
+            }
             var rig = Resources.Load<GameObject>("Visual/Patient").GetComponent<PatientRigAdapter>();
             for (int i = 0; i < appearances.Length; i++)
             {

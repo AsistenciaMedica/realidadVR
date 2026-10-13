@@ -82,6 +82,8 @@ namespace EmergencyVR.Medical
         public CPRMetrics cpr=new CPRMetrics();
         public bool rightPadPlaced,leftPadPlaced;
         public int shocks,measurements,unsafeDeviceAttempts;
+        public int chokingBackBlows,chokingAbdominalThrusts;
+        public bool chokingObjectExpelled;
         public string limitation="Virtual interaction metrics only; human model, hand fidelity and clinical calibration require review.";
     }
 }

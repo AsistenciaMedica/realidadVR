@@ -18,7 +18,7 @@ using Object = UnityEngine.Object;
 namespace EmergencyVR.Tests
 {
     /// <summary>
-    /// Fifteen independent navigation results. Every learner action is an authored XR ray + Input System
+    /// Nine independent navigation results. Every learner action is an authored XR ray + Input System
     /// trigger event. This validates the product flow in simulation, not clinical mastery or headset performance.
     /// </summary>
     [PrebuildSetup(SimulatedXRTestHooks.Setup), PostBuildCleanup(SimulatedXRTestHooks.Setup)]
@@ -72,35 +72,34 @@ namespace EmergencyVR.Tests
             Assert.That(errors, Is.Empty, "The simulated XR route must not emit runtime errors or exceptions.");
         }
 
-        [UnityTest] public IEnumerator Daniel_Hypotension() => Walkthrough("review-hypotension-v2");
-        [UnityTest] public IEnumerator Gym_Faint() => Walkthrough("gym-faint");
-        [UnityTest] public IEnumerator Gym_Glucose() => Walkthrough("glucose-moderate");
-        [UnityTest] public IEnumerator Gym_ChestPain() => Walkthrough("chest-pain");
-        [UnityTest] public IEnumerator Gym_Asthma() => Walkthrough("asthma");
-        [UnityTest] public IEnumerator Mall_UnconsciousBreathing() => Walkthrough("review-unconscious-breathing-v1");
-        [UnityTest] public IEnumerator Mall_AbnormalBreathing() => Walkthrough("review-abnormal-breathing-v1");
-        [UnityTest] public IEnumerator Mall_Choking() => Walkthrough("choking-partial");
-        [UnityTest] public IEnumerator Mall_Confusion() => Walkthrough("confusion");
-        [UnityTest] public IEnumerator Mall_Dehydration() => Walkthrough("dehydration");
-        [UnityTest] public IEnumerator Andres_Arrest() => Walkthrough("arrest-witnessed");
-        [UnityTest] public IEnumerator Football_Faint() => Walkthrough("football-faint");
-        [UnityTest] public IEnumerator Football_Glucose() => Walkthrough("football-glucose");
-        [UnityTest] public IEnumerator Football_HeatExhaustion() => Walkthrough("heat-exhaustion");
-        [UnityTest] public IEnumerator Football_Hypoxia() => Walkthrough("hypoxia");
+        [UnityTest] public IEnumerator Gym_Dizziness() => Walkthrough("review-hypotension-v2");
+        [UnityTest] public IEnumerator Gym_Arrest() => Walkthrough("gym-arrest");
+        [UnityTest] public IEnumerator Gym_Choking() => Walkthrough("gym-choking");
+        [UnityTest] public IEnumerator Street_Dizziness() => Walkthrough("street-dizziness");
+        [UnityTest] public IEnumerator Street_Arrest() => Walkthrough("street-arrest");
+        [UnityTest] public IEnumerator Street_Choking() => Walkthrough("street-choking");
+        [UnityTest] public IEnumerator Football_Dizziness() => Walkthrough("football-dizziness");
+        [UnityTest] public IEnumerator Football_Arrest() => Walkthrough("arrest-witnessed");
+        [UnityTest] public IEnumerator Football_Choking() => Walkthrough("football-choking");
 
         IEnumerator Walkthrough(string scenarioId)
         {
             var definition = flow.Review.Catalog.entries.Single(e => e.medical?.id == scenarioId).medical;
-            Assert.That(flow.Review.Scope.ScenarioIds, Has.Length.EqualTo(15));
+            Assert.That(flow.Review.Scope.ScenarioIds, Has.Length.EqualTo(9));
             activeHand = Array.IndexOf(flow.Review.Scope.ScenarioIds, scenarioId) % 2 == 0 ? XRNode.RightHand : XRNode.LeftHand;
             // Alternate the only tracked controller across cases. The route never needs the second hand.
             var unavailableHand = activeHand == XRNode.LeftHand ? XRNode.RightHand : XRNode.LeftHand;
             simulation.SetControllerPose(unavailableHand, Vector3.zero, Quaternion.identity, false);
             yield return null;
             CheckPage(ExperiencePage.Welcome, "Start learning", "Learn controls");
+            Assert.That(flow.GetComponentsInChildren<Text>().Single(label => label.name == "Collection title").text,
+                Is.EqualTo(flow.Review.Scope.environments.Length + " ENTORNOS · " + flow.Review.Scope.ScenarioIds.Length + " ENTRENAMIENTOS"));
 
             yield return Select("Start learning");
             CheckPage(ExperiencePage.Environments, "Back home", "Environment " + definition.environment);
+            foreach (var environment in flow.Review.Scope.environments)
+                Assert.That(FindButton("Environment " + environment.id).GetComponentsInChildren<Text>().Single(label => label.name == "Environment count").text,
+                    Is.EqualTo(environment.scenarioIds.Length + " entrenamientos  →"), environment.id);
             yield return Select("Environment " + definition.environment);
             CheckPage(ExperiencePage.Catalog, "Back environments", "Case " + scenarioId);
             yield return Select("Case " + scenarioId);

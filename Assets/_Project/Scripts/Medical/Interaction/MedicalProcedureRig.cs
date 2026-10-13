@@ -17,6 +17,7 @@ namespace EmergencyVR.Medical.Interaction
         public MedicalInteractionSettings Settings {get;private set;}
         public PatientVisualController Visuals {get;private set;}
         public CPRInteractionController CPR {get;private set;}
+        public ChokingInteractionController Choking {get;private set;}
         public ProcedureHandAnimator Hands {get;private set;}
         public AEDInteractionController AED {get;private set;}
         public MedicalProcedureAudio Audio {get;private set;}
@@ -67,13 +68,14 @@ namespace EmergencyVR.Medical.Interaction
             Audio=gameObject.AddComponent<MedicalProcedureAudio>();Audio.Initialize(Visuals.ChestAnchor);
             AED=gameObject.AddComponent<AEDInteractionController>();AED.Initialize(this);
             CPR=gameObject.AddComponent<CPRInteractionController>();CPR.Initialize(this,Visuals);
+            Choking=gameObject.AddComponent<ChokingInteractionController>();Choking.Initialize(this,Visuals);
             Hands=gameObject.AddComponent<ProcedureHandAnimator>();Hands.Initialize(this);
             BuildKit();Review.SelectionChanged+=Selected;Manager.Changed+=StateChanged;Selected();
         }
         public bool IsPhysicalAction(string id)
         {
             var action=Review.Selected.medical?.actions.FirstOrDefault(a=>a.id==id)?.action;
-            return new[]{"StartCPR","ChestCompression","ContinueCPR","BringAED","AttachAEDPads","AnalyzeRhythm","DeliverAEDShock","FollowNoShock","CheckBloodPressure","CheckSpO2","CheckGlucose","CallEmergencyServices","OpenAirway","ApplyBandage","UseEpinephrineAutoInjector"}.Contains(action);
+            return new[]{"StartCPR","ChestCompression","ContinueCPR","BringAED","AttachAEDPads","AnalyzeRhythm","DeliverAEDShock","FollowNoShock","CheckBloodPressure","CheckSpO2","CheckGlucose","CallEmergencyServices","OpenAirway","ApplyBandage","UseEpinephrineAutoInjector","ChokingBackBlows","ChokingAbdominalThrusts"}.Contains(action);
         }
         public bool SubmitNext(string action)
         {
@@ -93,7 +95,7 @@ namespace EmergencyVR.Medical.Interaction
         void Selected()
         {
             // Return attached instruments to their owner before hiding the kit or switching patients/environments.
-            ResetTools();AED.ResetAttempt();CPR.ResetAttempt();CPR.SetWindowsEngaged(false);RestoreSceneryAED();
+            ResetTools();AED.ResetAttempt();CPR.ResetAttempt();CPR.SetWindowsEngaged(false);Choking.ResetAttempt();RestoreSceneryAED();
             bool medical=Review.Selected.medical!=null;
             bool initialResponder=medical&&Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true;
             foreach(Transform child in equipment.transform)child.gameObject.SetActive(!initialResponder);
@@ -125,16 +127,18 @@ namespace EmergencyVR.Medical.Interaction
             var scenery=anchor==null?null:anchor.transform.parent.Find("Reused medical equipment/DefibrillatorPlaceholder");
             if(scenery!=null){hiddenSceneryAED=scenery.gameObject;hiddenSceneryWasActive=hiddenSceneryAED.activeSelf;hiddenSceneryAED.SetActive(false);}
             Hint=Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true?"Habla con el paciente y registra tus observaciones.":"E: coger/soltar · Q: usar equipo · C: RCP manual";
+            if(Review.Selected.medical.actions.Any(a=>a.action==ChokingInteractionController.BackBlows))Hint="Completa la valoración; acércate detrás del paciente. H: activar maniobra de desobstrucción.";
         }
         void StateChanged()
         {
-            if(Manager.MedicalSession!=lastSession){lastSession=Manager.MedicalSession;ResetTools();AED.ResetAttempt();CPR.ResetAttempt();Measurements=0;UnsafeAttempts=0;}
+            if(Manager.MedicalSession!=lastSession){lastSession=Manager.MedicalSession;ResetTools();AED.ResetAttempt();CPR.ResetAttempt();Choking.ResetAttempt();Measurements=0;UnsafeAttempts=0;}
+            if(!Manager.AcceptsInput)Choking.SetWindowsEngaged(false);
             Audio.SetPatient(Manager.MedicalSession?.Patient??Review.Selected.medical?.initialState,
                 Manager.MedicalSession?.Capabilities.usesClinicalStateMachine==true);
             if(wasRunning&&!Manager.IsRunning&&Manager.MedicalResult!=null)Manager.MedicalResult.procedures=Report();
             wasRunning=Manager.IsRunning;
         }
-        public ProcedureMetrics Report()=>new ProcedureMetrics {mode=TrainingMode?"TRAINING":"EVALUATION",cpr=CPR.Metrics,rightPadPlaced=AED.State.RightPad,leftPadPlaced=AED.State.LeftPad,shocks=AED.State.Shocks,measurements=Measurements,unsafeDeviceAttempts=UnsafeAttempts};
+        public ProcedureMetrics Report()=>new ProcedureMetrics {mode=TrainingMode?"TRAINING":"EVALUATION",cpr=CPR.Metrics,rightPadPlaced=AED.State.RightPad,leftPadPlaced=AED.State.LeftPad,shocks=AED.State.Shocks,measurements=Measurements,unsafeDeviceAttempts=UnsafeAttempts,chokingBackBlows=Choking.BackBlowGestures,chokingAbdominalThrusts=Choking.AbdominalGestures,chokingObjectExpelled=Choking.ObjectExpelled};
         void ResetTools()
         {
             foreach(var tool in tools)if(tool!=null)tool.ResetTool();

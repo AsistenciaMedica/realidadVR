@@ -108,6 +108,7 @@ namespace EmergencyVR.Medical
         public string id, name, category, difficulty, environment, description, history, incident, severity, initialDialogue;
         public string medicalValidationStatus="CLIENT_REVIEW", version="1", timingBasis="Parámetros de guion educativo; pendientes de validación médica.";
         public string availability="AVAILABLE";
+        public string trainingCase = "", sourceScenarioId = "";
         public string[] symptoms=Array.Empty<string>(), visibleSigns=Array.Empty<string>(), recommendedSequence=Array.Empty<string>(), references=Array.Empty<string>(), debrief=Array.Empty<string>();
         public PatientSnapshot initialState=new PatientSnapshot();
         public ScenarioVariation variation=new ScenarioVariation();
@@ -129,7 +130,7 @@ namespace EmergencyVR.Medical
         public void Validate(MedicalLibrary library)
         {
             if(string.IsNullOrWhiteSpace(id)||string.IsNullOrWhiteSpace(name)||actions==null||actions.Length==0||outcomes==null||outcomes.Length==0||timeline==null) throw new ArgumentException("Incomplete scenario.");
-            if(!new[]{"DRAFT","REFERENCE_REVIEWED","CLIENT_REVIEW","APPROVED","CLINICAL_REVIEW_REQUIRED"}.Contains(medicalValidationStatus) || !new[]{"gym","mall","dental","football"}.Contains(environment)) throw new ArgumentException("Invalid validation/environment.");
+            if(!new[]{"DRAFT","REFERENCE_REVIEWED","CLIENT_REVIEW","APPROVED","CLINICAL_REVIEW_REQUIRED"}.Contains(medicalValidationStatus) || !new[]{"gym","mall","dental","football","street"}.Contains(environment)) throw new ArgumentException("Invalid validation/environment.");
             if(clinicalV2!=null) clinicalV2.Validate(id);
             if(patientIdentity!=null)
             {

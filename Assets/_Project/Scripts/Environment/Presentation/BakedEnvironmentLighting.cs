@@ -93,8 +93,9 @@ namespace EmergencyVR.Environment.Presentation
             if (!outdoor) return;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = new Color(.68f, .76f, .78f);
-            RenderSettings.fogStartDistance = 18;
-            RenderSettings.fogEndDistance = 70;
+            // Light aerial haze: the perimeter trees (25-45 m) keep their colour, the far plane never pops.
+            RenderSettings.fogStartDistance = 30;
+            RenderSettings.fogEndDistance = 150;
         }
     }
 }
