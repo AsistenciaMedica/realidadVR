@@ -147,7 +147,7 @@ namespace EmergencyVR.UI
                 return IsDesktop ? "H: maniobra detrás del paciente\nArrastra arriba; vuelve antes de soltar."
                     : "Detrás: mantén ambos grips.\nColoca las manos, mueve y vuelve antes de soltar.";
             return Review.Procedures.TrainingMode ? (IsDesktop ? Review.Procedures.Hint : "Grip: coger / soltar · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar")
-                : (IsDesktop ? "E: coger · Q: usar · C: RCP\nEsc: pausa · Acciones: registrar decisiones" : "Grip: equipo · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar");
+                : (IsDesktop ? "E: coger · Q: usar · C: RCP · Ctrl: arrodillarse\nTab: mirada libre · Esc: pausa" : "Grip: equipo · Gatillo: seleccionar\nB / Y: centrar interfaz y pausar");
         }
 
         // IDs remain unchanged in the medical DTO/export. Only learner-facing text is formatted here.

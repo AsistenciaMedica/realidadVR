@@ -177,7 +177,7 @@ namespace EmergencyVR.UI
             VrTitle("Controles siempre a mano");
             string[] titles = { "Apunta y selecciona", "Coge y desplázate", "Consulta y pausa" };
             string[] descriptions = { "Apunta a un botón y pulsa el gatillo. Puedes usar cualquiera de los dos mandos.",
-                "Grip para coger o soltar. Stick hacia delante para elegir dónde teletransportarte; suéltalo para viajar.",
+                "Grip para coger o soltar. Stick izquierdo para caminar; stick derecho hacia delante para teletransportarte.",
                 "El panel de consulta está a tu lado. B o Y centra el menú de pausa delante de tus ojos." };
             if (Review.Procedures.Choking.IsChokingCase)
             {

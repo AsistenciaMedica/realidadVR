@@ -163,18 +163,18 @@ namespace EmergencyVR.UI
             PageTitle("Orientación", "Familiarízate con VITAL VR", "Los controles permanecen disponibles desde el menú durante la práctica.");
             var titles = IsDesktop ? new[] { "Explora", "Utiliza el equipo", "Practica y revisa" } : new[] { "Desplázate", "Interactúa", "Consulta y pausa" };
             var details = IsDesktop ? new[] {
-                "W A S D  ·  Caminar\nBotón derecho  ·  Mirar\nR  ·  Volver al punto inicial\n\nHaz clic en los botones de la interfaz para navegar.",
+                "W A S D  ·  Caminar   ·   Shift  ·  Correr\nCtrl  ·  Arrodillarse / levantarse\nTab  ·  Mirada libre (vuelve a pulsar para usar el ratón)\nBotón derecho  ·  Mirar arrastrando\nR  ·  Volver junto al paciente",
                 "E  ·  Coger o soltar\nQ  ·  Usar el objeto\nRueda  ·  Ajustar alcance\nZ / X  ·  Orientar\nShift / Alt  ·  Cambiar eje",
                 "C  ·  RCP: arrastra sobre el tórax y suelta.\n\nH  ·  Desobstrucción: desde atrás, arrastra arriba sobre la zona marcada y vuelve antes de soltar.\n\nEsc  ·  Pausar / continuar"
             } : new[] {
-                "Stick hacia arriba para apuntar a una zona de teleportación; suelta para viajar.\n\nGiro lateral por pasos de 30°.\nLa cabeza mantiene seguimiento libre.",
+                "Stick izquierdo  ·  Caminar libremente.\nStick derecho hacia arriba  ·  Apuntar al suelo y teletransportarte al soltar.\n\nGiro lateral por pasos de 30°.\nAgáchate de verdad para atender al paciente en el suelo.",
                 "Apunta al panel y pulsa el gatillo para seleccionar.\n\nGrip para coger y soltar objetos. Utiliza el equipo sobre sus zonas de contacto.",
                 "B / Y  ·  Centrar el panel y abrir la pausa.\n\nEl monitor permanece en el espacio. Puedes volver a centrarlo cuando cambies de posición."
             };
             if(Review.Selected.medical?.clinicalV2?.capabilities.usesObservedPatientData==true)
             {
                 titles=new[]{"Acércate y observa","Interacción y comunicación","Tu sesión"};
-                details=new[]{IsDesktop?"W A S D · Caminar\nBotón derecho · Mirar\n\nUsa las interacciones para observar y hablar. Cada respuesta se incorpora a tu ficha.":"Usa el desplazamiento XR para acercarte. Apunta al panel y pulsa el gatillo para observar o conversar.",
+                details=new[]{IsDesktop?"W A S D · Caminar · Shift · Correr\nCtrl · Arrodillarse · Tab · Mirada libre\n\nUsa las interacciones para observar y hablar. Cada respuesta se incorpora a tu ficha.":"Usa el desplazamiento XR para acercarte. Apunta al panel y pulsa el gatillo para observar o conversar.",
                     "La asistencia requiere cercanía y apoyo mantenido. Puedes detenerla y cancelar.\n\nEl teléfono y el panel de ayuda permiten una llamada simulada o delegar el aviso.",
                     "La ficha contiene únicamente información obtenida.\n\nPausa: Esc en Desktop o B / Y en VR.\nFinalizar permite revisar incluso un intento incompleto."};
             }

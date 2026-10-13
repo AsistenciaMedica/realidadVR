@@ -41,7 +41,11 @@ namespace EmergencyVR.Tests
             var origin=Object.FindFirstObjectByType<XROrigin>();
             Assert.That(origin,Is.Not.Null);
             Assert.That(origin.Camera.isActiveAndEnabled,Is.True);
-            Assert.That(Object.FindObjectsByType<TeleportationArea>(FindObjectsSortMode.None).Length,Is.EqualTo(4));
+            var areas=Object.FindObjectsByType<TeleportationArea>(FindObjectsSortMode.None);
+            Assert.That(areas.Count(a=>a.name=="Teleport pad"),Is.EqualTo(4));
+            // Free locomotion: the whole floor is teleportable and the left stick walks.
+            Assert.That(EmergencyVR.XR.VrFreeLocomotion.Applied,Is.True);
+            Assert.That(areas.Any(a=>a.name==EmergencyVR.XR.WalkableGround.ObjectName && a.teleportationProvider!=null),Is.True);
             var manager=Object.FindFirstObjectByType<ScenarioManager>();
             var patient=Object.FindFirstObjectByType<PatientController>();
             var panel=Object.FindFirstObjectByType<TrainingPanel>();

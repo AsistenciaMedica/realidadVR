@@ -265,6 +265,8 @@ namespace EmergencyVR.Editor
                 var motion = serialized.FindProperty("m_SmoothMotionEnabled");
                 var turn = serialized.FindProperty("m_SmoothTurnEnabled");
                 if (motion == null || turn == null) throw new InvalidOperationException("Starter Assets schema changed; review locomotion configuration.");
+                // Authored rig stays teleport-only; EmergencyVR.XR.VrFreeLocomotion enables left-stick
+                // walking at runtime so existing scenes and freshly generated ones behave the same.
                 motion.boolValue = false;
                 turn.boolValue = false;
                 serialized.ApplyModifiedPropertiesWithoutUndo();

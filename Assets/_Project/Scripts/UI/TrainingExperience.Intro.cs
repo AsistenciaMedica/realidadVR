@@ -137,7 +137,7 @@ namespace EmergencyVR.UI
             var step = tutorial?.Step ?? XRIntroStep.Point;
             string instruction = step == XRIntroStep.Point ? "Apunta con un mando al botón y pulsa el gatillo." :
                 step == XRIntroStep.Grab ? "Coge el cubo verde con Grip, el botón lateral del mando. Después suéltalo." :
-                step == XRIntroStep.Teleport ? "Empuja el stick hacia delante, apunta al cuadrado verde del suelo y suelta el stick para viajar." :
+                step == XRIntroStep.Teleport ? "Empuja el stick derecho hacia delante, apunta al cuadrado verde del suelo y suelta el stick para viajar." :
                 "Pulsa B o Y para traer el menú delante de ti. Puedes usar cualquiera de los dos mandos.";
             Label(content, "Tutorial instruction", instruction, 450, 189, 540, 128, 27, Ink);
             if (step == XRIntroStep.Point)
