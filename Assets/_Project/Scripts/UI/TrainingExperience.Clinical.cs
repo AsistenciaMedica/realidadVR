@@ -138,8 +138,18 @@ namespace EmergencyVR.UI
         string PhysicalActionHint(string id)
         {
             var action = Review.Selected.medical?.actions.FirstOrDefault(a => a.id == id)?.action;
-            return action == "ChokingBackBlows" || action == "ChokingAbdominalThrusts"
-                ? (IsDesktop ? "Maniobra sobre el paciente · H" : "Maniobra con las manos sobre el paciente") : "Utiliza el equipo";
+            switch (action)
+            {
+                case "ChokingBackBlows": case "ChokingAbdominalThrusts":
+                    return IsDesktop ? "Maniobra sobre el paciente · H o clic en su espalda" : "Maniobra con las manos sobre el paciente";
+                case "OpenAirway": return IsDesktop ? "Sobre el paciente: clic en su cabeza" : "Sobre el paciente: mano en la cabeza y gatillo";
+                case "StartCPR": case "ChestCompression": case "ContinueCPR":
+                    return IsDesktop ? "Sobre el pecho: clic o C, y arrastra" : "Sobre el pecho: las dos manos y ambos grips";
+                case "BringAED": case "AttachAEDPads": case "AnalyzeRhythm": case "DeliverAEDShock": case "FollowNoShock":
+                    return "Con el DEA: tapa, botones y parches";
+                case "CallEmergencyServices": return "Con el teléfono";
+                default: return "Con el instrumento sobre el paciente";
+            }
         }
         string InteractionControlsHint()
         {

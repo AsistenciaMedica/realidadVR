@@ -22,7 +22,32 @@ namespace EmergencyVR.Medical.Interaction
         public TextMesh Display;
         public bool IsAttached => attached;
         public bool CanBeGrabbed => !resetting && rig!=null && rig.AllowsEquipment(Kind) && (!attached || !IsPad);
-        bool IsPad => Kind == MedicalToolKind.RightPad || Kind == MedicalToolKind.LeftPad;
+        public bool IsPad => Kind == MedicalToolKind.RightPad || Kind == MedicalToolKind.LeftPad;
+        /// <summary>Clip opened, strip loaded, cuff ready or pad liner removed.</summary>
+        public bool IsPrepared => prepared;
+        /// <summary>Held by a VR hand or by the Windows controller.</summary>
+        public bool IsHeld => (grab != null && grab.isSelected) || heldOnDesktop;
+        bool heldOnDesktop;
+        /// <summary>Where this instrument attaches on the patient; null for the AED body and the phone.</summary>
+        public Transform PlacementTarget
+        {
+            get
+            {
+                if (rig == null || rig.Visuals == null) return null;
+                switch (Kind)
+                {
+                    case MedicalToolKind.RightPad: return rig.Visuals.AedRightPadAnchor;
+                    case MedicalToolKind.LeftPad: return rig.Visuals.AedLeftPadAnchor;
+                    case MedicalToolKind.BloodPressure: return rig.Visuals.UpperArmAnchor;
+                    case MedicalToolKind.AutoInjector: return rig.Visuals.ThighAnchor;
+                    case MedicalToolKind.Bandage: return rig.Visuals.WoundAnchor;
+                    case MedicalToolKind.Oximeter: case MedicalToolKind.Glucose: return rig.Visuals.FingerAnchor;
+                    default: return null;
+                }
+            }
+        }
+        /// <summary>Release distance within which the instrument attaches to <see cref="PlacementTarget"/>.</summary>
+        public float PlacementRadius => IsPad && rig != null && rig.Settings != null ? (float)rig.Settings.padSnapDistance : .14f;
 
         public void Initialize(MedicalProcedureRig rig, MedicalToolKind kind)
         {
@@ -44,7 +69,7 @@ namespace EmergencyVR.Medical.Interaction
         {
             if (!CanBeGrabbed) return;
             // Measurements can be removed and acquired again; attached AED pads remain connected for the attempt.
-            StopAllCoroutines(); reading = false;
+            StopAllCoroutines(); reading = false; heldOnDesktop = true;
             if (attached)
             {
                 attached = false; prepared = false;
@@ -108,6 +133,7 @@ namespace EmergencyVR.Medical.Interaction
 
         public bool OnReleased()
         {
+            heldOnDesktop = false;
             if (resetting) return false;
             FeedbackPulse(.07f, .02f, "Release");
             if(!rig.AllowsEquipment(Kind)) { Drop();return false; }
@@ -115,6 +141,9 @@ namespace EmergencyVR.Medical.Interaction
             if (IsPad)
             {
                 if (rig.AED.Place(this, Kind == MedicalToolKind.RightPad)) return true;
+                if (!prepared) rig.Hint = "Retira primero el plástico del parche (Q, gatillo o clic sobre el parche).";
+                else if (PlacementTarget != null && Vector3.Distance(transform.position, PlacementTarget.position) > PlacementRadius)
+                    rig.Hint = "Suelta el parche dentro del recuadro marcado sobre el pecho.";
                 Drop(); return false;
             }
             if (rig.Manager == null || !rig.Manager.AcceptsInput || rig.Manager.MedicalSession == null ||
@@ -124,7 +153,11 @@ namespace EmergencyVR.Medical.Interaction
                 Kind == MedicalToolKind.AutoInjector ? rig.Visuals.ThighAnchor :
                 Kind == MedicalToolKind.Bandage ? rig.Visuals.WoundAnchor : rig.Visuals.FingerAnchor;
             if (!prepared || target == null || Vector3.Distance(transform.position, target.position) > .14f)
-            { Drop(); return false; }
+            {
+                rig.Hint = !prepared ? "Prepara primero el instrumento (Q, gatillo o clic sobre él) y después llévalo al paciente." :
+                    "Suelta el instrumento dentro del círculo marcado en el paciente.";
+                Drop(); return false;
+            }
             AttachTo(target);
             if (!reading) StartCoroutine(Read());
             return true;
@@ -208,7 +241,7 @@ namespace EmergencyVR.Medical.Interaction
                     grab.interactionManager.SelectExit(grab.interactorsSelecting[i], grab);
             transform.SetParent(originalParent, false);
             transform.localPosition = originalPosition; transform.localRotation = originalRotation;
-            attached = false; prepared = false; reading = false;
+            attached = false; prepared = false; reading = false; heldOnDesktop = false;
             if (grab != null) grab.enabled = true;
             if (body != null)
             {

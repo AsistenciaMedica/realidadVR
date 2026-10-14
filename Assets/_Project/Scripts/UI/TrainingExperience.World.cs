@@ -30,6 +30,13 @@ namespace EmergencyVR.UI
             }
         }
 
+        /// <summary>Opens the conversation with the patient (also reached by aiming at the head and clicking).</summary>
+        public void OpenPatientDialogue()
+        {
+            if (Page != ExperiencePage.Training) return;
+            ReleaseAssistance(); dialogueDrawer = true; actionDrawer = callDrawer = false; redraw = true;
+        }
+
         void UpdateWorldKeys()
         {
             if (!IsDesktop || Page != ExperiencePage.Training || !UsesObservedData || !Review.Manager.AcceptsInput) return;
@@ -60,7 +67,7 @@ namespace EmergencyVR.UI
                 dot.gameObject.SetActive(!drawer);
                 var body = CaseBody;
                 prompt.text = drawer || body == null || body.IsAssisting ? "" : FocusingPatient ?
-                    "[E] Hablar   [G] Comprobar respuesta   [B] Observar respiración\n[F] Mantener: ayudar a tumbarse   [H] Reevaluar   [T] Teléfono   [M] Hablar con tu voz" :
+                    "Apunta a sus hombros, pecho o cabeza y haz clic para actuar\n[E] Hablar  [G] Respuesta  [B] Respiración  [F] Ayudar a tumbarse  [H] Reevaluar  [T] Teléfono  [M] Voz" :
                     "[T] Teléfono · Mira a Daniel para ver qué puedes hacer";
                 listening.text = voice == null ? "" : voice.Status;
             });

@@ -20,6 +20,7 @@ namespace EmergencyVR.Medical.Interaction
         public ChokingInteractionController Choking {get;private set;}
         public ProcedureHandAnimator Hands {get;private set;}
         public AEDInteractionController AED {get;private set;}
+        public HandsOnInteraction HandsOn {get;private set;}
         public MedicalProcedureAudio Audio {get;private set;}
         public Material GloveMaterial {get;private set;}
         public bool TrainingMode {get;set;}=true;
@@ -70,7 +71,7 @@ namespace EmergencyVR.Medical.Interaction
             CPR=gameObject.AddComponent<CPRInteractionController>();CPR.Initialize(this,Visuals);
             Choking=gameObject.AddComponent<ChokingInteractionController>();Choking.Initialize(this,Visuals);
             Hands=gameObject.AddComponent<ProcedureHandAnimator>();Hands.Initialize(this);
-            BuildKit();Review.SelectionChanged+=Selected;Manager.Changed+=StateChanged;Selected();
+            BuildKit();HandsOn=gameObject.AddComponent<HandsOnInteraction>();HandsOn.Initialize(this);Review.SelectionChanged+=Selected;Manager.Changed+=StateChanged;Selected();
         }
         public bool IsPhysicalAction(string id)
         {

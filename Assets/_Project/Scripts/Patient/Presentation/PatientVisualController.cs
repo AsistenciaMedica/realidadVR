@@ -17,7 +17,7 @@ namespace EmergencyVR.Patient.Presentation
         Quaternion headRest,poseRest;
         Vector3 importedHeadForward = Vector3.forward;
         PatientVisualState visual;
-        float compression,awareness,excursion,eyeClosure,elapsed,breathingClock,airwayTilt,shockUntil,painWeight,fearWeight,distressWeight;
+        float compression,awareness,excursion,eyeClosure,elapsed,breathingClock,airwayTilt,shockUntil,touchUntil,painWeight,fearWeight,distressWeight;
         Quaternion headOffset=Quaternion.identity,animatedHeadBaseline;
         bool wroteImportedHead;
         PatientPosture? startingPose;
@@ -148,6 +148,8 @@ namespace EmergencyVR.Patient.Presentation
         public void ClearStartingPose() { startingPose=null;ApplyAnimatorState(); }
         public void SetAirwayTilt(float normalized) { airwayTilt=float.IsNaN(normalized)?0:Mathf.Clamp01(normalized); }
         public void TriggerShockReaction() { shockUntil=elapsed+.22f; }
+        /// <summary>Brief, damped jostle of the torso when the rescuer taps or shakes the shoulders.</summary>
+        public void TriggerTouchReaction() { touchUntil=elapsed+.6f; }
         public void SetCompressionDepth(float metres)
         {
             // Mechanical visual bound only. Clinical thresholds belong to CPR configuration.
@@ -211,6 +213,7 @@ namespace EmergencyVR.Patient.Presentation
             var breath=visual.RespiratoryRate<=0?0:PatientBreathingAnimator.Excursion(visual.Breathing,60,breathingClock);
             excursion=Mathf.Lerp(excursion,breath,blend);
             float reaction=elapsed<shockUntil?Mathf.Sin((shockUntil-elapsed)/.22f*Mathf.PI)*.003f:0;
+            if(elapsed<touchUntil) reaction+=Mathf.Sin((touchUntil-elapsed)*32f)*.006f*((touchUntil-elapsed)/.6f);
             if(rig.chestMotion!=null) rig.chestMotion.localPosition=chestRest+rig.chestMotionAxis.normalized*(excursion-compression+reaction);
             if(rig.abdomenMotion!=null) rig.abdomenMotion.localPosition=abdomenRest+rig.chestMotionAxis.normalized*excursion*.32f;
             if(rig.provisionalAsset && rig.poseRoot!=null)

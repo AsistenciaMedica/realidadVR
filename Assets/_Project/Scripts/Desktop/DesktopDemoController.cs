@@ -29,6 +29,7 @@ namespace EmergencyVR.Desktop
         float heldDistance=.75f;
         float pitch,verticalSpeed;
         TrainingExperience experience;
+        EmergencyVR.Medical.Interaction.HandsOnInteraction handsOn;
         // Doctor locomotion: free look, walk/run with inertia and kneeling to reach a patient on the floor.
         public const float StandingEyeHeight=1.62f, KneelingEyeHeight=.98f;
         public const float WalkSpeed=1.8f, RunSpeed=3.6f, KneelSpeed=.8f;
@@ -185,7 +186,11 @@ namespace EmergencyVR.Desktop
 
             bool overMenu=PointerOverInterface && !FreeLook;
             var pointer=mouse.position.ReadValue();
-            if(mouse.leftButton.wasPressedThisFrame && !overMenu && !handsOnPatient) TryInspect(AimRay(pointer));
+            // A click on a hands-on zone (shoulders, chest, AED button...) belongs to that zone only; inspecting the
+            // patient here would also register "check responsiveness" on every click.
+            if(handsOn==null) handsOn=FindFirstObjectByType<EmergencyVR.Medical.Interaction.HandsOnInteraction>();
+            bool zoneFocused=handsOn!=null && handsOn.HasFocus;
+            if(mouse.leftButton.wasPressedThisFrame && !overMenu && !handsOnPatient && !zoneFocused) TryInspect(AimRay(pointer));
             if(keys.eKey.wasPressedThisFrame && !overMenu) { if(held!=null) Release(); else TryGrab(AimRay(pointer)); }
             if(keys.qKey.wasPressedThisFrame && !overMenu)
             {

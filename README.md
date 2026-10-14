@@ -79,6 +79,7 @@ Unity. Pruebas y límites: [TESTING](docs/TESTING.md) y [VALIDATION_REPORT](docs
 ## Documentación
 
 - [Nueva experiencia de entrenamiento y verificación](docs/TRAINING_EXPERIENCE.md).
+- [Interacción directa con el paciente y el equipo (zonas, DEA, guías)](docs/HANDS_ON_INTERACTION.md).
 - [Demo Windows y portal Railway](docs/CLIENT_DEMO.md).
 - [Alcance de lanzamiento: 3 entornos × 3 pruebas](docs/LAUNCH_SCOPE.md).
 - [Catálogo seleccionado e IDs](docs/SCENARIO_LIBRARY.md).
