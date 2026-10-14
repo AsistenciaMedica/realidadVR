@@ -116,7 +116,8 @@ namespace EmergencyVR.UI
             {
                 Add("Camina: stick izquierdo (o apunta al suelo con el derecho para saltar)", Moved);
                 Add("Gira: stick derecho hacia los lados", () => turned > 25);
-                Add("Mírate la mano izquierda: ahí está tu panel", () => Time.unscaledTime - trainingSince > 4 && experience.WristPanelShown);
+                if (experience.UsesWristPanel)
+                    Add("Mírate la mano izquierda: ahí está tu panel", () => Time.unscaledTime - trainingSince > 4 && experience.WristPanelShown);
                 Add("Agáchate y toca sus hombros: mano en la zona y gatillo", () => handsOn != null && handsOn.PerformedCount > 0);
             }
         }
@@ -127,7 +128,7 @@ namespace EmergencyVR.UI
         {
             var lines = new List<string> { finishedAt >= 0 ? "¡Listo! Ya sabes moverte y actuar." : "PRIMEROS PASOS" + (desktopMode ? "  ·  F1 ocultar" : "") };
             foreach (var step in steps) lines.Add((step.Ticked ? "✓  " : "•  ") + step.Text);
-            lines.Add(desktopMode ? "Esc: pausa  ·  I: ocultar paneles" : "B / Y: pausa");
+            lines.Add(desktopMode ? "Esc: pausa  ·  I: ocultar paneles" : "Tu panel te acompaña a un lado  ·  B / Y: pausa");
             return string.Join("\n", lines);
         }
 

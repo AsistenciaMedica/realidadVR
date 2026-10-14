@@ -178,7 +178,7 @@ namespace EmergencyVR.UI
             string[] titles = { "Apunta y selecciona", "Coge y desplázate", "Consulta y pausa" };
             string[] descriptions = { "Apunta a un botón y pulsa el gatillo. Puedes usar cualquiera de los dos mandos.",
                 "Grip para coger o soltar. Stick izquierdo para caminar; stick derecho hacia delante para teletransportarte.",
-                "El panel va en tu muñeca izquierda: mírate la mano para verlo. B o Y abre la pausa delante de tus ojos." };
+                "El panel te acompaña a un lado y se aparta si tapa al paciente. B o Y abre la pausa delante de tus ojos." };
             if (Review.Procedures.Choking.IsChokingCase)
             {
                 titles[0] = "Selecciona y practica";

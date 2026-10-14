@@ -19,7 +19,7 @@ namespace EmergencyVR.XR
     public sealed class VrFreeLocomotion : MonoBehaviour
     {
         /// <summary>Comfortable walking pace for seated and standing users (m/s).</summary>
-        public const float WalkSpeed = 1.4f;
+        public const float WalkSpeed = 1.1f;
         const int StarterAssetsTeleportLayer = unchecked((int)0x80000000);
 
         public static bool Applied { get; private set; }
