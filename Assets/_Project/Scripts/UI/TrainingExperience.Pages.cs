@@ -163,7 +163,7 @@ namespace EmergencyVR.UI
             PageTitle("Orientación", "Familiarízate con VITAL VR", "Los controles permanecen disponibles desde el menú durante la práctica.");
             var titles = IsDesktop ? new[] { "Explora", "Utiliza el equipo", "Practica y revisa" } : new[] { "Desplázate", "Interactúa", "Consulta y pausa" };
             var details = IsDesktop ? new[] {
-                "W A S D  ·  Caminar   ·   Shift  ·  Correr\nCtrl  ·  Arrodillarse / levantarse\nTab  ·  Mirada libre (vuelve a pulsar para usar el ratón)\nBotón derecho  ·  Mirar arrastrando\nR  ·  Volver junto al paciente",
+                "W A S D  ·  Caminar   ·   Shift  ·  Correr\nCtrl  ·  Arrodillarse / levantarse\nTab  ·  Mirada libre (vuelve a pulsar para usar el ratón)\nBotón derecho  ·  Mirar arrastrando\nR  ·  Volver junto al paciente\nI  ·  Ocultar o mostrar los paneles",
                 "E  ·  Coger o soltar\nQ  ·  Usar el objeto\nRueda  ·  Ajustar alcance\nZ / X  ·  Orientar\nShift / Alt  ·  Cambiar eje",
                 "C  ·  RCP: arrastra sobre el tórax y suelta.\n\nH  ·  Desobstrucción: desde atrás, arrastra arriba sobre la zona marcada y vuelve antes de soltar.\n\nEsc  ·  Pausar / continuar"
             } : new[] {

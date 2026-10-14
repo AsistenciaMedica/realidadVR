@@ -39,6 +39,8 @@ namespace EmergencyVR.Desktop
         public bool FreeLook { get; private set; }
         /// <summary>Ctrl: the doctor kneels beside the patient (lower eye height, slower movement).</summary>
         public bool Kneeling { get; private set; }
+        /// <summary>I: hides the training panels for an unobstructed, presentation-ready view of the scene.</summary>
+        public bool InterfaceHidden { get; private set; }
         public bool HasHeldTool => held!=null;
         public MedicalPhysicalTool HeldTool => held==null?null:held.GetComponent<MedicalPhysicalTool>();
         public bool PointerOverInterface => experience != null && experience.PointerOverInterface;
@@ -120,6 +122,12 @@ namespace EmergencyVR.Desktop
             Cursor.lockState=enabled?CursorLockMode.Locked:CursorLockMode.None;
             Cursor.visible=!enabled;
         }
+        public void SetInterfaceHidden(bool hidden)
+        {
+            if(experience==null || experience.InterfaceCanvas==null) return;
+            InterfaceHidden=hidden;
+            experience.InterfaceCanvas.enabled=!hidden;
+        }
         /// <summary>World interaction ray: screen centre in free look, otherwise the mouse pointer.</summary>
         public Ray AimRay(Vector2 pointer)=>FreeLook?View.ViewportPointToRay(new Vector3(.5f,.5f,0)):View.ScreenPointToRay(pointer);
         public void FocusPatient(Vector3 chest)
@@ -138,7 +146,8 @@ namespace EmergencyVR.Desktop
             if(experience==null) experience=FindFirstObjectByType<TrainingExperience>();
             if(keys.escapeKey.wasPressedThisFrame) { if(FreeLook) SetFreeLook(false); experience?.TogglePause(); }
             float dt=Mathf.Min(Time.deltaTime,.05f);
-            if(WorldInputBlocked) { if(FreeLook) SetFreeLook(false); planarVelocity=Vector3.zero; return; }
+            if(WorldInputBlocked) { if(FreeLook) SetFreeLook(false); if(InterfaceHidden) SetInterfaceHidden(false); planarVelocity=Vector3.zero; return; }
+            if(keys.iKey.wasPressedThisFrame && experience!=null && experience.Page==ExperiencePage.Training) SetInterfaceHidden(!InterfaceHidden);
             bool handsOnPatient=Review?.Procedures?.CPR.WindowsEngaged==true || Review?.Procedures?.Choking.WindowsEngaged==true;
             // CPR and choking read the vertical pointer drag, which a locked cursor cannot provide.
             if(FreeLook && handsOnPatient) SetFreeLook(false);
@@ -225,7 +234,7 @@ namespace EmergencyVR.Desktop
             released.isKinematic=heldKinematic; released.useGravity=heldGravity;
             released.GetComponent<MedicalPhysicalTool>()?.OnReleased();
         }
-        void OnDisable() { Release(); if(FreeLook) SetFreeLook(false); }
+        void OnDisable() { Release(); if(FreeLook) SetFreeLook(false); if(InterfaceHidden) SetInterfaceHidden(false); }
         void OnGUI()
         {
             if(!FreeLook || WorldInputBlocked) return;
