@@ -1,4 +1,4 @@
-param([switch]$PreflightOnly, [switch]$VerifyExistingApk, [ValidateRange(2,2147483647)][int]$VersionCode = 3)
+param([switch]$PreflightOnly, [switch]$VerifyExistingApk, [ValidateRange(2,2147483647)][int]$VersionCode = 4, [string]$VersionName = '0.1.2')
 $ErrorActionPreference = 'Stop'
 if ($PreflightOnly -and $VerifyExistingApk) { throw 'Choose either -PreflightOnly or -VerifyExistingApk.' }
 
@@ -108,8 +108,8 @@ try {
         }
     }
 
-    $apk = Join-Path $labRoot ('Builds/Android/VITAL-VR-0.1.1-' + $VersionCode + '.apk')
-    if (-not (Test-Path -LiteralPath $apk)) { throw ('Expected version 0.1.1, code ' + $VersionCode + ' APK was not created.') }
+    $apk = Join-Path $labRoot ('Builds/Android/VITAL-VR-' + $VersionName + '-' + $VersionCode + '.apk')
+    if (-not (Test-Path -LiteralPath $apk)) { throw ('Expected version ' + $VersionName + ', code ' + $VersionCode + ' APK was not created.') }
     $sdkTools = Join-Path $editorRoot 'Data/PlaybackEngines/AndroidPlayer/SDK/build-tools/36.0.0'
     $aapt = Join-Path $sdkTools 'aapt2.exe'
     $badging = & $aapt dump badging $apk
@@ -117,7 +117,7 @@ try {
     $badging | Set-Content -LiteralPath (Join-Path $evidence 'final-apk-badging.txt') -Encoding UTF8
     $packageLines = @($badging | Where-Object { $_ -cmatch '^package: ' })
     if ($packageLines.Count -ne 1 -or
-        $packageLines[0] -cnotmatch ("^package: name='com\.vitalvr\.training' versionCode='" + $VersionCode + "' versionName='0\.1\.1'(?:\s|$)")) {
+        $packageLines[0] -cnotmatch ("^package: name='com\.vitalvr\.training' versionCode='" + $VersionCode + "' versionName='" + [regex]::Escape($VersionName) + "'(?:\s|$)")) {
         throw 'The APK package/version differs from the approved release.'
     }
     $manifest = & $aapt dump xmltree --file AndroidManifest.xml $apk
@@ -140,10 +140,10 @@ try {
     if ($apkCertificateSha256 -cne $certificate.sha256) {
         throw 'The APK signer certificate differs from the configured release keystore alias.'
     }
-    $destination = Join-Path $projectRoot ('Builds/Astra/VITAL-VR-0.1.1-' + $VersionCode + '.apk')
+    $destination = Join-Path $projectRoot ('Builds/Astra/VITAL-VR-' + $VersionName + '-' + $VersionCode + '.apk')
     New-Item -ItemType Directory -Path (Split-Path $destination) -Force | Out-Null
     Copy-Item -LiteralPath $apk -Destination $destination
-    [pscustomobject]@{ package='com.vitalvr.training'; version='0.1.1'; versionCode=$VersionCode;
+    [pscustomobject]@{ package='com.vitalvr.training'; version=$VersionName; versionCode=$VersionCode;
         apk=$destination; sha256=(Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash;
         builtUtc=(Get-Item -LiteralPath $apk).LastWriteTimeUtc.ToString('O'); verifiedUtc=[DateTime]::UtcNow.ToString('O');
         verifiedExistingApk=[bool]$VerifyExistingApk; headsetTested=$false; uploaded=$false;

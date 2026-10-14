@@ -22,7 +22,9 @@ namespace EmergencyVR.Editor.Environment
     {
         public const string Output = "Assets/_Project/Resources/BakedEnvironments";
         public const string Scenes = "Assets/_Project/Scenes/BakedEnvironments";
-        public static readonly string[] EnvironmentIds = { "gym", "mall", "football", "street" };
+        public static readonly string[] EnvironmentIds = { "gym", "mall", "football" };
+        // "street" is ready to bake (IsOutdoor, probes, reflection) but stays out of release 0.1.2: its bake has
+        // never run and a failure would block the APK build. Add it back after one successful local bake.
         /// <summary>Open-air environments bake with the sun and the HDRI sky instead of ceiling panels.</summary>
         static bool IsOutdoor(string id) => id == "football" || id == "street";
         public static string[] BakeScenePaths => EnvironmentIds.Select(id => Scenes + "/" + id + ".unity").ToArray();
