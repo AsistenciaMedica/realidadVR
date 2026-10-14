@@ -110,7 +110,19 @@ namespace EmergencyVR.UI
         }
 
         public void Skip() => Finish(true, false);
-        void Update() { if (ready && RemainingSeconds <= 0) Finish(false, true); }
+        Vector3 walkStart; bool walkStep;
+        void Update()
+        {
+            if (ready && RemainingSeconds <= 0) { Finish(false, true); return; }
+            // Movement step: teleporting is disabled, so walking with the left stick onto the green square
+            // (or at least 0.8 m) completes it.
+            if (!ready || Step != XRIntroStep.Teleport) { walkStep = false; return; }
+            var here = origin.Camera != null ? origin.Camera.transform.position : origin.transform.position;
+            if (!walkStep) { walkStep = true; walkStart = here; return; }
+            var flat = here - walkStart; flat.y = 0;
+            var toPad = TeleportTarget == null ? Vector3.one * 9 : TeleportTarget.position - here; toPad.y = 0;
+            if (flat.magnitude > .8f || toPad.magnitude < .45f) { Teleported = true; Step = XRIntroStep.Recenter; MedicalHaptics.Pulse(.08f, .025f); Changed?.Invoke(); }
+        }
 
         void Finish(bool skipped, bool timeout)
         {

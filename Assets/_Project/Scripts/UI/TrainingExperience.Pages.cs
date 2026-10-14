@@ -167,7 +167,7 @@ namespace EmergencyVR.UI
                 "E  ·  Coger o soltar\nQ  ·  Usar el objeto\nRueda  ·  Ajustar alcance\nZ / X  ·  Orientar\nShift / Alt  ·  Cambiar eje",
                 "C  ·  RCP: arrastra sobre el tórax y suelta.\n\nH  ·  Desobstrucción: desde atrás, arrastra arriba sobre la zona marcada y vuelve antes de soltar.\n\nEsc  ·  Pausar / continuar"
             } : new[] {
-                "Stick izquierdo  ·  Caminar libremente.\nStick derecho hacia arriba  ·  Apuntar al suelo y teletransportarte al soltar.\n\nGiro lateral por pasos de 30°.\nAgáchate de verdad para atender al paciente en el suelo.",
+                "Stick izquierdo  ·  Caminar libremente.\nStick derecho a los lados  ·  Girar 30°.\n\nPuedes moverte también caminando de verdad.\nAgáchate de verdad para atender al paciente en el suelo.",
                 "Apunta al panel y pulsa el gatillo para seleccionar.\n\nGrip para coger y soltar objetos. Utiliza el equipo sobre sus zonas de contacto.",
                 "El panel te acompaña a un lado y se aparta si tapa al paciente.\nB / Y  ·  Abrir la pausa.\n\nTodo lo que se hace con el paciente se hace tocándolo: mano en la zona y gatillo."
             };

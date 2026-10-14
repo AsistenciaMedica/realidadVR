@@ -114,7 +114,7 @@ namespace EmergencyVR.UI
             }
             else
             {
-                Add("Camina: stick izquierdo (o apunta al suelo con el derecho para saltar)", Moved);
+                Add("Camina: stick izquierdo", Moved);
                 Add("Gira: stick derecho hacia los lados", () => turned > 25);
                 if (experience.UsesWristPanel)
                     Add("Mírate la mano izquierda: ahí está tu panel", () => Time.unscaledTime - trainingSince > 4 && experience.WristPanelShown);

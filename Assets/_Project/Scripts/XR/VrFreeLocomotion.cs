@@ -11,10 +11,9 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 namespace EmergencyVR.XR
 {
     /// <summary>
-    /// Lets the doctor move freely on Quest instead of only jumping between four fixed pads that were
-    /// authored for the old technical room (and are invisible in the training environments):
-    /// left stick walks continuously at a comfortable pace, right stick keeps snap turn and teleport,
-    /// and the whole floor of every environment is a valid teleport destination.
+    /// Lets the doctor walk freely and smoothly on Quest (release 0.1.1 could only teleport between four
+    /// hidden pads): left stick walks continuously at a comfortable pace, right stick snap-turns 30 degrees.
+    /// Teleporting is disabled.
     /// Runs only when the authored XR rig is active, so the Windows build is untouched.
     /// </summary>
     public sealed class VrFreeLocomotion : MonoBehaviour
@@ -150,19 +149,8 @@ namespace EmergencyVR.XR
                 move.moveSpeed = WalkSpeed;
                 move.enableStrafe = true;
             }
-            var ground = WalkableGround.Ensure();
-            var teleport = origin.GetComponentInChildren<TeleportationProvider>(true);
-            if (teleport != null && !ground.TryGetComponent<TeleportationArea>(out _))
-            {
-                int layers = StarterAssetsTeleportLayer;
-                foreach (var pad in FindObjectsByType<TeleportationArea>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                { layers = pad.interactionLayers.value; break; }
-                var area = ground.gameObject.AddComponent<TeleportationArea>();
-                area.interactionLayers = layers;
-                area.teleportationProvider = teleport;
-                area.matchOrientation = MatchOrientation.WorldSpaceUp;
-                area.teleportTrigger = BaseTeleportationInteractable.TeleportTrigger.OnSelectExited;
-            }
+            WalkableGround.Ensure();
+            DisableTeleport(origin);
             Applied = true;
         }
 
@@ -180,6 +168,24 @@ namespace EmergencyVR.XR
                 if (property == null || !property.CanWrite) continue;
                 bool left = IsLeftHand(behaviour.transform);
                 property.SetValue(behaviour, left);
+            }
+        }
+
+        /// <summary>
+        /// Movement is continuous only (teleporting was judged jarring): the right stick keeps snap turn, but its
+        /// teleport ray can no longer select any destination and is never drawn. The sample's own references stay
+        /// intact (no nulls), so its input wiring keeps working.
+        /// </summary>
+        static void DisableTeleport(XROrigin origin)
+        {
+            foreach (var behaviour in origin.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (behaviour == null || behaviour.GetType().Name != "ControllerInputActionManager") continue;
+                var field = behaviour.GetType().GetField("m_TeleportInteractor", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                if (!(field?.GetValue(behaviour) is UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor ray) || ray == null) continue;
+                ray.interactionLayers = 0;
+                foreach (var visual in ray.GetComponentsInChildren<UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual>(true)) visual.enabled = false;
+                foreach (var line in ray.GetComponentsInChildren<LineRenderer>(true)) line.enabled = false;
             }
         }
 

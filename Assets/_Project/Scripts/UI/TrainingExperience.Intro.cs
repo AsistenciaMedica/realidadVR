@@ -116,7 +116,7 @@ namespace EmergencyVR.UI
             redraw = true;
             if (tutorial == null) return;
             if (tutorial.Step == XRIntroStep.Grab) SpeakIntro("GRAB");
-            else if (tutorial.Step == XRIntroStep.Teleport) SpeakIntro("TELEPORT");
+            else if (tutorial.Step == XRIntroStep.Teleport) { } // Recorded line describes teleporting; walking uses the subtitle only.
             else if (tutorial.Step == XRIntroStep.Recenter) SpeakIntro("RECENTER");
         }
 
@@ -137,7 +137,7 @@ namespace EmergencyVR.UI
             var step = tutorial?.Step ?? XRIntroStep.Point;
             string instruction = step == XRIntroStep.Point ? "Apunta con un mando al botón y pulsa el gatillo." :
                 step == XRIntroStep.Grab ? "Coge el cubo verde con Grip, el botón lateral del mando. Después suéltalo." :
-                step == XRIntroStep.Teleport ? "Empuja el stick derecho hacia delante, apunta al cuadrado verde del suelo y suelta el stick para viajar." :
+                step == XRIntroStep.Teleport ? "Camina con el stick izquierdo hasta el cuadrado verde. El stick derecho gira." :
                 "Pulsa B o Y para traer el menú delante de ti. Puedes usar cualquiera de los dos mandos.";
             Label(content, "Tutorial instruction", instruction, 450, 189, 540, 128, 27, Ink);
             if (step == XRIntroStep.Point)
