@@ -79,9 +79,13 @@ namespace EmergencyVR.Medical.Interaction
         public string LastObservation { get; private set; } = "";
         public IReadOnlyList<Zone> Zones => zones;
 
+        /// <summary>Safety switch for demos: start the player with -vital-classic-controls to use only menus and keys.</summary>
+        public static bool Disabled => System.Environment.GetCommandLineArgs().Contains("-vital-classic-controls");
+
         public void Initialize(MedicalProcedureRig owner)
         {
             rig = owner;
+            if (Disabled) { enabled = false; return; }
             BuildVisuals();
             DefineZones();
         }
@@ -524,7 +528,7 @@ namespace EmergencyVR.Medical.Interaction
 
         void LateUpdate()
         {
-            if (rig == null) return;
+            if (rig == null || focusRing == null) return;
             var view = Viewer;
             bool active = Active && view != null;
             var eye = view == null ? Vector3.zero : view.transform.position;
