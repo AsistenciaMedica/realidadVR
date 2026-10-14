@@ -34,6 +34,17 @@ Además:
 - Un clic sobre una zona ya **no registra además «Comprobar respuesta»**, que antes se enviaba con
   cualquier clic sobre el cuerpo.
 
+## Gestos reales
+
+- **Quest, comprobar si responde:** mano sobre su hombro y moverla (sacudir o dar golpecitos) durante 1 s;
+  el gatillo también vale.
+- **Quest, comprobar la respiración (paro/atragantamiento):** acercar tu cara a la suya (< 50 cm) y quedarte
+  5 s: ver, oír y sentir. Si el caso pide abrir la vía aérea, primero hay que abrirla.
+- **Windows, comprobar la respiración:** al mantener clic en el pecho la vista baja junto a su boca mirando
+  el tórax, y vuelve al soltar.
+- Las manos articuladas existentes van al hombro, a la barbilla o a la muñeca al aceptarse cada acción, y
+  el paciente reacciona; las zonas nuevas disparan esas mismas animaciones.
+
 ## El panel ya no tapa al paciente
 
 - **Quest (0.1.2):** el panel lateral **te acompaña**: si caminas más de 1 m o si queda entre tus ojos y el

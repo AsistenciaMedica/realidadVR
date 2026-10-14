@@ -39,6 +39,8 @@ namespace EmergencyVR.Desktop
         readonly Collider[] overlaps = new Collider[32];
         float passThroughAt, stuckFor, notice;
         string noticeText = "";
+        // Action lean (look, listen and feel): an offset applied after everything else and removed next frame.
+        Vector3 leanEye, leanLook, leanBasePosition; Quaternion leanBaseRotation; float leanTarget, leanWeight; bool leanApplied;
         // Doctor locomotion: free look, walk/run with inertia and kneeling to reach a patient on the floor.
         public const float StandingEyeHeight=1.62f, KneelingEyeHeight=.98f;
         public const float WalkSpeed=1.8f, RunSpeed=3.6f, KneelSpeed=.8f;
@@ -197,6 +199,20 @@ namespace EmergencyVR.Desktop
             Notice("Estabas atascado: te hemos movido a un sitio libre.");
         }
         public void Notice(string text){ noticeText=text; notice=Time.unscaledTime+3f; }
+        /// <summary>Requested every frame while an action holds the view near the patient; weight 0..1.</summary>
+        public void SetActionLean(Vector3 eye,Vector3 lookAt,float weight){leanEye=eye;leanLook=lookAt;leanTarget=Mathf.Clamp01(weight);}
+        void LateUpdate()
+        {
+            leanWeight=Mathf.MoveTowards(leanWeight,leanTarget,Time.deltaTime*2.5f);
+            leanTarget=0;
+            if(leanWeight<=.001f || View==null) return;
+            leanBasePosition=View.transform.localPosition; leanBaseRotation=View.transform.localRotation;
+            var start=View.transform.position;
+            var eye=Vector3.Lerp(start,leanEye,leanWeight*.85f);
+            var look=leanLook-eye;
+            var rotation=look.sqrMagnitude<1e-4f?View.transform.rotation:Quaternion.Slerp(View.transform.rotation,Quaternion.LookRotation(look.normalized,Vector3.up),leanWeight);
+            View.transform.SetPositionAndRotation(eye,rotation); leanApplied=true;
+        }
 
         /// <summary>World interaction ray: screen centre in free look, otherwise the mouse pointer.</summary>
         public Ray AimRay(Vector2 pointer)=>FreeLook?View.ViewportPointToRay(new Vector3(.5f,.5f,0)):View.ScreenPointToRay(pointer);
@@ -214,6 +230,7 @@ namespace EmergencyVR.Desktop
         }
         void Update()
         {
+            if(leanApplied){View.transform.localPosition=leanBasePosition;View.transform.localRotation=leanBaseRotation;leanApplied=false;}
             var keys=Keyboard.current; var mouse=Mouse.current; if(keys==null || mouse==null) return;
             if(experience==null) experience=FindFirstObjectByType<TrainingExperience>();
             if(keys.escapeKey.wasPressedThisFrame) { if(FreeLook) SetFreeLook(false); experience?.TogglePause(); }
@@ -330,7 +347,7 @@ namespace EmergencyVR.Desktop
             released.isKinematic=heldKinematic; released.useGravity=heldGravity;
             released.GetComponent<MedicalPhysicalTool>()?.OnReleased();
         }
-        void OnDisable() { Release(); if(FreeLook) SetFreeLook(false); if(InterfaceHidden) SetInterfaceHidden(false); }
+        void OnDisable() { Release(); if(FreeLook) SetFreeLook(false); if(InterfaceHidden) SetInterfaceHidden(false); if(leanApplied&&View!=null){View.transform.localPosition=leanBasePosition;View.transform.localRotation=leanBaseRotation;leanApplied=false;} }
         GUIStyle noticeStyle;
         void OnGUI()
         {

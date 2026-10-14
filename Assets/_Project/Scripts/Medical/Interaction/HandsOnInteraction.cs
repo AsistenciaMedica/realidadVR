@@ -33,6 +33,12 @@ namespace EmergencyVR.Medical.Interaction
             public float Reach = 1.6f;
             /// <summary>Null for information-only zones (for example how to start CPR in VR).</summary>
             public Action Perform;
+            /// <summary>Quest: done by shaking the hand on the zone (tapping/shaking the shoulders), trigger optional.</summary>
+            public bool VrShake;
+            /// <summary>Quest: done by bringing the head close to the patient's face (look, listen, feel).</summary>
+            public bool VrHeadClose;
+            /// <summary>Windows: while held, the view leans down to the patient's face looking along the chest.</summary>
+            public bool DesktopLean;
         }
 
         public sealed class Zone
@@ -64,6 +70,7 @@ namespace EmergencyVR.Medical.Interaction
         float held;
         XRNode? hoverHand;
 
+        XRNode? shakeHand; Vector3 shakeLast; float shakeTravel;
         Material accent, warning, progress, dim, placed;
         LineRenderer focusRing, progressArc, placementRing;
         readonly List<LineRenderer> hintRings = new List<LineRenderer>();
@@ -191,13 +198,13 @@ namespace EmergencyVR.Medical.Interaction
             string first = V2 ? "AssessResponsiveness" : "CheckResponsiveness";
             string again = V2 ? "ReassessPatient" : "Reassess";
             if (Has(first) && !Done(first))
-                return new ZoneAction { Label = "Tocar sus hombros y preguntar «¿Me oye?»", HoldSeconds = 1f, Reach = 1.6f,
+                return new ZoneAction { Label = "Tocar sus hombros y preguntar «¿Me oye?»", HoldSeconds = 1f, Reach = 1.6f, VrShake = true,
                     Perform = () => { rig.Visuals?.TriggerTouchReaction(); Submit(first, Responsiveness); } };
             if (Has(again))
-                return new ZoneAction { Label = "Reevaluar: hablarle y comprobar cómo está", HoldSeconds = 1.5f, Reach = 1.6f,
+                return new ZoneAction { Label = "Reevaluar: hablarle y comprobar cómo está", HoldSeconds = 1.5f, Reach = 1.6f, VrShake = true,
                     Perform = () => { rig.Visuals?.TriggerTouchReaction(); Submit(again, () => Responsiveness() + "\n" + Breathing()); } };
             if (Has(first))
-                return new ZoneAction { Label = "Volver a comprobar si responde", HoldSeconds = 1f, Reach = 1.6f,
+                return new ZoneAction { Label = "Volver a comprobar si responde", HoldSeconds = 1f, Reach = 1.6f, VrShake = true,
                     Perform = () => { rig.Visuals?.TriggerTouchReaction(); Feedback(Responsiveness); } };
             return null;
         }
@@ -208,7 +215,7 @@ namespace EmergencyVR.Medical.Interaction
             bool breathingChecked = !Has(breathing) || Done(breathing);
             if (Has(breathing) && !breathingChecked)
                 return new ZoneAction { Label = V2 ? "Observar cómo respira: pecho y abdomen" : "Ver, oír y sentir si respira (acerca la cara)",
-                    HoldSeconds = V2 ? 3f : 5f, Reach = V2 ? 1.6f : 1.3f, Perform = () => Submit(breathing, Breathing) };
+                    HoldSeconds = V2 ? 3f : 5f, Reach = V2 ? 1.6f : 1.3f, VrHeadClose = !V2 && (!Has("OpenAirway") || Done("OpenAirway")), DesktopLean = !V2, Perform = () => Submit(breathing, Breathing) };
             if (!V2 && rig.CPR != null && Has("StartCPR") && rig.CPR.CanCompress)
             {
                 if (IsDesktop)
@@ -221,7 +228,7 @@ namespace EmergencyVR.Medical.Interaction
                 return new ZoneAction { Label = "RCP: las dos manos en el centro del pecho y aprieta ambos grips" };
             }
             if (Has(breathing))
-                return new ZoneAction { Label = "Volver a comprobar la respiración", HoldSeconds = 3f, Reach = 1.4f, Perform = () => Feedback(Breathing) };
+                return new ZoneAction { Label = "Volver a comprobar la respiración", HoldSeconds = 3f, Reach = 1.4f, VrHeadClose = !V2, DesktopLean = !V2, Perform = () => Feedback(Breathing) };
             return null;
         }
 
@@ -392,6 +399,15 @@ namespace EmergencyVR.Medical.Interaction
         {
             var mouse = Mouse.current; var view = desktop.View;
             if (mouse == null || view == null) { ClearHover(); return; }
+            // While an action is being held the zone stays locked, even if the view leans or the mouse drifts.
+            if (holding && hovered != null && mouse.leftButton.isPressed)
+            {
+                var locked = hovered.Position();
+                if (locked != null) hoveredPoint = locked.Value;
+                Drive(false, true);
+                Lean(view);
+                return;
+            }
             bool overUi = desktop.PointerOverInterface && !desktop.FreeLook;
             var ray = desktop.AimRay(mouse.position.ReadValue());
             Zone best = null; ZoneAction bestAction = null; Vector3 bestPoint = default; float bestScore = float.MaxValue;
@@ -411,11 +427,37 @@ namespace EmergencyVR.Medical.Interaction
             if (hovered == null) return;
             tooFar = Vector3.Distance(view.transform.position, hoveredPoint) > hoveredAction.Reach;
             Drive(mouse.leftButton.wasPressedThisFrame, mouse.leftButton.isPressed);
+            Lean(view);
+        }
+
+        /// <summary>Look, listen and feel on Windows: the eyes go down beside the patient's mouth, looking along the chest.</summary>
+        void Lean(Camera view)
+        {
+            if (!holding || hoveredAction == null || !hoveredAction.DesktopLean) return;
+            var head = HeadPoint(); var chest = ChestPoint();
+            if (head == null || chest == null) return;
+            var side = view.transform.position - head.Value; side.y = 0;
+            side = side.sqrMagnitude < 1e-4f ? Vector3.zero : side.normalized;
+            var eye = head.Value + Vector3.up * .26f + side * .14f;
+            desktop.SetActionLean(eye, chest.Value, Mathf.SmoothStep(0, 1, Mathf.Clamp01(held / .6f)));
         }
 
         void UpdateVR()
         {
             if (origin == null) { ClearHover(); return; }
+            // Look, listen and feel: bringing the head close to the patient's face performs the breathing check.
+            var eyes = origin.Camera != null ? origin.Camera.transform.position : origin.transform.position;
+            var face = HeadPoint();
+            if (face != null && Vector3.Distance(eyes, face.Value) < .5f)
+                foreach (var zone in zones)
+                {
+                    var action = zone.Current(); var point = zone.Position();
+                    if (action == null || !action.VrHeadClose || point == null) continue;
+                    SetHover(zone, action, point.Value, null);
+                    tooFar = false;
+                    Drive(!holding && !waitRelease, true);
+                    return;
+                }
             Zone best = null; ZoneAction bestAction = null; Vector3 bestPoint = default; float bestScore = float.MaxValue; XRNode bestHand = XRNode.RightHand;
             bool anyPressed = false, anyStarted = false;
             foreach (var node in new[] { XRNode.LeftHand, XRNode.RightHand })
@@ -434,7 +476,19 @@ namespace EmergencyVR.Medical.Interaction
             SetHover(best, bestAction, bestPoint, best == null ? (XRNode?)null : bestHand);
             if (hovered == null) return;
             tooFar = false;
-            if (ReadHand(bestHand, out _, out var value)) { anyPressed = value > .6f; anyStarted = anyPressed && !holding && !waitRelease; }
+            if (ReadHand(bestHand, out var handNow, out var value))
+            {
+                // Shaking/tapping the shoulder counts as pressing: accumulate the hand's travel while on the zone.
+                if (bestAction.VrShake)
+                {
+                    if (shakeHand == bestHand) shakeTravel += Vector3.Distance(handNow, shakeLast);
+                    shakeHand = bestHand; shakeLast = handNow;
+                    shakeTravel *= Mathf.Exp(-Time.deltaTime * 1.5f);
+                }
+                else shakeTravel = 0;
+                anyPressed = value > .6f || shakeTravel > .16f;
+                anyStarted = anyPressed && !holding && !waitRelease;
+            }
             Drive(anyStarted, anyPressed);
         }
 
@@ -578,7 +632,8 @@ namespace EmergencyVR.Medical.Interaction
             label.gameObject.SetActive(showLabel);
             if (showLabel)
             {
-                label.text = Wrap(hoveredAction.Label, 30); labelShadow.text = label.text;
+                string how = hoveredAction.VrHeadClose ? "\n(acerca tu cara a la suya)" : hoveredAction.VrShake ? "\n(mueve la mano sobre su hombro o gatillo)" : hoveredAction.Perform != null ? "\n(gatillo)" : "";
+                label.text = Wrap(hoveredAction.Label, 30) + how; labelShadow.text = label.text;
                 Billboard(label, hoveredPoint + Vector3.up * (hovered.Radius + .07f), eye);
             }
 
