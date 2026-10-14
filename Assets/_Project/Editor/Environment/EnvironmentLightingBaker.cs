@@ -22,7 +22,9 @@ namespace EmergencyVR.Editor.Environment
     {
         public const string Output = "Assets/_Project/Resources/BakedEnvironments";
         public const string Scenes = "Assets/_Project/Scenes/BakedEnvironments";
-        public static readonly string[] EnvironmentIds = { "gym", "mall", "football" };
+        public static readonly string[] EnvironmentIds = { "gym", "mall", "football", "street" };
+        /// <summary>Open-air environments bake with the sun and the HDRI sky instead of ceiling panels.</summary>
+        static bool IsOutdoor(string id) => id == "football" || id == "street";
         public static string[] BakeScenePaths => EnvironmentIds.Select(id => Scenes + "/" + id + ".unity").ToArray();
 
         [MenuItem("Emergency VR/Art/Bake Quest environments")]
@@ -108,7 +110,7 @@ namespace EmergencyVR.Editor.Environment
             var data = root.AddComponent<BakedEnvironmentLighting>();
             data.environmentId = id;
             data.sourceFingerprint = fingerprint;
-            data.outdoor = id == "football";
+            data.outdoor = IsOutdoor(id);
             ConfigureAmbient(data);
             ConsolidateImportedProps(root);
             PrepareMeshesAndMaterials(root, folder, id);
@@ -119,7 +121,7 @@ namespace EmergencyVR.Editor.Environment
                 lightmapper = LightingSettings.Lightmapper.ProgressiveGPU,
                 directionalityMode = LightmapsMode.NonDirectional,
                 lightmapMaxSize = 2048,
-                lightmapResolution = id == "football" ? 6 : id == "mall" ? 12 : 18,
+                lightmapResolution = id == "football" ? 6 : id == "street" ? 8 : id == "mall" ? 12 : 18,
                 lightmapPadding = 4,
                 lightmapCompression = LightmapCompression.HighQuality,
                 directSampleCount = 32,
@@ -296,7 +298,7 @@ namespace EmergencyVR.Editor.Environment
                 // Display photographs outside windows are backdrops, not opaque walls
                 // blocking the sun. Physical room/equipment geometry still casts both sides.
                 renderer.shadowCastingMode = receivesLighting ? ShadowCastingMode.TwoSided : ShadowCastingMode.Off;
-                renderer.scaleInLightmap = id == "football" && renderer.bounds.size.magnitude > 20 ? .35f : 1;
+                renderer.scaleInLightmap = IsOutdoor(id) && renderer.bounds.size.magnitude > 20 ? .35f : 1;
             }
         }
 
@@ -358,10 +360,10 @@ namespace EmergencyVR.Editor.Environment
             sun.type = LightType.Directional;
             sun.lightmapBakeType = LightmapBakeType.Baked;
             sun.shadows = LightShadows.Soft;
-            sun.intensity = id == "football" ? 1.1f : id == "gym" ? .8f : .25f;
+            sun.intensity = IsOutdoor(id) ? 1.1f : id == "gym" ? .8f : .25f;
             sun.color = new Color(1, .985f, .95f);
-            sun.transform.rotation = Quaternion.Euler(id == "football" ? 48 : 36, id == "football" ? -38 : -100, 0);
-            if (id == "football") return;
+            sun.transform.rotation = Quaternion.Euler(IsOutdoor(id) ? 48 : 36, IsOutdoor(id) ? -38 : -100, 0);
+            if (IsOutdoor(id)) return;
             foreach (float x in id == "gym" ? new[] { -1.6f, 1.6f } : new[] { 0f })
                 foreach (float z in id == "gym" ? new[] { -1.4f, 1.2f, 3.6f } : new[] { -1.65f, .85f, 3.35f })
                 {
@@ -389,6 +391,11 @@ namespace EmergencyVR.Editor.Environment
             foreach (float x in new[] { -3f, -1.5f, 0f, 1.5f, 3f })
                 foreach (float z in new[] { -2.5f, -.5f, 1.5f, 3f, 4.5f })
                     foreach (float y in new[] { .2f, 1f, 1.8f, 2.7f }) points.Add(new Vector3(x, y, z));
+            if (id == "street")
+                // Pavement, crossing and the near carriageway where actors and bystanders stand.
+                foreach (float x in new[] { 6f, 9f, 12f })
+                    foreach (float z in new[] { -8f, -2f, 4f, 10f, 18f, 26f })
+                        foreach (float y in new[] { .2f, 1.8f, 3f }) points.Add(new Vector3(x, y, z));
             if (id == "football")
                 foreach (float x in new[] { -8f, 8f })
                     foreach (float z in new[] { -5f, 10f, 30f })
@@ -400,12 +407,12 @@ namespace EmergencyVR.Editor.Environment
         {
             var probe = new GameObject("Baked environment reflection").AddComponent<ReflectionProbe>();
             probe.transform.SetParent(root, false);
-            probe.transform.localPosition = new Vector3(0, 1.5f, 1);
+            probe.transform.localPosition = id == "street" ? new Vector3(5, 1.5f, 8) : new Vector3(0, 1.5f, 1);
             probe.mode = ReflectionProbeMode.Baked;
             probe.resolution = 128;
             probe.hdr = true;
-            probe.boxProjection = id != "football";
-            probe.size = id == "football" ? new Vector3(36, 8, 52) : new Vector3(7, 3.2f, 8);
+            probe.boxProjection = !IsOutdoor(id);
+            probe.size = id == "football" ? new Vector3(36, 8, 52) : id == "street" ? new Vector3(28, 10, 48) : new Vector3(7, 3.2f, 8);
             probe.intensity = .85f;
             return probe;
         }
