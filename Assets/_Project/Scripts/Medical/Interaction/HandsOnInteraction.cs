@@ -77,6 +77,8 @@ namespace EmergencyVR.Medical.Interaction
         public bool HasFocus => hoveredAction != null;
         public float HoldProgress => hoveredAction == null || hoveredAction.HoldSeconds <= 0 ? 0 : Mathf.Clamp01(held / hoveredAction.HoldSeconds);
         public string LastObservation { get; private set; } = "";
+        /// <summary>Zone actions completed in this run (used by the first-steps coach).</summary>
+        public int PerformedCount { get; private set; }
         public IReadOnlyList<Zone> Zones => zones;
 
         /// <summary>Safety switch for demos: start the player with -vital-classic-controls to use only menus and keys.</summary>
@@ -491,6 +493,7 @@ namespace EmergencyVR.Medical.Interaction
             var perform = hoveredAction.Perform;
             holding = false; held = 0; waitRelease = true; cooldownUntil = Time.unscaledTime + .35f;
             perform?.Invoke();
+            if (perform != null) PerformedCount++;
             Pulse(.15f, .05f);
         }
 

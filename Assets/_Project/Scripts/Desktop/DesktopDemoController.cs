@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EmergencyVR.Evaluation;
@@ -32,6 +33,12 @@ namespace EmergencyVR.Desktop
         EmergencyVR.Medical.Interaction.HandsOnInteraction handsOn;
         bool drawerWasOpen;
         float frameYawRemaining;
+        // Never stuck: the patient and the instruments are not walls, spawn points are checked, and a blocked
+        // doctor is moved to the nearest free spot.
+        readonly HashSet<Collider> passThrough = new HashSet<Collider>();
+        readonly Collider[] overlaps = new Collider[32];
+        float passThroughAt, stuckFor, notice;
+        string noticeText = "";
         // Doctor locomotion: free look, walk/run with inertia and kneeling to reach a patient on the floor.
         public const float StandingEyeHeight=1.62f, KneelingEyeHeight=.98f;
         public const float WalkSpeed=1.8f, RunSpeed=3.6f, KneelSpeed=.8f;
@@ -110,9 +117,8 @@ namespace EmergencyVR.Desktop
         {
             if(!kneel && Kneeling && !immediate)
             {
-                // Do not stand up into a table or shelf.
-                var bottom=transform.position+Vector3.up*(Body.radius+.05f);
-                if(Physics.SphereCast(bottom,Body.radius*.9f,Vector3.up,out _,StandingBodyHeight-Body.radius*2-.05f,~0,QueryTriggerInteraction.Ignore)) return;
+                // Do not stand up into a table or shelf (the patient and instruments never block standing up).
+                if(!Free(transform.position,StandingBodyHeight)) { Notice("No hay espacio para levantarte aquí: muévete un poco."); return; }
             }
             Kneeling=kneel;
             float height=kneel?KneelingBodyHeight:StandingBodyHeight;
@@ -141,12 +147,65 @@ namespace EmergencyVR.Desktop
             InterfaceHidden=hidden;
             experience.InterfaceCanvas.enabled=!hidden;
         }
+        /// <summary>The patient's body and the medical instruments are not obstacles for the doctor.</summary>
+        void UpdatePassThrough(bool force)
+        {
+            if(!force && Time.unscaledTime<passThroughAt) return;
+            passThroughAt=Time.unscaledTime+1;
+            foreach(var patient in FindObjectsByType<EmergencyVR.Patient.PatientController>(FindObjectsSortMode.None))
+                foreach(var c in patient.GetComponentsInChildren<Collider>(true)) Ignore(c);
+            foreach(var tool in FindObjectsByType<MedicalPhysicalTool>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+                foreach(var c in tool.GetComponentsInChildren<Collider>(true)) Ignore(c);
+            void Ignore(Collider c){ if(c!=null && c!=Body && passThrough.Add(c)) Physics.IgnoreCollision(Body,c,true); }
+        }
+        /// <summary>True when a standing (or kneeling) doctor fits at this foot position.</summary>
+        public bool Free(Vector3 feet,float height=0)
+        {
+            if(height<=0) height=Body.height;
+            float r=Body.radius;
+            var a=feet+Vector3.up*(r+.08f); var b=feet+Vector3.up*Mathf.Max(r+.09f,height-r);
+            int n=Physics.OverlapCapsuleNonAlloc(a,b,r*.95f,overlaps,~0,QueryTriggerInteraction.Ignore);
+            for(int i=0;i<n;i++)
+            {
+                var c=overlaps[i];
+                if(c==null || c==Body || passThrough.Contains(c) || c.attachedRigidbody!=null && !c.attachedRigidbody.isKinematic) continue;
+                return false;
+            }
+            return true;
+        }
+        Vector3 FindFree(Vector3 preferred,Vector3 around,float radius)
+        {
+            if(Free(preferred)) return preferred;
+            var flat=new Vector3(around.x,preferred.y,around.z);
+            foreach(float ring in new[]{radius,radius+.45f,radius+.9f,radius+1.5f})
+                for(int i=0;i<16;i++)
+                {
+                    float angle=i*Mathf.PI*2/16;
+                    var candidate=flat+new Vector3(Mathf.Cos(angle),0,Mathf.Sin(angle))*ring;
+                    if(Free(candidate)) return candidate;
+                }
+            return preferred;
+        }
+        void Unstick()
+        {
+            if(Free(transform.position)) return;
+            var anchor=Review?.Selected?.medical!=null?Review.Procedures?.Visuals?.ChestAnchor:null;
+            var target=FindFree(transform.position,transform.position,.4f);
+            if(!Free(target) && anchor!=null) target=FindFree(transform.position,anchor.position,1.2f);
+            if(!Free(target)) return;
+            Body.enabled=false; transform.position=target; Body.enabled=true; planarVelocity=Vector3.zero;
+            Notice("Estabas atascado: te hemos movido a un sitio libre.");
+        }
+        public void Notice(string text){ noticeText=text; notice=Time.unscaledTime+3f; }
+
         /// <summary>World interaction ray: screen centre in free look, otherwise the mouse pointer.</summary>
         public Ray AimRay(Vector2 pointer)=>FreeLook?View.ViewportPointToRay(new Vector3(.5f,.5f,0)):View.ScreenPointToRay(pointer);
         public void FocusPatient(Vector3 chest)
         {
             Release(); Body.enabled=false; planarVelocity=Vector3.zero;
-            transform.position=new Vector3(chest.x-.9f,.05f,chest.z-1.15f);
+            UpdatePassThrough(true);
+            var preferred=new Vector3(chest.x-.9f,.05f,chest.z-1.15f);
+            transform.position=FindFree(preferred,new Vector3(chest.x,.05f,chest.z),1.2f);
             Body.enabled=true;
             var facing=Quaternion.LookRotation(chest-View.transform.position,Vector3.up).eulerAngles;
             transform.rotation=Quaternion.Euler(0,facing.y,0);
@@ -190,7 +249,8 @@ namespace EmergencyVR.Desktop
             }
 
             // Walk (WASD), run (Shift) and kneel (Ctrl) with a little inertia so movement does not feel robotic.
-            var move=new Vector2((keys.dKey.isPressed?1:0)-(keys.aKey.isPressed?1:0),(keys.wKey.isPressed?1:0)-(keys.sKey.isPressed?1:0));
+            var move=new Vector2((keys.dKey.isPressed||keys.rightArrowKey.isPressed?1:0)-(keys.aKey.isPressed||keys.leftArrowKey.isPressed?1:0),
+                (keys.wKey.isPressed||keys.upArrowKey.isPressed?1:0)-(keys.sKey.isPressed||keys.downArrowKey.isPressed?1:0));
             if(move.sqrMagnitude>1) move.Normalize();
             bool rotatingHeld=held!=null && (keys.xKey.isPressed || keys.zKey.isPressed);
             bool running=!Kneeling && !rotatingHeld && keys.leftShiftKey.isPressed && move.y>0;
@@ -198,7 +258,14 @@ namespace EmergencyVR.Desktop
             var target=(transform.right*move.x+transform.forward*move.y)*speed;
             planarVelocity=Vector3.MoveTowards(planarVelocity,target,Acceleration*speed*dt);
             verticalSpeed=Body.isGrounded?-1:Mathf.Max(-12,verticalSpeed-9.81f*dt);
+            UpdatePassThrough(false);
             Body.Move((planarVelocity+Vector3.up*verticalSpeed)*dt);
+            // Trying to walk but not moving while overlapping something (spawned inside furniture, pushed into a
+            // prop): step out to the nearest free spot. Pushing against a real wall from free space never triggers.
+            bool tryingToMove=move.sqrMagnitude>.04f;
+            var horizontal=Body.velocity; horizontal.y=0;
+            stuckFor=tryingToMove && horizontal.magnitude<.08f ? stuckFor+dt : 0;
+            if(stuckFor>1.2f) { stuckFor=0; Unstick(); }
             // Only animate the eye while kneeling/standing up, so captures and tests that place the camera keep it.
             float eyeGoal=Kneeling?KneelingEyeHeight:StandingEyeHeight;
             if(!Mathf.Approximately(eyeHeight,eyeGoal))
@@ -264,8 +331,15 @@ namespace EmergencyVR.Desktop
             released.GetComponent<MedicalPhysicalTool>()?.OnReleased();
         }
         void OnDisable() { Release(); if(FreeLook) SetFreeLook(false); if(InterfaceHidden) SetInterfaceHidden(false); }
+        GUIStyle noticeStyle;
         void OnGUI()
         {
+            if(Time.unscaledTime<notice && !string.IsNullOrEmpty(noticeText))
+            {
+                if(noticeStyle==null) noticeStyle=new GUIStyle(GUI.skin.box){fontSize=Mathf.RoundToInt(Mathf.Clamp(Screen.height/48f,13,24)),wordWrap=true,alignment=TextAnchor.MiddleCenter,normal={textColor=Color.white}};
+                float w=Mathf.Min(Screen.width*.5f,620), h=noticeStyle.CalcHeight(new GUIContent(noticeText),w)+14;
+                GUI.Box(new Rect((Screen.width-w)*.5f,Screen.height*.58f,w,h),noticeText,noticeStyle);
+            }
             if(!FreeLook || WorldInputBlocked) return;
             // Small crosshair: in free look every click, grab and use goes through the screen centre.
             float x=Screen.width*.5f, y=Screen.height*.5f;

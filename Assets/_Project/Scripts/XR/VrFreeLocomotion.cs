@@ -46,7 +46,24 @@ namespace EmergencyVR.XR
             var origin = FindFirstObjectByType<XROrigin>();
             if (origin == null || FindFirstObjectByType<DesktopDemoController>() != null) { Destroy(gameObject); yield break; }
             Apply(origin);
+            body = origin.GetComponentInChildren<CharacterController>(true);
         }
+
+        // The patient's body and the instruments are not walls: walking up to kneel beside the patient must
+        // never leave the learner blocked against an invisible interaction collider.
+        CharacterController body;
+        readonly System.Collections.Generic.HashSet<Collider> passThrough = new System.Collections.Generic.HashSet<Collider>();
+        float passThroughAt;
+        void Update()
+        {
+            if (body == null || Time.unscaledTime < passThroughAt) return;
+            passThroughAt = Time.unscaledTime + 1;
+            foreach (var patient in FindObjectsByType<EmergencyVR.Patient.PatientController>(FindObjectsSortMode.None))
+                foreach (var c in patient.GetComponentsInChildren<Collider>(true)) Ignore(c);
+            foreach (var tool in FindObjectsByType<EmergencyVR.Medical.Interaction.MedicalPhysicalTool>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                foreach (var c in tool.GetComponentsInChildren<Collider>(true)) Ignore(c);
+        }
+        void Ignore(Collider c) { if (c != null && c != body && passThrough.Add(c)) Physics.IgnoreCollision(body, c, true); }
 
         public static void Apply(XROrigin origin)
         {

@@ -24,6 +24,8 @@ namespace EmergencyVR.UI
 
         /// <summary>True while the Quest training panel is attached to the left wrist.</summary>
         public bool WristPanelActive => wristFollowing;
+        /// <summary>True while the wrist panel is actually visible to the learner.</summary>
+        public bool WristPanelShown => wristFollowing && wristAlpha > .6f;
 
         void UpdateWristMenu()
         {

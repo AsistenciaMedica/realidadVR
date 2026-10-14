@@ -48,6 +48,25 @@ anillos, burbuja). Pequeños cambios en `MedicalPhysicalTool`, `PatientVisualCon
 `MedicalProcedureRig`, `DesktopDemoController`, `TrainingExperience.World/Clinical` y
 `GuidedPracticeDirector`.
 
+## Que nunca se quede atascado
+
+- El cuerpo del paciente y los instrumentos ya no son obstáculos para el doctor (Windows y Quest).
+- Al empezar, el doctor aparece junto al paciente en un sitio **libre comprobado**; si el punto previsto
+  cae dentro de un mueble, busca otro alrededor.
+- Si intentas caminar, no avanzas y estás dentro de algo, a los 1,2 s te mueve al sitio libre más cercano
+  y lo avisa. Empujar una pared normal no lo activa.
+- Levantarse tras arrodillarse solo se bloquea si de verdad hay algo encima, y lo dice.
+- También se camina con las **flechas** del teclado.
+
+## Primeros pasos (tutorial integrado)
+
+Al empezar el primer ejercicio aparece una lista que se marca sola: caminar, mirar, acercarse, arrodillarse
+y actuar sobre el paciente (Windows); caminar, girar, mirarse la muñeca y tocar al paciente (Quest).
+Windows: tarjeta a la derecha, F1 la muestra u oculta. Quest: tarjeta baja a la izquierda, nunca delante
+del paciente. Desaparece 4 s después de completarla. No cuenta en la evaluación. Código: `FirstStepsCoach.cs`.
+
+Interruptor de seguridad para una demo: `EmergencyVR.exe -vital-classic-controls` desactiva las zonas.
+
 ## Lista de revisión en local
 
 1. Compila sin errores en Unity 6000.3.23f1.
