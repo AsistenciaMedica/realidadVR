@@ -183,6 +183,7 @@ namespace EmergencyVR.UI
             UpdateWorldKeys();
             UpdateHeadsetLifecycle();
             UpdateVrSubtitles();
+            UpdateWristMenu();
         }
 
         public void Navigate(ExperiencePage page)

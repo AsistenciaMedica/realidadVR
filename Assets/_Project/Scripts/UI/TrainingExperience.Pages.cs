@@ -169,7 +169,7 @@ namespace EmergencyVR.UI
             } : new[] {
                 "Stick izquierdo  ·  Caminar libremente.\nStick derecho hacia arriba  ·  Apuntar al suelo y teletransportarte al soltar.\n\nGiro lateral por pasos de 30°.\nAgáchate de verdad para atender al paciente en el suelo.",
                 "Apunta al panel y pulsa el gatillo para seleccionar.\n\nGrip para coger y soltar objetos. Utiliza el equipo sobre sus zonas de contacto.",
-                "B / Y  ·  Centrar el panel y abrir la pausa.\n\nEl monitor permanece en el espacio. Puedes volver a centrarlo cuando cambies de posición."
+                "Mírate la mano izquierda  ·  Panel de opciones en la muñeca.\nB / Y  ·  Abrir la pausa.\n\nTodo lo que se hace con el paciente se hace tocándolo: mano en la zona y gatillo."
             };
             if(Review.Selected.medical?.clinicalV2?.capabilities.usesObservedPatientData==true)
             {

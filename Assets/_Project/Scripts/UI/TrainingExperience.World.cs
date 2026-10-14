@@ -30,6 +30,9 @@ namespace EmergencyVR.UI
             }
         }
 
+        /// <summary>True while an actions, conversation, phone or information drawer covers part of the screen.</summary>
+        public bool AnyDrawerOpen => actionDrawer || patientDrawer || dialogueDrawer || callDrawer || observedDrawer || guidanceDrawer;
+
         /// <summary>Opens the conversation with the patient (also reached by aiming at the head and clicking).</summary>
         public void OpenPatientDialogue()
         {

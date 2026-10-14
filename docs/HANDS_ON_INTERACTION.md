@@ -34,6 +34,15 @@ Además:
 - Un clic sobre una zona ya **no registra además «Comprobar respuesta»**, que antes se enviaba con
   cualquier clic sobre el cuerpo.
 
+## El panel ya no tapa al paciente
+
+- **Quest:** el panel de opciones va en la **muñeca izquierda**, como una tablet. Aparece al mirarte la
+  mano y se desvanece al mirar al paciente (con 1,2 s de margen). Al empezar se muestra 3 s para que se
+  descubra. Sin mando izquierdo, o en la simulación de Quest en Windows, vuelve al panel lateral fijo.
+  Código: `TrainingExperience.WristMenu.cs`.
+- **Windows:** al abrir un cajón (acciones, conversación, teléfono, información), la cámara gira
+  suavemente para dejar al paciente a la derecha, fuera del cajón. Mirar con el ratón cancela el giro.
+
 Código: `Assets/_Project/Scripts/Medical/Interaction/HandsOnInteraction.cs` (zonas, entrada Windows/VR,
 anillos, burbuja). Pequeños cambios en `MedicalPhysicalTool`, `PatientVisualController`,
 `MedicalProcedureRig`, `DesktopDemoController`, `TrainingExperience.World/Clinical` y
@@ -51,4 +60,6 @@ anillos, burbuja). Pequeños cambios en `MedicalPhysicalTool`, `PatientVisualCon
 5. Atragantamiento (Camila): ponerse detrás y clic en la espalda activa la maniobra.
 6. Quest: tocar hombros y pecho con el mando y apretar el gatillo; vibra al entrar en la zona y al completar.
 7. Pausa, finalizar y reiniciar: no quedan anillos ni burbujas visibles.
-8. Ejecutar las pruebas EditMode y PlayMode existentes.
+8. Quest: mirarse la mano izquierda muestra el panel; mirar al paciente lo oculta; los botones siguen funcionando con el rayo derecho.
+9. Windows: con el paciente a la izquierda, abrir «Interacciones» o «Hablar» gira la vista y lo deja visible.
+10. Ejecutar las pruebas EditMode y PlayMode existentes.

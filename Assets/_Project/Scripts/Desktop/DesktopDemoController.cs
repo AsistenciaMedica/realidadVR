@@ -30,6 +30,8 @@ namespace EmergencyVR.Desktop
         float pitch,verticalSpeed;
         TrainingExperience experience;
         EmergencyVR.Medical.Interaction.HandsOnInteraction handsOn;
+        bool drawerWasOpen;
+        float frameYawRemaining;
         // Doctor locomotion: free look, walk/run with inertia and kneeling to reach a patient on the floor.
         public const float StandingEyeHeight=1.62f, KneelingEyeHeight=.98f;
         public const float WalkSpeed=1.8f, RunSpeed=3.6f, KneelSpeed=.8f;
@@ -123,6 +125,16 @@ namespace EmergencyVR.Desktop
             Cursor.lockState=enabled?CursorLockMode.Locked:CursorLockMode.None;
             Cursor.visible=!enabled;
         }
+        /// <summary>Turns so the current patient appears in the right part of the screen, clear of the drawers.</summary>
+        public void FramePatientBesideDrawer()
+        {
+            var anchor=Review?.Selected?.medical!=null?Review.Procedures?.Visuals?.ChestAnchor:null;
+            if(anchor==null || View==null) return;
+            var viewport=View.WorldToViewportPoint(anchor.position);
+            if(viewport.z<=0 || viewport.z>7 || viewport.x>=.45f) return;
+            float horizontalFov=Camera.VerticalToHorizontalFieldOfView(View.fieldOfView,View.aspect);
+            frameYawRemaining=(viewport.x-.66f)*horizontalFov;
+        }
         public void SetInterfaceHidden(bool hidden)
         {
             if(experience==null || experience.InterfaceCanvas==null) return;
@@ -163,6 +175,18 @@ namespace EmergencyVR.Desktop
                 var delta=mouse.delta.ReadValue(); float sensitivity=FreeLook?FreeLookSensitivity:DragLookSensitivity;
                 transform.Rotate(Vector3.up,delta.x*sensitivity);
                 pitch=Mathf.Clamp(pitch-delta.y*sensitivity,-85,85); View.transform.localRotation=Quaternion.Euler(pitch,0,0);
+            }
+
+            // Drawers (actions, conversation, phone) cover the left third of the screen: when one opens, turn
+            // smoothly so the patient sits beside it instead of behind it. Any manual look cancels the turn.
+            bool drawerOpen=experience!=null && experience.AnyDrawerOpen;
+            if(drawerOpen && !drawerWasOpen) FramePatientBesideDrawer();
+            drawerWasOpen=drawerOpen;
+            if((FreeLook && mouse.delta.ReadValue().sqrMagnitude>4) || dragLook) frameYawRemaining=0;
+            if(Mathf.Abs(frameYawRemaining)>.01f)
+            {
+                float step=Mathf.Sign(frameYawRemaining)*Mathf.Min(Mathf.Abs(frameYawRemaining),150f*dt);
+                transform.Rotate(Vector3.up,step); frameYawRemaining-=step;
             }
 
             // Walk (WASD), run (Shift) and kneel (Ctrl) with a little inertia so movement does not feel robotic.
