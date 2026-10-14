@@ -3,6 +3,7 @@ using EmergencyVR.Desktop;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
@@ -27,7 +28,7 @@ namespace EmergencyVR.XR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Register()
         {
-            Applied = false;
+            Applied = false; FallbackMoveActive = false; FallbackTurnActive = false;
             SceneManager.sceneLoaded -= Loaded;
             SceneManager.sceneLoaded += Loaded;
         }
@@ -47,11 +48,87 @@ namespace EmergencyVR.XR
             if (origin == null || FindFirstObjectByType<DesktopDemoController>() != null) { Destroy(gameObject); yield break; }
             Apply(origin);
             body = origin.GetComponentInChildren<CharacterController>(true);
+            rig = origin;
         }
 
         // The patient's body and the instruments are not walls: walking up to kneel beside the patient must
         // never leave the learner blocked against an invisible interaction collider.
         CharacterController body;
+        XROrigin rig;
+
+        // ---------------- Safety net: the thumbsticks always move and turn the learner ----------------
+        // Release 0.1.1 could not move on Quest. The XRI wiring above should fix that, but it has not been
+        // checked on a headset yet. If the left stick is pushed and the rig does not move at all (and is not
+        // simply pressed against a wall), or the right stick is pushed sideways and the view does not turn,
+        // this component reads the controllers directly and moves / snap-turns the rig itself from then on.
+        public static bool FallbackMoveActive { get; private set; }
+        public static bool FallbackTurnActive { get; private set; }
+        EmergencyVR.UI.TrainingExperience flow;
+        float moveProbe, turnProbe, probeYaw, flowLookupAt;
+        Vector3 probeStart;
+        bool turnLatched;
+
+        void LateUpdate()
+        {
+            if (rig == null || rig.Camera == null || QuestLookSimulation.Enabled) return;
+            if (Time.unscaledTime >= flowLookupAt) { flow = FindFirstObjectByType<EmergencyVR.UI.TrainingExperience>(); flowLookupAt = Time.unscaledTime + 1; }
+            if (flow != null && flow.BlocksWorldInput) { moveProbe = turnProbe = 0; return; }
+            var left = Stick(XRNode.LeftHand); var right = Stick(XRNode.RightHand);
+            var t = rig.transform; float dt = Mathf.Min(Time.deltaTime, .05f);
+
+            if (FallbackMoveActive) FallbackMove(left, dt);
+            else if (left.magnitude > .45f)
+            {
+                if (moveProbe <= 0) probeStart = t.position;
+                moveProbe += dt;
+                if (moveProbe > .6f)
+                {
+                    var moved = t.position - probeStart; moved.y = 0;
+                    bool againstWall = body != null && (body.collisionFlags & CollisionFlags.Sides) != 0;
+                    if (moved.magnitude < .03f && !againstWall) { FallbackMoveActive = true; Debug.LogWarning("VITAL VR: stick locomotion fallback enabled."); }
+                    moveProbe = 0;
+                }
+            }
+            else moveProbe = 0;
+
+            if (FallbackTurnActive) FallbackTurn(right.x);
+            else if (Mathf.Abs(right.x) > .75f && Mathf.Abs(right.y) < .5f)
+            {
+                if (turnProbe <= 0) probeYaw = t.eulerAngles.y;
+                turnProbe += dt;
+                if (turnProbe > .7f)
+                {
+                    if (Mathf.Abs(Mathf.DeltaAngle(probeYaw, t.eulerAngles.y)) < 1f) { FallbackTurnActive = true; Debug.LogWarning("VITAL VR: snap turn fallback enabled."); }
+                    turnProbe = 0;
+                }
+            }
+            else turnProbe = 0;
+        }
+
+        void FallbackMove(Vector2 stick, float dt)
+        {
+            if (stick.magnitude < .2f) { if (body != null && body.enabled) body.SimpleMove(Vector3.zero); return; }
+            var head = rig.Camera.transform;
+            var forward = Vector3.ProjectOnPlane(head.forward, Vector3.up).normalized;
+            var right = Vector3.ProjectOnPlane(head.right, Vector3.up).normalized;
+            var velocity = (forward * stick.y + right * stick.x) * WalkSpeed * Mathf.Clamp01(stick.magnitude);
+            if (body != null && body.enabled) body.SimpleMove(velocity);
+            else rig.transform.position += velocity * dt;
+        }
+
+        void FallbackTurn(float x)
+        {
+            if (Mathf.Abs(x) < .3f) { turnLatched = false; return; }
+            if (turnLatched || Mathf.Abs(x) < .75f) return;
+            turnLatched = true;
+            rig.transform.RotateAround(rig.Camera.transform.position, Vector3.up, 30f * Mathf.Sign(x));
+        }
+
+        static Vector2 Stick(XRNode node)
+        {
+            var device = InputDevices.GetDeviceAtXRNode(node);
+            return device.isValid && device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out var value) ? value : Vector2.zero;
+        }
         readonly System.Collections.Generic.HashSet<Collider> passThrough = new System.Collections.Generic.HashSet<Collider>();
         float passThroughAt;
         void Update()
