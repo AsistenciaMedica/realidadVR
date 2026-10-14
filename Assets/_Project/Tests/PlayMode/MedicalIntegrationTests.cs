@@ -38,7 +38,10 @@ namespace EmergencyVR.Tests
                 Assert.That(aed.CanBeGrabbed, Is.True);
                 Assert.That(review.Procedures.Visuals.ChestAnchor, Is.SameAs(chest));
                 var shelf = module.Find(environment == "football" || environment == "street" ? "First aid station shelf collider" : "AED cabinet shelf collider").GetComponent<Collider>();
-                var shell = aed.transform.Find("AED shell").GetComponent<Renderer>().bounds;
+                // The shell may be the modelled AED (renderers on child nodes) or the primitive fallback.
+                var shellRenderers = aed.transform.Find("AED shell").GetComponentsInChildren<Renderer>();
+                var shell = shellRenderers[0].bounds;
+                foreach (var part in shellRenderers) shell.Encapsulate(part.bounds);
                 var sole = new Vector3(shell.center.x, shell.min.y, shell.center.z);
                 Physics.SyncTransforms();
                 Assert.That(shelf.Raycast(new Ray(sole + Vector3.up * .1f, Vector3.down), out var contact, .2f), Is.True,

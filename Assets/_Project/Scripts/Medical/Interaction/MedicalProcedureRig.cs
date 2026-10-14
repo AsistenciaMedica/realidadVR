@@ -182,14 +182,21 @@ namespace EmergencyVR.Medical.Interaction
             Shape(equipment,"First aid white cross horizontal",new Vector3(.12f,.25f,.203f),new Vector3(.18f,.04f,.01f),white);
             var trayCollider=new GameObject("First aid case physics",typeof(BoxCollider));trayCollider.transform.SetParent(equipment.transform,false);trayCollider.transform.localPosition=new Vector3(.12f,-.012f,0);trayCollider.GetComponent<BoxCollider>().size=new Vector3(.92f,.04f,.46f);
             var caseRoot=new GameObject("Interactive AED");caseRoot.transform.SetParent(equipment.transform,false);caseRoot.transform.localPosition=new Vector3(0,.09f,0);
-            Shape(caseRoot,"AED shell",Vector3.zero,new Vector3(.32f,.12f,.25f),white);
-            Shape(caseRoot,"Rubber trim",new Vector3(0,-.025f,0),new Vector3(.34f,.05f,.27f),navy);
-            var aedLid=Shape(caseRoot,"AED lid",new Vector3(0,.075f,.06f),new Vector3(.32f,.03f,.13f),cyan);AED.Lid=aedLid.transform;
-            Shape(caseRoot,"AED carry handle",new Vector3(0,.08f,.15f),new Vector3(.14f,.025f,.035f),navy);
-            Shape(caseRoot,"AED display glass",new Vector3(-.035f,.067f,-.06f),new Vector3(.215f,.005f,.09f),navy);
+            // Modelled AED (tools/Build-AEDModel.py); the primitive version remains as a fallback.
+            var modelShell=ModelPart(caseRoot,"Body","AED shell");var modelLid=ModelPart(caseRoot,"Lid","AED lid");
+            if(modelShell!=null&&modelLid!=null)AED.Lid=modelLid.transform;
+            else
+            {
+                if(modelShell!=null)Destroy(modelShell);if(modelLid!=null)Destroy(modelLid);
+                Shape(caseRoot,"AED shell",Vector3.zero,new Vector3(.32f,.12f,.25f),white);
+                Shape(caseRoot,"Rubber trim",new Vector3(0,-.025f,0),new Vector3(.34f,.05f,.27f),navy);
+                var aedLid=Shape(caseRoot,"AED lid",new Vector3(0,.075f,.06f),new Vector3(.32f,.03f,.13f),cyan);AED.Lid=aedLid.transform;
+                Shape(caseRoot,"AED carry handle",new Vector3(0,.08f,.15f),new Vector3(.14f,.025f,.035f),navy);
+                Shape(caseRoot,"AED display glass",new Vector3(-.035f,.067f,-.06f),new Vector3(.215f,.005f,.09f),navy);
+                Shape(caseRoot,"Shock button",new Vector3(.09f,.075f,-.06f),new Vector3(.04f,.025f,.04f),red);
+            }
             AED.Display=Display(caseRoot,"AED screen",new Vector3(-.035f,.071f,-.06f),.022f);AED.Display.transform.localRotation=Quaternion.Euler(90,0,0);
             MedicalDeviceTextFit.Fit(AED.Display,.185f,.065f);
-            Shape(caseRoot,"Shock button",new Vector3(.09f,.075f,-.06f),new Vector3(.04f,.025f,.04f),red);
             AddTool(caseRoot,MedicalToolKind.AED,new Vector3(.36f,.16f,.3f));AED.Device=caseRoot.transform;
             Pad(true,new Vector3(-.35f,.04f,0));Pad(false,new Vector3(-.48f,.04f,0));
             Instrument("Tensiómetro",MedicalToolKind.BloodPressure,new Vector3(.38f,.035f,0),new Vector3(.14f,.045f,.1f),white);
@@ -207,7 +214,12 @@ namespace EmergencyVR.Medical.Interaction
         void Pad(bool right,Vector3 position)
         {
             var go=new GameObject(right?"AED right upper pad":"AED left lateral pad");go.transform.SetParent(equipment.transform,false);go.transform.localPosition=position;
-            Shape(go,"Electrode",Vector3.zero,new Vector3(.09f,.008f,.12f),white);Shape(go,"Peel backing",new Vector3(0,.006f,0),new Vector3(.087f,.005f,.117f),cyan);
+            var electrode=ModelPart(go,"PadElectrode","Electrode");var backing=ModelPart(go,"PadBacking","Peel backing");
+            if(electrode==null||backing==null)
+            {
+                if(electrode!=null)Destroy(electrode);if(backing!=null)Destroy(backing);
+                Shape(go,"Electrode",Vector3.zero,new Vector3(.09f,.008f,.12f),white);Shape(go,"Peel backing",new Vector3(0,.006f,0),new Vector3(.087f,.005f,.117f),cyan);
+            }
             var label=Display(go,right?"R":"L",new Vector3(0,.009f,0),.025f);label.text=right?"R":"L";label.transform.localRotation=Quaternion.Euler(90,0,0);
             MedicalDeviceTextFit.Fit(label,.032f,.04f);
             var tool=AddTool(go,right?MedicalToolKind.RightPad:MedicalToolKind.LeftPad,new Vector3(.1f,.025f,.13f));AED.RegisterPad(tool,right);
@@ -226,6 +238,22 @@ namespace EmergencyVR.Medical.Interaction
             var collider=go.AddComponent<BoxCollider>();collider.size=size;var body=go.AddComponent<Rigidbody>();body.mass=kind==MedicalToolKind.AED?1.8f:.08f;body.interpolation=RigidbodyInterpolation.Interpolate;body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;
             var grab=go.AddComponent<XRGrabInteractable>();grab.movementType=XRBaseInteractable.MovementType.Kinematic;grab.throwOnDetach=false;grab.useDynamicAttach=true;
             var tool=go.AddComponent<MedicalPhysicalTool>();tool.Initialize(this,kind);tools.Add(tool);return tool;
+        }
+        static GameObject aedModel;static bool aedModelLoaded;
+        /// <summary>Copies one node of Resources/Visual/Equipment/AED (a glTF imported by glTFast) under parent,
+        /// keeping the node's authored pivot; null when the model is not in the build.</summary>
+        GameObject ModelPart(GameObject parent,string node,string name)
+        {
+            if(!aedModelLoaded){aedModelLoaded=true;aedModel=Resources.Load<GameObject>("Visual/Equipment/AED");}
+            if(aedModel==null)return null;
+            Transform source=null;
+            foreach(var t in aedModel.GetComponentsInChildren<Transform>(true))if(t.name==node){source=t;break;}
+            if(source==null)return null;
+            var copy=Instantiate(source.gameObject,parent.transform,false);copy.name=name;
+            copy.transform.localPosition=source.localPosition;copy.transform.localRotation=source.localRotation;copy.transform.localScale=source.localScale;
+            foreach(var collider in copy.GetComponentsInChildren<Collider>(true))Destroy(collider);
+            foreach(var renderer in copy.GetComponentsInChildren<Renderer>(true)){renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.On;renderer.receiveShadows=true;}
+            return copy;
         }
         public GameObject Shape(GameObject parent,string name,Vector3 position,Vector3 scale,Material material)
         {
