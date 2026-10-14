@@ -44,10 +44,14 @@ namespace EmergencyVR.Medical.Interaction
         {
             var config=Manager?.MedicalDefinition?.clinicalV2;
             if(config==null || !config.capabilities.usesObservedPatientData) return true;
+            // Professional exam kit (the client's teams are clinicians): vital-sign instruments in every case.
+            if(IsExamInstrument(kind)) return true;
             var profile=Manager.MedicalSession?.TrainingProfile ?? config.trainingProfiles.First(p=>p.ExportId==config.metadata.trainingProfile);
             var name=kind==MedicalToolKind.Oximeter?"SpO2":kind==MedicalToolKind.RightPad||kind==MedicalToolKind.LeftPad?"AED":kind.ToString();
             return profile.allowedEquipment.Contains(name);
         }
+        public static bool IsExamInstrument(MedicalToolKind kind) =>
+            kind==MedicalToolKind.BloodPressure||kind==MedicalToolKind.Oximeter||kind==MedicalToolKind.Glucose||kind==MedicalToolKind.Stethoscope;
         public bool IsWindows => FindFirstObjectByType<EmergencyVR.Desktop.DesktopDemoController>()!=null;
         readonly List<Material> materials=new List<Material>();
         readonly List<MedicalPhysicalTool> tools=new List<MedicalPhysicalTool>();
@@ -99,7 +103,8 @@ namespace EmergencyVR.Medical.Interaction
             ResetTools();AED.ResetAttempt();CPR.ResetAttempt();CPR.SetWindowsEngaged(false);Choking.ResetAttempt();RestoreSceneryAED();
             bool medical=Review.Selected.medical!=null;
             bool initialResponder=medical&&Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true;
-            foreach(Transform child in equipment.transform)child.gameObject.SetActive(!initialResponder);
+            // The bag is visible in every case; each instrument is then shown only when the case allows it.
+            foreach(Transform child in equipment.transform)child.gameObject.SetActive(true);
             equipment.SetActive(medical);if(airway!=null)airway.SetActive(medical);
             foreach(var tool in tools) tool.gameObject.SetActive(medical && AllowsEquipment(tool.Kind));
             if(medical && Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true && airway!=null) airway.SetActive(false);
@@ -125,6 +130,7 @@ namespace EmergencyVR.Medical.Interaction
                 communicationStand.SetActive(true);communicationStand.transform.position=new Vector3(-1.8f,0,2.8f);
                 foreach(var tool in tools)if(tool.Kind==MedicalToolKind.Phone)tool.transform.position=communicationStand.transform.position+new Vector3(0,.90f,0);
             }
+            DecorateAEDCabinet(anchor==null?null:anchor.transform.parent);
             var scenery=anchor==null?null:anchor.transform.parent.Find("Reused medical equipment/DefibrillatorPlaceholder");
             if(scenery!=null){hiddenSceneryAED=scenery.gameObject;hiddenSceneryWasActive=hiddenSceneryAED.activeSelf;hiddenSceneryAED.SetActive(false);}
             Hint=Review.Selected.medical.clinicalV2?.capabilities.usesObservedPatientData==true?"Habla con el paciente y registra tus observaciones.":"E: coger/soltar · Q: usar equipo · C: RCP manual";
@@ -163,6 +169,7 @@ namespace EmergencyVR.Medical.Interaction
                     case MedicalToolKind.Oximeter: position = new Vector3(.29f, .035f, .10f); break;
                     case MedicalToolKind.Glucose: position = new Vector3(.43f, .035f, .10f); break;
                     case MedicalToolKind.Phone: position = new Vector3(.44f, .025f, -.10f); break;
+                    case MedicalToolKind.Stethoscope: position = new Vector3(.27f, .03f, -.12f); break;
                     case MedicalToolKind.AutoInjector: position = new Vector3(.07f, .03f, -.10f); break;
                     default: position = new Vector3(.25f, .04f, -.10f); break;
                 }
@@ -204,6 +211,7 @@ namespace EmergencyVR.Medical.Interaction
             Instrument("Pulsioxímetro",MedicalToolKind.Oximeter,new Vector3(.58f,.035f,0),new Vector3(.055f,.045f,.075f),cyan);
             Instrument("Glucómetro",MedicalToolKind.Glucose,new Vector3(.72f,.035f,0),new Vector3(.07f,.03f,.11f),navy);
             Instrument("Teléfono de emergencias",MedicalToolKind.Phone,new Vector3(.86f,.025f,0),new Vector3(.07f,.018f,.14f),navy);
+            Stethoscope(new Vector3(.27f,.03f,-.12f));
             Instrument("Autoinyector de entrenamiento",MedicalToolKind.AutoInjector,new Vector3(-.7f,.03f,0),new Vector3(.035f,.035f,.16f),cyan);
             Instrument("Vendaje",MedicalToolKind.Bandage,new Vector3(-.86f,.03f,0),new Vector3(.09f,.06f,.07f),white);
             airway=new GameObject("Airway interaction");airway.transform.SetParent(Visuals.ChinAnchor,false);airway.transform.localPosition=Vector3.zero;
@@ -234,6 +242,25 @@ namespace EmergencyVR.Medical.Interaction
             var tool=AddTool(root,kind,size+Vector3.one*.02f);tool.Display=Display(root,"Reading",new Vector3(0,size.y*.65f,0),.008f);tool.Display.transform.localRotation=Quaternion.Euler(90,0,0);tool.Display.text=kind==MedicalToolKind.Phone?"SOS":"--";
             MedicalDeviceTextFit.Fit(tool.Display,size.x*.65f,size.z*.48f);
         }
+        void Stethoscope(Vector3 position)
+        {
+            var root=new GameObject("Fonendoscopio");root.transform.SetParent(equipment.transform,false);root.transform.localPosition=position;
+            GameObject Disc(string name,Vector3 at,Vector3 scale,Material material)
+            {
+                var go=GameObject.CreatePrimitive(PrimitiveType.Cylinder);go.name=name;go.transform.SetParent(root.transform,false);
+                go.transform.localPosition=at;go.transform.localScale=scale;Destroy(go.GetComponent<Collider>());
+                go.GetComponent<Renderer>().sharedMaterial=material;return go;
+            }
+            Disc("Diaphragm",Vector3.zero,new Vector3(.046f,.004f,.046f),metal);
+            Disc("Diaphragm membrane",new Vector3(0,-.0045f,0),new Vector3(.04f,.001f,.04f),white);
+            Disc("Bell",new Vector3(0,.008f,0),new Vector3(.024f,.006f,.024f),metal);
+            Disc("Stem",new Vector3(0,.016f,.012f),new Vector3(.008f,.012f,.008f),metal);
+            var tubing=new GameObject("Tubing",typeof(LineRenderer));tubing.transform.SetParent(root.transform,false);
+            var line=tubing.GetComponent<LineRenderer>();line.sharedMaterial=navy;line.startWidth=line.endWidth=.007f;line.numCornerVertices=3;line.useWorldSpace=true;
+            line.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+            root.AddComponent<StethoscopeTubing>().Initialize(line,metal);
+            AddTool(root,MedicalToolKind.Stethoscope,new Vector3(.07f,.04f,.07f));
+        }
         MedicalPhysicalTool AddTool(GameObject go,MedicalToolKind kind,Vector3 size)
         {
             var collider=go.AddComponent<BoxCollider>();collider.size=size;var body=go.AddComponent<Rigidbody>();body.mass=kind==MedicalToolKind.AED?1.8f:.08f;body.interpolation=RigidbodyInterpolation.Interpolate;body.collisionDetectionMode=CollisionDetectionMode.ContinuousSpeculative;
@@ -263,6 +290,23 @@ namespace EmergencyVR.Medical.Interaction
         public TextMesh Display(GameObject parent,string label,Vector3 position,float size)
         {
             var go=new GameObject(label,typeof(TextMesh));go.transform.SetParent(parent.transform,false);go.transform.localPosition=position;var text=go.GetComponent<TextMesh>();text.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");text.characterSize=size;text.fontSize=32;text.anchor=TextAnchor.MiddleCenter;text.color=new Color(.45f,.9f,.83f);go.GetComponent<MeshRenderer>().sharedMaterial=text.font.material;return text;
+        }
+        // The wall cabinet signed "DEA" looked broken empty. When the case has no interactive AED, a closed modelled
+        // AED rests on its shelf (decoration only: no collider, not grabbable).
+        GameObject cabinetAED;
+        void DecorateAEDCabinet(Transform environment)
+        {
+            if(cabinetAED!=null){Destroy(cabinetAED);cabinetAED=null;}
+            if(environment==null || AllowsEquipment(MedicalToolKind.AED))return;
+            Transform shelf=null;
+            foreach(var t in environment.GetComponentsInChildren<Transform>(true))if(t.name=="AED cabinet shelf collider"){shelf=t;break;}
+            if(shelf==null)return;
+            var holder=new GameObject("Cabinet AED");holder.transform.SetParent(shelf,false);
+            var body=ModelPart(holder,"Body","Cabinet AED body");var lid=ModelPart(holder,"Lid","Cabinet AED lid");
+            if(body==null){Destroy(holder);return;}
+            // Shelf box is 3.5 cm thick; the AED sole is 6 cm below its origin.
+            holder.transform.localPosition=new Vector3(0,.0175f+.06f,0);holder.transform.localRotation=Quaternion.identity;
+            cabinetAED=holder;
         }
         void RestoreSceneryAED(){if(hiddenSceneryAED!=null)hiddenSceneryAED.SetActive(hiddenSceneryWasActive);hiddenSceneryAED=null;}
         void OnDestroy(){RestoreSceneryAED();if(airway!=null)Destroy(airway);if(Review!=null){Review.SelectionChanged-=Selected;if(Review.Manager!=null)Review.Manager.Changed-=StateChanged;}foreach(var material in materials)Destroy(material);}

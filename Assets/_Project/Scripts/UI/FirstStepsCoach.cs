@@ -98,8 +98,10 @@ namespace EmergencyVR.UI
 
         void Begin()
         {
-            started = true; visible = true; trainingSince = Time.unscaledTime;
             desktopMode = desktop != null;
+            // Quest: the floating card was hard to read and sat in the scene; the controls tutorial covers VR.
+            if (!desktopMode) { completedThisRun = true; return; }
+            started = true; visible = true; trainingSince = Time.unscaledTime;
             var mover = Mover();
             startPosition = mover == null ? Vector3.zero : mover.position;
             lastYaw = mover == null ? 0 : mover.eulerAngles.y;

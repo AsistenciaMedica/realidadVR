@@ -43,7 +43,8 @@ namespace EmergencyVR.UI
                 wristGroup = surface.GetComponent<CanvasGroup>();
                 if (wristGroup == null) wristGroup = surface.gameObject.AddComponent<CanvasGroup>();
             }
-            if (!WristPanelRequested) { UpdateFollowingSidePanel(); return; }
+            // The panel stays where it is placed (B / Y re-places it); it no longer follows the learner.
+            if (!WristPanelRequested) { SetWristVisibility(1); return; }
             bool wanted = UsesSidePanel && !QuestLookSimulation.Enabled && TryLeftHand(out var hand, out _);
             if (!wanted)
             {

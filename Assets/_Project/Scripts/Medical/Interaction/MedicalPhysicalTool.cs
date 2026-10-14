@@ -6,7 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace EmergencyVR.Medical.Interaction
 {
-    public enum MedicalToolKind { AED, RightPad, LeftPad, BloodPressure, Oximeter, Glucose, Phone, AutoInjector, Bandage }
+    public enum MedicalToolKind { AED, RightPad, LeftPad, BloodPressure, Oximeter, Glucose, Phone, AutoInjector, Bandage, Stethoscope }
 
     public sealed class MedicalPhysicalTool : MonoBehaviour
     {
@@ -42,12 +42,13 @@ namespace EmergencyVR.Medical.Interaction
                     case MedicalToolKind.AutoInjector: return rig.Visuals.ThighAnchor;
                     case MedicalToolKind.Bandage: return rig.Visuals.WoundAnchor;
                     case MedicalToolKind.Oximeter: case MedicalToolKind.Glucose: return rig.Visuals.FingerAnchor;
+                    case MedicalToolKind.Stethoscope: return rig.Visuals.ChestAnchor;
                     default: return null;
                 }
             }
         }
         /// <summary>Release distance within which the instrument attaches to <see cref="PlacementTarget"/>.</summary>
-        public float PlacementRadius => IsPad && rig != null && rig.Settings != null ? (float)rig.Settings.padSnapDistance : .14f;
+        public float PlacementRadius => Kind == MedicalToolKind.Stethoscope ? .12f : IsPad && rig != null && rig.Settings != null ? (float)rig.Settings.padSnapDistance : .14f;
 
         public void Initialize(MedicalProcedureRig rig, MedicalToolKind kind)
         {
@@ -146,6 +147,8 @@ namespace EmergencyVR.Medical.Interaction
                     rig.Hint = "Suelta el parche dentro del recuadro marcado sobre el pecho.";
                 Drop(); return false;
             }
+            // The stethoscope is listened to while held on the chest; releasing it puts it back in the bag.
+            if (Kind == MedicalToolKind.Stethoscope) { ResetTool(); return false; }
             if (rig.Manager == null || !rig.Manager.AcceptsInput || rig.Manager.MedicalSession == null ||
                 Kind == MedicalToolKind.Phone || Kind == MedicalToolKind.AED)
             { Drop(); return false; }
@@ -215,13 +218,20 @@ namespace EmergencyVR.Medical.Interaction
                 Kind == MedicalToolKind.Oximeter ? "CheckSpO2" :
                 Kind == MedicalToolKind.Glucose ? "CheckGlucose" :
                 Kind == MedicalToolKind.Bandage ? "ApplyBandage" : "UseEpinephrineAutoInjector";
-            bool accepted = rig.SubmitNext(action);
+            // Clinical v2 cases (Daniel) have no scored measurement actions: the professional exam kit still reads the
+            // simulated patient and shows the value, without changing the evaluation.
+            bool examOnly = rig.Manager.MedicalSession.Capabilities.usesObservedPatientData;
+            bool accepted = examOnly || rig.SubmitNext(action);
             var p = attempt.Patient;
             if (Display != null)
                 Display.text = !accepted ? "REVISAR" :
                     Kind == MedicalToolKind.BloodPressure ? (p.circulation == "pulseless" ? "SIN LECTURA" : $"{p.systolic:0}/{p.diastolic:0}") :
                     Kind == MedicalToolKind.Oximeter ? (p.circulation == "pulseless" ? "SIN LECTURA" : $"SpO2 {p.spo2:0}%") :
                     Kind == MedicalToolKind.Glucose ? $"{p.glucose:0.0}\nmmol/L" : "OK";
+            if (accepted && Display != null)
+                rig.HandsOn?.Announce(transform.position, Kind == MedicalToolKind.BloodPressure ? "Tensión arterial: " + Display.text + " mmHg" :
+                    Kind == MedicalToolKind.Oximeter ? Display.text + "  ·  pulso " + (p.circulation == "pulseless" ? "—" : p.heartRate.ToString("0")) + " lpm" :
+                    Kind == MedicalToolKind.Glucose ? "Glucemia: " + Display.text.Replace("\n", " ") : Display.text);
             if (accepted)
             {
                 rig.RecordMeasurement(Kind, p);

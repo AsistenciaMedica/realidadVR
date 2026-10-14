@@ -39,6 +39,8 @@ namespace EmergencyVR.Medical.Interaction
             public bool VrHeadClose;
             /// <summary>Windows: while held, the view leans down to the patient's face looking along the chest.</summary>
             public bool DesktopLean;
+            /// <summary>Quest: done by keeping the hand still on the zone (for example two fingers on the wrist).</summary>
+            public bool VrDwell;
         }
 
         public sealed class Zone
@@ -162,6 +164,30 @@ namespace EmergencyVR.Medical.Interaction
             return Vector3.Lerp(chest.Value, head.Value, .55f);
         }
 
+        Vector3? WristPoint()
+        {
+            var finger = rig.Visuals == null ? null : rig.Visuals.FingerAnchor;
+            if (finger == null) return null;
+            // Radial pulse: a few centimetres from the fingertip anchor towards the forearm.
+            var upper = rig.Visuals.UpperArmAnchor;
+            return upper == null ? finger.position : Vector3.MoveTowards(finger.position, upper.position, .09f);
+        }
+
+        /// <summary>Palpating the pulse is an examination: it shows what the fingers feel and is not scored.</summary>
+        ZoneAction PulseAction()
+        {
+            var session = rig.Manager?.MedicalSession; if (session == null) return null;
+            return new ZoneAction { Label = "Tomar el pulso radial: dos dedos en la muñeca", HoldSeconds = 4f, Reach = 1.3f, VrDwell = true,
+                Perform = () =>
+                {
+                    var p = rig.Manager.MedicalSession.Patient;
+                    string text = p.circulation == "pulseless" || p.heartRate <= 0 ? "No se palpa pulso radial." :
+                        "Pulso radial: " + p.heartRate.ToString("0") + " lpm, " + (p.heartRate > 100 ? "rápido" : p.heartRate < 60 ? "lento" : "rítmico") +
+                        (p.systolic > 0 && p.systolic < 90 ? ", débil." : ", lleno.");
+                    Bubble(WristPoint, text); Pulse(.1f, .04f);
+                } };
+        }
+
         Vector3? BackPoint()
         {
             if (rig.Visuals == null || rig.Choking == null || !rig.Choking.IsChokingCase) return null;
@@ -183,6 +209,7 @@ namespace EmergencyVR.Medical.Interaction
             zones.Add(new Zone { Id = "chest", OnPatient = true, Radius = .13f, Position = ChestPoint, Current = ChestAction });
             zones.Add(new Zone { Id = "head", OnPatient = true, Radius = .1f, Position = HeadPoint, Current = HeadAction });
             zones.Add(new Zone { Id = "back", OnPatient = true, Radius = .13f, Position = BackPoint, Current = BackAction });
+            zones.Add(new Zone { Id = "pulse", OnPatient = true, Radius = .07f, Position = WristPoint, Current = PulseAction });
             zones.Add(new Zone { Id = "aed-lid", Radius = .07f, Position = () => DevicePoint(new Vector3(0, .075f, .06f)), Current = () => AEDAction("lid") });
             zones.Add(new Zone { Id = "aed-power", Radius = .035f, Position = () => DevicePoint(new Vector3(.09f, .066f, -.005f)), Current = () => AEDAction("power") });
             zones.Add(new Zone { Id = "aed-shock", Radius = .04f, Position = () => DevicePoint(new Vector3(.09f, .07f, -.06f)), Current = () => AEDAction("shock") });
@@ -305,7 +332,7 @@ namespace EmergencyVR.Medical.Interaction
 
         ZoneAction ToolAction(MedicalToolKind kind)
         {
-            if (V2) return null;
+            if (V2 && !MedicalProcedureRig.IsExamInstrument(kind)) return null;
             var tool = Tool(kind);
             if (tool == null || tool.IsPrepared || tool.IsAttached) return null;
             bool pad = kind == MedicalToolKind.RightPad || kind == MedicalToolKind.LeftPad;
@@ -486,7 +513,7 @@ namespace EmergencyVR.Medical.Interaction
                     shakeTravel *= Mathf.Exp(-Time.deltaTime * 1.5f);
                 }
                 else shakeTravel = 0;
-                anyPressed = value > .6f || shakeTravel > .16f;
+                anyPressed = value > .6f || shakeTravel > .16f || bestAction.VrDwell;
                 anyStarted = anyPressed && !holding && !waitRelease;
             }
             Drive(anyStarted, anyPressed);
@@ -558,6 +585,64 @@ namespace EmergencyVR.Medical.Interaction
 
         // ---------------------------------------------------------------- feedback in the world
 
+        /// <summary>Shows a reading or finding next to where it was obtained (instrument screen, stethoscope...).</summary>
+        public void Announce(Vector3 at, string text) => Bubble(() => at, text);
+
+        // ---------------------------------------------------------------- stethoscope
+        AudioSource heart; AudioClip heartClip; int heartClipRate; float listening; bool listenedReported;
+        void UpdateStethoscope(MedicalPhysicalTool held)
+        {
+            bool onChest = false;
+            if (held != null && held.Kind == MedicalToolKind.Stethoscope && held.PlacementTarget != null && Active)
+                onChest = Vector3.Distance(held.transform.position, held.PlacementTarget.position) <= held.PlacementRadius;
+            if (!onChest)
+            {
+                listening = 0; listenedReported = false;
+                if (heart != null && heart.isPlaying) heart.Stop();
+                return;
+            }
+            var p = rig.Manager.MedicalSession.Patient;
+            bool beats = p.circulation != "pulseless" && p.heartRate > 0;
+            listening += Time.deltaTime;
+            if (beats)
+            {
+                int rate = Mathf.Clamp(Mathf.RoundToInt((float)p.heartRate), 30, 200);
+                if (heart == null) { heart = gameObject.AddComponent<AudioSource>(); heart.loop = true; heart.spatialBlend = 0; heart.volume = .9f; heart.playOnAwake = false; }
+                if (heartClip == null || heartClipRate != rate) { if (heartClip != null) Destroy(heartClip); heartClip = HeartbeatClip(rate); heartClipRate = rate; heart.clip = heartClip; heart.Play(); }
+                if (!heart.isPlaying) heart.Play();
+            }
+            else if (heart != null && heart.isPlaying) heart.Stop();
+            if (!listenedReported && listening > 2.5f)
+            {
+                listenedReported = true;
+                Bubble(() => held.PlacementTarget.position, beats
+                    ? "Ruidos cardíacos rítmicos, " + p.heartRate.ToString("0") + " lpm.\n" + Breathing()
+                    : "No se auscultan latidos.\n" + Breathing());
+            }
+        }
+
+        /// <summary>One "lub-dub" cycle at the given heart rate, generated (no recorded clinical audio is claimed).</summary>
+        static AudioClip HeartbeatClip(int beatsPerMinute)
+        {
+            const int sampleRate = 22050;
+            int length = Mathf.RoundToInt(sampleRate * 60f / beatsPerMinute);
+            var data = new float[length];
+            void Thump(float at, float frequency, float duration, float gain)
+            {
+                int start = Mathf.RoundToInt(at * sampleRate), count = Mathf.RoundToInt(duration * sampleRate);
+                for (int i = 0; i < count && start + i < length; i++)
+                {
+                    float t = i / (float)sampleRate, envelope = Mathf.Sin(Mathf.PI * i / count);
+                    data[start + i] += Mathf.Sin(2 * Mathf.PI * frequency * t) * envelope * envelope * gain;
+                }
+            }
+            Thump(0f, 52f, .11f, .9f);     // S1 "lub"
+            Thump(.30f * 60f / Mathf.Max(60, beatsPerMinute), 68f, .08f, .65f); // S2 "dub", closer at high rates
+            var clip = AudioClip.Create("Generated heartbeat " + beatsPerMinute, length, 1, sampleRate, false);
+            clip.SetData(data, 0);
+            return clip;
+        }
+
         void Bubble(Func<Vector3?> anchor, string text)
         {
             if (string.IsNullOrEmpty(text)) return;
@@ -617,6 +702,7 @@ namespace EmergencyVR.Medical.Interaction
 
             // Placement guide for the instrument in hand: where it goes, green once it will attach on release.
             var heldTool = HeldTool();
+            UpdateStethoscope(heldTool);
             var target = heldTool == null ? null : heldTool.PlacementTarget;
             placementRing.enabled = active && target != null;
             if (placementRing.enabled)
@@ -632,7 +718,8 @@ namespace EmergencyVR.Medical.Interaction
             label.gameObject.SetActive(showLabel);
             if (showLabel)
             {
-                string how = hoveredAction.VrHeadClose ? "\n(acerca tu cara a la suya)" : hoveredAction.VrShake ? "\n(mueve la mano sobre su hombro o gatillo)" : hoveredAction.Perform != null ? "\n(gatillo)" : "";
+                string how = hoveredAction.VrHeadClose ? "\n(acerca tu cara a la suya)" : hoveredAction.VrShake ? "\n(mueve la mano sobre su hombro o gatillo)" :
+                    hoveredAction.VrDwell ? "\n(deja la mano quieta)" : hoveredAction.Perform != null ? "\n(gatillo)" : "";
                 label.text = Wrap(hoveredAction.Label, 30) + how; labelShadow.text = label.text;
                 Billboard(label, hoveredPoint + Vector3.up * (hovered.Radius + .07f), eye);
             }
@@ -785,6 +872,7 @@ namespace EmergencyVR.Medical.Interaction
 
         void OnDestroy()
         {
+            if (heartClip != null) Destroy(heartClip);
             foreach (var m in new[] { accent, warning, progress, dim, placed }) if (m != null) Destroy(m);
         }
     }

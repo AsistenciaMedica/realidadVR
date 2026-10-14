@@ -77,7 +77,9 @@ namespace EmergencyVR.Tests
             Assert.That(meter.IsAttached, Is.False);
             Assert.That(meter.transform.parent, Is.EqualTo(originalParent));
             Assert.That(Vector3.Distance(meter.transform.localPosition, originalLocalPosition), Is.LessThan(.0001f));
-            Assert.That(meter.gameObject.activeInHierarchy, Is.False, "The old instrument must leave the patient with its kit.");
+            // The exam kit stays available in every medical case; it is hidden only where the case forbids it.
+            Assert.That(meter.gameObject.activeInHierarchy, Is.EqualTo(review.Selected.medical != null && rig.AllowsEquipment(MedicalToolKind.Glucose)),
+                "The old instrument must be back in its kit, visible only when the selected case allows it.");
             yield return Acquisition();
             Assert.That(meter.Display.text, Is.EqualTo("--"));
             Assert.That(rig.Measurements, Is.Zero);

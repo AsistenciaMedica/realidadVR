@@ -34,6 +34,19 @@ Además:
 - Un clic sobre una zona ya **no registra además «Comprobar respuesta»**, que antes se enviaba con
   cualquier clic sobre el cuerpo.
 
+## Exploración con instrumentos (también con Daniel)
+
+- El maletín está en todos los casos con **tensiómetro, pulsioxímetro, glucómetro y fonendoscopio**. En el caso
+  de Daniel no cuentan en la evaluación V2 (que no tiene acciones de medida), pero leen al paciente simulado y
+  muestran el valor en el aparato y junto a él.
+- **Fonendoscopio:** cógelo y apóyalo en el pecho (el anillo se pone verde). Se oye el latido generado a la
+  frecuencia cardíaca del paciente y a los 2,5 s aparece «Ruidos cardíacos rítmicos, N lpm» y la respiración.
+  El tubo va del diafragma a tus oídos mientras lo sostienes; al soltarlo vuelve al maletín.
+- **Pulso radial:** mano sobre la muñeca 4 s (Quest: dejarla quieta; Windows: mantener clic). Muestra lpm,
+  ritmo y si es débil (sistólica < 90).
+- El armario del DEA de la pared ya no está vacío cuando el caso no usa DEA: lleva un DEA cerrado decorativo.
+- Quest: el panel vuelve a quedarse fijo (B / Y lo recoloca) y la tarjeta de primeros pasos ya no aparece.
+
 ## Gestos reales
 
 - **Quest, comprobar si responde:** mano sobre su hombro y moverla (sacudir o dar golpecitos) durante 1 s;
