@@ -49,7 +49,15 @@ namespace EmergencyVR.Medical.Interaction
             public bool OnPatient;
             public float Radius;
             public Func<Vector3?> Position;
-            public Func<ZoneAction> Current;
+            public Func<ZoneAction> Evaluate;
+            ZoneAction cached; float cachedAt = -1;
+            /// <summary>Action available now; re-evaluated at most 10 times per second (Quest garbage collector).</summary>
+            public ZoneAction Current()
+            {
+                if (Time.unscaledTime - cachedAt > .1f) { cached = Evaluate(); cachedAt = Time.unscaledTime; }
+                return cached;
+            }
+            public void Invalidate() => cachedAt = -1;
         }
 
         const float BubbleSeconds = 4f, VrTouchMargin = .07f, HintDistance = 2.6f;
@@ -205,18 +213,19 @@ namespace EmergencyVR.Medical.Interaction
 
         void DefineZones()
         {
-            zones.Add(new Zone { Id = "shoulders", OnPatient = true, Radius = .12f, Position = ShoulderPoint, Current = ShoulderAction });
-            zones.Add(new Zone { Id = "chest", OnPatient = true, Radius = .13f, Position = ChestPoint, Current = ChestAction });
-            zones.Add(new Zone { Id = "head", OnPatient = true, Radius = .1f, Position = HeadPoint, Current = HeadAction });
-            zones.Add(new Zone { Id = "back", OnPatient = true, Radius = .13f, Position = BackPoint, Current = BackAction });
-            zones.Add(new Zone { Id = "pulse", OnPatient = true, Radius = .07f, Position = WristPoint, Current = PulseAction });
-            zones.Add(new Zone { Id = "aed-lid", Radius = .07f, Position = () => DevicePoint(new Vector3(0, .075f, .06f)), Current = () => AEDAction("lid") });
-            zones.Add(new Zone { Id = "aed-power", Radius = .035f, Position = () => DevicePoint(new Vector3(.09f, .066f, -.005f)), Current = () => AEDAction("power") });
-            zones.Add(new Zone { Id = "aed-shock", Radius = .04f, Position = () => DevicePoint(new Vector3(.09f, .07f, -.06f)), Current = () => AEDAction("shock") });
-            foreach (var kind in new[] { MedicalToolKind.RightPad, MedicalToolKind.LeftPad, MedicalToolKind.Oximeter, MedicalToolKind.Glucose, MedicalToolKind.BloodPressure })
+            zones.Add(new Zone { Id = "shoulders", OnPatient = true, Radius = .12f, Position = ShoulderPoint, Evaluate = ShoulderAction });
+            zones.Add(new Zone { Id = "chest", OnPatient = true, Radius = .13f, Position = ChestPoint, Evaluate = ChestAction });
+            zones.Add(new Zone { Id = "head", OnPatient = true, Radius = .1f, Position = HeadPoint, Evaluate = HeadAction });
+            zones.Add(new Zone { Id = "back", OnPatient = true, Radius = .13f, Position = BackPoint, Evaluate = BackAction });
+            zones.Add(new Zone { Id = "pulse", OnPatient = true, Radius = .07f, Position = WristPoint, Evaluate = PulseAction });
+            zones.Add(new Zone { Id = "aed-lid", Radius = .07f, Position = () => DevicePoint(new Vector3(0, .075f, .06f)), Evaluate = () => AEDAction("lid") });
+            zones.Add(new Zone { Id = "aed-power", Radius = .035f, Position = () => DevicePoint(new Vector3(.09f, .066f, -.005f)), Evaluate = () => AEDAction("power") });
+            zones.Add(new Zone { Id = "aed-shock", Radius = .04f, Position = () => DevicePoint(new Vector3(.09f, .07f, -.06f)), Evaluate = () => AEDAction("shock") });
+            // Measuring instruments prepare themselves when picked up; only the AED pads keep an explicit step (peel the liner).
+            foreach (var kind in new[] { MedicalToolKind.RightPad, MedicalToolKind.LeftPad })
             {
                 var k = kind;
-                zones.Add(new Zone { Id = "tool-" + k, Radius = .06f, Position = () => ToolPoint(k), Current = () => ToolAction(k) });
+                zones.Add(new Zone { Id = "tool-" + k, Radius = .06f, Position = () => ToolPoint(k), Evaluate = () => ToolAction(k) });
             }
         }
 
@@ -513,7 +522,7 @@ namespace EmergencyVR.Medical.Interaction
                     shakeTravel *= Mathf.Exp(-Time.deltaTime * 1.5f);
                 }
                 else shakeTravel = 0;
-                anyPressed = value > .6f || shakeTravel > .16f || bestAction.VrDwell;
+                anyPressed = value > .6f || shakeTravel > .16f || (bestAction.VrDwell && HeldTool() == null);
                 anyStarted = anyPressed && !holding && !waitRelease;
             }
             Drive(anyStarted, anyPressed);
@@ -539,6 +548,9 @@ namespace EmergencyVR.Medical.Interaction
         void SetHover(Zone zone, ZoneAction action, Vector3 point, XRNode? hand)
         {
             bool changed = zone != hovered || (action?.Label != hoveredAction?.Label);
+            // A new zone starts fresh: a press left over from the previous zone (or a dwell/shake that just
+            // completed) must not block it.
+            if (zone != hovered) waitRelease = false;
             if (changed)
             {
                 held = 0; holding = false;
@@ -550,7 +562,7 @@ namespace EmergencyVR.Medical.Interaction
 
         void ClearHover()
         {
-            hovered = null; hoveredAction = null; holding = false; held = 0; Prompt = ""; hoverHand = null;
+            hovered = null; hoveredAction = null; holding = false; held = 0; Prompt = ""; hoverHand = null; waitRelease = false;
         }
 
         void Drive(bool started, bool pressed)
@@ -575,6 +587,7 @@ namespace EmergencyVR.Medical.Interaction
             holding = false; held = 0; waitRelease = true; cooldownUntil = Time.unscaledTime + .35f;
             perform?.Invoke();
             if (perform != null) PerformedCount++;
+            foreach (var zone in zones) zone.Invalidate();
             Pulse(.15f, .05f);
         }
 

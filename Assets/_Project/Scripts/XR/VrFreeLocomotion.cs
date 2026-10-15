@@ -63,7 +63,7 @@ namespace EmergencyVR.XR
         public static bool FallbackMoveActive { get; private set; }
         public static bool FallbackTurnActive { get; private set; }
         EmergencyVR.UI.TrainingExperience flow;
-        float moveProbe, turnProbe, probeYaw, flowLookupAt;
+        float moveProbe, turnProbe, neutralYaw, flowLookupAt;
         Vector3 probeStart;
         bool turnLatched;
 
@@ -90,15 +90,17 @@ namespace EmergencyVR.XR
             }
             else moveProbe = 0;
 
+            // Snap turn happens the instant the stick crosses its threshold, so compare with the heading the
+            // learner had while the stick was still centred, never with the heading after the push.
+            if (Mathf.Abs(right.x) < .3f) neutralYaw = t.eulerAngles.y;
             if (FallbackTurnActive) FallbackTurn(right.x);
             else if (Mathf.Abs(right.x) > .75f && Mathf.Abs(right.y) < .5f)
             {
-                if (turnProbe <= 0) probeYaw = t.eulerAngles.y;
                 turnProbe += dt;
                 if (turnProbe > .7f)
                 {
-                    if (Mathf.Abs(Mathf.DeltaAngle(probeYaw, t.eulerAngles.y)) < 1f) { FallbackTurnActive = true; Debug.LogWarning("VITAL VR: snap turn fallback enabled."); }
-                    turnProbe = 0;
+                    if (Mathf.Abs(Mathf.DeltaAngle(neutralYaw, t.eulerAngles.y)) < 1f) { FallbackTurnActive = true; Debug.LogWarning("VITAL VR: snap turn fallback enabled."); }
+                    turnProbe = -999; // decide once per push
                 }
             }
             else turnProbe = 0;

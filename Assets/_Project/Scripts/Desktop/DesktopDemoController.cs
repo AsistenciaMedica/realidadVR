@@ -36,7 +36,6 @@ namespace EmergencyVR.Desktop
         // Never stuck: the patient and the instruments are not walls, spawn points are checked, and a blocked
         // doctor is moved to the nearest free spot.
         readonly HashSet<Collider> passThrough = new HashSet<Collider>();
-        readonly Collider[] overlaps = new Collider[32];
         float passThroughAt, stuckFor, notice;
         string noticeText = "";
         // Action lean (look, listen and feel): an offset applied after everything else and removed next frame.
@@ -166,10 +165,8 @@ namespace EmergencyVR.Desktop
             if(height<=0) height=Body.height;
             float r=Body.radius;
             var a=feet+Vector3.up*(r+.08f); var b=feet+Vector3.up*Mathf.Max(r+.09f,height-r);
-            int n=Physics.OverlapCapsuleNonAlloc(a,b,r*.95f,overlaps,~0,QueryTriggerInteraction.Ignore);
-            for(int i=0;i<n;i++)
+            foreach(var c in Physics.OverlapCapsule(a,b,r*.95f,~0,QueryTriggerInteraction.Ignore))
             {
-                var c=overlaps[i];
                 if(c==null || c==Body || passThrough.Contains(c) || c.attachedRigidbody!=null && !c.attachedRigidbody.isKinematic) continue;
                 return false;
             }
@@ -323,6 +320,21 @@ namespace EmergencyVR.Desktop
             if(held==null || WorldInputBlocked) return;
             Vector3 target=View.transform.position+View.transform.forward*heldDistance;
             if(Physics.Linecast(View.transform.position,target,out var hit,~0,QueryTriggerInteraction.Ignore) && hit.rigidbody!=held) target=hit.point-View.transform.forward*.035f;
+            // Magnetic placement: looking at the instrument's spot on the patient (arm, finger, chest, pad zone)
+            // brings it there, so E releases it in place. Without this, invisible body colliders could hold the
+            // instrument a few centimetres away and the placement would silently fail.
+            var tool=held.GetComponent<MedicalPhysicalTool>();
+            var spot=tool==null?null:tool.PlacementTarget;
+            if(spot!=null)
+            {
+                var eye=View.transform.position; var look=View.transform.forward;
+                float along=Vector3.Dot(spot.position-eye,look);
+                if(along>.2f && along<1.7f && Vector3.Distance(eye+look*along,spot.position)<.22f)
+                {
+                    target=spot.position;
+                    if(tool.IsPad) held.MoveRotation(Quaternion.Slerp(held.rotation,spot.rotation,.35f));
+                }
+            }
             held.MovePosition(target);
         }
         public bool TryInspect(Ray ray)

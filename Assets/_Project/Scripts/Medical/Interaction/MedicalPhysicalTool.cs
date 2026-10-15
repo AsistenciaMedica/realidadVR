@@ -48,7 +48,7 @@ namespace EmergencyVR.Medical.Interaction
             }
         }
         /// <summary>Release distance within which the instrument attaches to <see cref="PlacementTarget"/>.</summary>
-        public float PlacementRadius => Kind == MedicalToolKind.Stethoscope ? .12f : IsPad && rig != null && rig.Settings != null ? (float)rig.Settings.padSnapDistance : .14f;
+        public float PlacementRadius => Kind == MedicalToolKind.Stethoscope ? .15f : IsPad && rig != null && rig.Settings != null ? (float)rig.Settings.padSnapDistance : .18f;
 
         public void Initialize(MedicalProcedureRig rig, MedicalToolKind kind)
         {
@@ -78,6 +78,16 @@ namespace EmergencyVR.Medical.Interaction
                 if (Display != null) Display.text = "--";
             }
             body.isKinematic = true; body.useGravity = false;
+            // Picking up a measuring instrument already prepares it (clip open, strip loaded, cuff ready): in VR
+            // there is no obvious extra "use" step, and a professional does it while reaching for the patient.
+            if (Kind == MedicalToolKind.BloodPressure || Kind == MedicalToolKind.Oximeter || Kind == MedicalToolKind.Glucose)
+            {
+                prepared = true;
+                var screen = transform.Find("Screen");
+                if (screen != null && Kind == MedicalToolKind.Oximeter) screen.localRotation = Quaternion.Euler(0, 0, 15);
+                if (Display != null && Kind == MedicalToolKind.Glucose) Display.text = "TIRA\nPREPARADA";
+                rig.Hint = "Lleva el instrumento a la zona marcada en el paciente y suéltalo allí.";
+            }
             FeedbackPulse(.1f, .03f, "Grab");
             if (Kind == MedicalToolKind.AED) rig.AED.Grabbed();
         }
@@ -155,7 +165,7 @@ namespace EmergencyVR.Medical.Interaction
             var target = Kind == MedicalToolKind.BloodPressure ? rig.Visuals.UpperArmAnchor :
                 Kind == MedicalToolKind.AutoInjector ? rig.Visuals.ThighAnchor :
                 Kind == MedicalToolKind.Bandage ? rig.Visuals.WoundAnchor : rig.Visuals.FingerAnchor;
-            if (!prepared || target == null || Vector3.Distance(transform.position, target.position) > .14f)
+            if (!prepared || target == null || Vector3.Distance(transform.position, target.position) > PlacementRadius)
             {
                 rig.Hint = !prepared ? "Prepara primero el instrumento (Q, gatillo o clic sobre él) y después llévalo al paciente." :
                     "Suelta el instrumento dentro del círculo marcado en el paciente.";

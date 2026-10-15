@@ -47,6 +47,15 @@ Además:
 - El armario del DEA de la pared ya no está vacío cuando el caso no usa DEA: lleva un DEA cerrado decorativo.
 - Quest: el panel vuelve a quedarse fijo (B / Y lo recoloca) y la tarjeta de primeros pasos ya no aparece.
 
+## Fiabilidad para la demo del 15 de octubre
+
+- Tensiómetro, pulsioxímetro y glucómetro quedan **preparados al cogerlos** (sin paso oculto de «usar»).
+- Tolerancias más amplias: instrumentos 18 cm, fonendoscopio 15 cm, parches 15 cm y 75°.
+- Windows: con un instrumento en la mano, mirar su zona en el paciente lo lleva allí (colocación magnética).
+- Quest: la red de seguridad del giro ya no se activa por error (doblaba el giro).
+- Zonas evaluadas como máximo 10 veces por segundo (sin basura por fotograma en Quest).
+- El horneado de iluminación no se repite al compilar: el archivo del horneador vuelve a su versión anterior.
+
 ## Gestos reales
 
 - **Quest, comprobar si responde:** mano sobre su hombro y moverla (sacudir o dar golpecitos) durante 1 s;
